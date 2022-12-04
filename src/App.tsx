@@ -7,10 +7,13 @@ import 'react-dropdown/style.css';
 // Import App Styles
 import './App.css'
 
+// Import canvas drawing functions
+import {plotPoints, clearCanvas, plotPath, plotLine} from './DrawFunctions'
+
 // Import Icons
 import {FaPlay} from 'react-icons/fa'
 
-// Import Components
+// Import UI Components
 import { Slider } from './components/Slider'
 import { ColourSelector } from './components/ColourSelector'
 import { MenuIcon } from './components/MenuIcon'
@@ -21,7 +24,7 @@ type dimensions = {
   height: number | undefined
 }
 
-type point = {
+export type point = {
   x: number
   y: number
   solved? : boolean
@@ -68,79 +71,21 @@ function App() {
     }
   }
 
-  /// Draw Functions ///
-
-  function plotPoints(points_array: point[]){
-
-    // Get Canvas Element
-    const canvaseElm = document.getElementById('canvas') as HTMLCanvasElement;
-    const ctx = canvaseElm?.getContext("2d");
-      
-    // Draw Each Point
-    points_array.forEach((point: point) => {
-
-      point.solved?ctx.fillStyle = "orange":ctx.fillStyle = "white"
-      ctx.beginPath();
-      ctx.arc(point.x, point.y, 7, 0, 2 * Math.PI);
-      ctx.fill();
- 
-    })
-
-  }
-
-  function clearCanvas(){
-
-    // Get Canvas Element
-    const canvaseElm = document.getElementById('canvas') as HTMLCanvasElement;
-    const ctx = canvaseElm?.getContext("2d");
- 
-    // Clear Canvas
-    ctx.clearRect(0, 0, canvaseElm.width, canvaseElm.height);
-  }
-
-  function plotPath(path_points: point[], colour?: string){
-
-    colour = colour || 'orange'
-
-    // Get Canvas Element
-    const canvaseElm = document.getElementById('canvas') as HTMLCanvasElement;
-    const ctx = canvaseElm?.getContext("2d");
-
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = colour;
-    ctx.beginPath();
-    ctx.moveTo(path_points[0].x, path_points[0].y);
-    for (const point of path_points) {
-      ctx.lineTo(point.x, point.y);
-    }
-    ctx.stroke();
-    
-  }
-
-  function plotLine(start: point, end: point, colour?: string){
-      
-    colour = colour || 'orange'
-
-      // Get Canvas Element
-      const canvaseElm = document.getElementById('canvas') as HTMLCanvasElement;
-      const ctx = canvaseElm?.getContext("2d");
-  
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = colour;
-      ctx.beginPath();
-      ctx.moveTo(start.x, start.y);
-      ctx.lineTo(end.x, end.y);
-      ctx.stroke();
-
-  }
-  
-  // Plot Points
+  // Plot Points On first render and when points changes
   useEffect(() => {
 
     plotPoints(points);
 
   }, [screenDimensions, points])
-  
+
+  // Reset Points on algorithm change
+  useEffect(() => {
+
+    plotPoints(points);
+    setPoints((points) => points.map((points) => {return {...points, solved : false}}))
+
+  }, [currentAlgorithm])
+    
   // Startup Function
   useEffect(() => {
 
@@ -152,7 +97,7 @@ function App() {
 
     window.addEventListener('click', (e) => {
 
-      // If button is blicked on ignore call
+      // If header is clicked on ignore
       if (!e.target.closest('.header')){
 
         // Ensures that points are not spammed
@@ -174,7 +119,6 @@ function App() {
     
   }, [])
 
-
   function runBruteForceAlgorithm() {
 
     // Run calculation
@@ -185,18 +129,19 @@ function App() {
 
     const speeds = [1000,100,10]
 
-    var counter = 0
+    var counter = -1
 
     // Loop through all permutations showing them for 10ms
     permutations.forEach((path: point[], index: number) => {
         
       setTimeout(() => {
-        
+
         counter += 1
         clearCanvas()
         plotPath(path)
         plotPoints(points)
-        setStatus(counter + ' / ' + permutations.length)
+        setStatus(counter + ' / ' + (permutations.length - 1))
+        
 
       },index * speeds[speed])
 
@@ -295,7 +240,7 @@ function App() {
 
 export default App
 
-// Distance between 2 points formula 
+// Distance between 2 points
 function distance(point1: point, point2: point) {
   return Math.sqrt(
     (point1.x - point2.x) * (point1.x - point2.x) +
@@ -318,6 +263,7 @@ function swap (array: any, pos1: number, pos2: number) {
 
 // Brute Force Algorithm - Try all possible compinations
 // Guarentees Shortest Distance
+// Time complexity O(n!)
 function bruteForceAlgorithm(points: point[]){
 
   // Set Initial Min Distance
@@ -476,5 +422,7 @@ function nearestNeighborAlgorithm(points: point[]){
 // Greedy Algorithm
 // Time Complexity - O(n^2log2(n))
 // Within 15 - 20% of the Held-Karp lower bound
+function greedyAlgorithm(){
 
+}
 // 

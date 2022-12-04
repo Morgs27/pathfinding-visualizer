@@ -1,0 +1,38 @@
+
+/* Colour Selector */
+.colourTheme{
+    width: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  
+  .colourTheme .title{
+    font-size: 23px;
+    margin-bottom: 20px;
+  }
+  .colours{
+    width: 100%;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    margin-bottom: 20px;
+  
+  }
+  .colour{
+    width: 20px;
+    height: 20px;
+    margin-inline: 2px;
+  }
+  
+  .arrow{
+    margin-inline: 10px;
+    transform: translateY(5px);
+  }
+  .arrow:hover{
+    cursor: pointer;
+  }
+  

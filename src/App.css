@@ -1,41 +1,150 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* Container Styles */
+.screen{
+  width: 100vw;
+  height: 100vh;
+  background: rgb(40,40,40);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+canvas{
+  background: rgb(40,40,40);
+  top: 0;
+  left: 0;
+  position: fixed;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Button Styles */
+button{
+  outline: none;
+  background: transparent;
+  color: orange;
+  border: none;
+  padding: 10px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+button:hover{
+  cursor: pointer;
+  background: orange;
+  color: white;
 }
 
-.card {
-  padding: 2em;
+.header{
+  position: absolute;
+  top: 0;
+  height: 100px;
+  width: calc(100vw - 100px);
+  left: 0;
+  background: rgb(50,50,50);
+  border-bottom: 1px solid black;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding-inline: 50px;
+  color: rgba(255,255,255,0.8);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-.read-the-docs {
-  color: #888;
+.run{
+  width: 100px;
+  height: 40px;
+  /* background: orange; */
+  border: 2px solid orange;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  color: orange;
+  border-radius: 5px;
+}
+
+.run .icon{
+  margin-left: 8px;
+}
+
+.optionTitle{
+  font-family: Arial, Helvetica, sans-serif;
+  letter-spacing: 0.2mm;
+  margin-bottom: 10px;
+  color: rgba(255,255,255,0.6);
+}
+
+.option{
+  display: flex;
+  flex-direction: column;
+  
+}
+
+/*  */
+.stats{
+  position: absolute;
+  top: 100px;
+  left: 10%;
+  width: 100%;
+  /* background: red; */
+  height: 50px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  color: rgba(255,255,255,0.8);
+  width: 80%;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Dropdown */
+
+.Dropdown-root{
+  background: transparent;
+}
+
+.Dropdown-placeholder{
+  color: rgba(255,255,255,0.8);
+}
+
+.Dropdown-control{
+  background: transparent;
+  width: 300px;
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+.Dropdown-menu{
+  background: transparent;
+  border: 1px solid rgb(255,255,255,0.1);
+  background: rgb(40,40,40);
+  width: 300px;
+  border-radius: 5px;
+  padding:  10px;
+  margin-top: 5px;
+}
+
+
+.Dropdown-option{
+  background: transparent;
+  color: rgba(255,255,255,0.8);
+  padding: 10px 10px;
+  border-radius: 5px;
+  transition: 0.3s;
+  margin: 3px 0px;
+}
+
+
+.Dropdown-option.is-selected{
+  background: transparent;
+  color: rgba(255,255,255,0.8);
+}
+
+.Dropdown-option:hover{
+  background: orange;
+  color: rgba(255,255,255,0.8);
+}
+
+.is-open .Dropdown-control{
+  border: 1px solid rgba(255,255,255,0.7);
 }

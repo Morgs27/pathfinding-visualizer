@@ -55,8 +55,8 @@ function App() {
   const [status, setStatus] = useState('');
 
   const algorithmNames = ['Brute Force', 'Ant Colony Optimization', 'Greedy Algorithm', 'Nearest Neighbour Algorithm']
-  const algorithmFunctions = [runBruteForceAlgorithm,,, runNearestNeighborAlgorithm]
-  const [currentAlgorithm, setCurrentAlgorithm ] = useState(3)
+  const algorithmFunctions = [runBruteForceAlgorithm,,runGreedyAlgorithm, runNearestNeighborAlgorithm]
+  const [currentAlgorithm, setCurrentAlgorithm ] = useState(2)
 
   var addingPoint:Boolean = false 
 
@@ -198,6 +198,22 @@ function App() {
       },index * 1000)
 
     })
+
+  }
+
+  function runGreedyAlgorithm(){
+    const edges = greedyAlgorithm(points)
+
+    edges.forEach((edge, index) => {
+
+      setTimeout(() => {
+
+        plotPath([edge.point1, edge.point2])
+
+      }, index * 1000);
+
+    })
+
 
   }
 
@@ -419,10 +435,145 @@ function nearestNeighborAlgorithm(points: point[]){
   return [steps, path]
 }
 
+type edge = {
+  point1: point
+  point1Index: number
+  point2: point
+  point2Index: number
+  distance: number
+  added : boolean
+}
+
+type pointConnection = {
+  point: point
+  connections: number
+}
+
 // Greedy Algorithm
 // Time Complexity - O(n^2log2(n))
 // Within 15 - 20% of the Held-Karp lower bound
-function greedyAlgorithm(){
+function greedyAlgorithm(points_array: point[]){
 
+  // Set N to number of points
+  const N = points_array.length
+
+  console.log('Points Array', points_array)
+
+  // Setup array to hold all edges
+  const edges: edge[] = []
+  const completeEdges: edge[] = []
+
+  // Setup array to hold information about point connections
+  const pointConnections: pointConnection[] = points_array.map((point) => {
+    return {point: point, connections: 0 }
+  })
+
+  ///// Get all edges
+
+  // Loop through all points
+  points_array.forEach((point1,index1) => {
+
+    // Get all points to be connected to current point
+    var points_to_be_connected: point[] = points_array.slice(index1 + 1)
+
+    // Loop through points to be connected
+    points_to_be_connected.forEach((point2,index2) => {
+
+      // Add edge to edges array
+      var edge = {point1: point1, point1Index: index1,  point2: point2, point2Index: index1 + 1 + index2 ,
+      distance: distance(point1, point2), added: false}
+      edges.push(edge)
+
+    })
+
+  })
+
+  console.log('Edges', edges)
+
+  // Sord edges by distance
+  edges.sort((a,b) => {
+    return a.distance - b.distance
+  })
+
+  console.log('Edges Sorted', edges)
+
+  console.log('Connections', pointConnections)
+
+  // Add shortest edge to start
+  pointConnections[edges[0].point1Index].connections += 1
+  pointConnections[edges[0].point2Index].connections += 1
+  edges[0].added = true;
+  completeEdges.push(edges[0])
+
+  // Add Edge Code Block
+  while (completeEdges.length < N){
+
+    var edgeAdded = false
+    var index = 0
+
+    while(!edgeAdded){
+
+      index += 1
+
+      var edge = edges[index]
+
+      checkClosedLoop([...completeEdges, edge])
+
+      // Check edge is not already added
+      if (edge.added){}
+
+      // Check that neither point in edge already has 2 connections
+      else if (pointConnections[edge.point1Index].connections == 2 
+            || pointConnections[edge.point2Index].connections == 2){}
+
+      // Check that adding this edge dosen't cause a closed cycle (unless this is the last edge to be added)
+      else if (pointConnections[edge.point1Index].connections == 1 
+            && pointConnections[edge.point2Index].connections == 1
+            && completeEdges.length != N ){ console.log("Closed")}
+
+      else{
+        pointConnections[edge.point1Index].connections += 1
+        pointConnections[edge.point2Index].connections += 1
+        edges[index].added = true;
+  
+        completeEdges.push(edge)
+        edgeAdded = true;
+      }
+
+    }
+
+  }
+
+  function checkClosedLoop(some_edges: edge[]){
+    console.log(some_edges)
+    var pairs: any = []
+    some_edges.forEach((edge) => {
+      pairs.push([edge.point1Index, edge.point2Index])
+    })
+
+    // For each number
+    // Loop through all 
+    pairs.forEach((pair: any) => {
+      pair.forEach((value: number, index_value: number) => {
+        
+
+      })
+    })
+    console.log(pairs)
+  }
+
+  
+
+  console.log('CompletedEdges', completeEdges)
+
+  return completeEdges;
+ 
+  // Select the shortest edge and add if:
+  //        - As long it dosent create a cycle with less than N edges
+  //        - And dosen't increase the degree of any node to more than two
+  //        - It has not been already added to array (added = false)
+  // Then: 
+  //        - Add edge to path 
+  //        - Set Order of point1 and point2 to order + 1
 }
 // 

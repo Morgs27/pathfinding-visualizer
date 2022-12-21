@@ -53,17 +53,11 @@ export function greedyAlgorithm(points_array: point[]){
       })
   
     })
-  
-    console.log('Edges', edges)
-  
+    
     // Sord edges by distance
     edges.sort((a,b) => {
       return a.distance - b.distance
     })
-  
-    console.log('Edges Sorted', edges)
-  
-    console.log('Connections', pointConnections)
   
     // Add shortest edge to start
     pointConnections[edges[0].point1Index].connections += 1
@@ -91,49 +85,46 @@ export function greedyAlgorithm(points_array: point[]){
               || pointConnections[edge.point2Index].connections == 2){}
   
         // Check that adding this edge dosen't cause a closed cycle (unless this is the last edge to be added)
-        else if (checkClosedLoop([...completeEdges, edge]) && completeEdges.length != (N - 1)){ console.log("Closed")}
+        else if (checkClosedLoop([...completeEdges, edge])
+                && completeEdges.length != (N - 1))
+                { console.log("Closed")}
   
+        //  If all guards are passed add point
         else{
-          console.log('Add Point', edge)
+
           pointConnections[edge.point1Index].connections += 1
           pointConnections[edge.point2Index].connections += 1
           edges[index].added = true;
     
           completeEdges.push(edge)
           edgeAdded = true;
+          
         }
   
       }
   
     }
-  
-    console.log('CompletedEdges', completeEdges)
-  
-    return completeEdges;
+    
+    return [completeEdges, edges];
   
   }
   
   
   
   function checkClosedLoop(some_edges: edge[]){
-  
-    console.log("Checking Closed Loop ", some_edges)
-  
+    
     // Map edge pointIndex's to pairs array
     var pairs: any = []
     some_edges.forEach((edge) => {
       pairs.push([edge.point1Index, edge.point2Index])
     })
-  
-    console.log('Pairs From Edges', pairs)
-  
+    
     let solved = false;
   
     // For each pair
     pairs.forEach((pair: number[], pairIndex: number) => {
   
       if (!solved){
-      console.log('Checking Pair', pairIndex, pair)
   
       // Value being looked for in the other pairs
       let targetValue = pair[0]
@@ -141,10 +132,6 @@ export function greedyAlgorithm(points_array: point[]){
   
       let pairsToBeTraversed = pairs
       pairsToBeTraversed.splice(pairIndex,1)
-  
-      console.log("Pairs To Be Traversed", pairsToBeTraversed, pairsToBeTraversed[0][0], pairsToBeTraversed[0][1])
-  
-      console.log('Target Value', targetValue, 'Final Value', finalValue)
   
       let finding = true
   
@@ -155,13 +142,12 @@ export function greedyAlgorithm(points_array: point[]){
         // Loop through all pairs apart from current pair
         pairsToBeTraversed.forEach((traversePair: number[], traverseIndex: number) => {
   
-          console.log('Traverse Pair', traversePair)
           if (traversePair[0] == targetValue){
   
             targetValue = traversePair[1]
             finding = true;
             pairsToBeTraversed.splice(traverseIndex, 1)
-            console.log("Setting target value", traversePair[1])
+
           }
   
           else if (traversePair[1] == targetValue){
@@ -169,16 +155,16 @@ export function greedyAlgorithm(points_array: point[]){
             targetValue = traversePair[0]
             finding = true
             pairsToBeTraversed.splice(traverseIndex, 1)
-            console.log("Setting target value", traversePair[0])
   
           }
   
           
           if (targetValue == finalValue){
-            console.log('Setting True')
+
             finding = false;
             solved = true;
             return true;
+
           }
   
         })    
@@ -189,11 +175,9 @@ export function greedyAlgorithm(points_array: point[]){
     })
   
     if (solved){
-      console.log('Returning True')
       return true;
     }
   
-    console.log('Returning False')
     return false;
   
   }

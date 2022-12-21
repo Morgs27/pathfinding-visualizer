@@ -1,21 +1,55 @@
-/* Container Styles */
-.screen{
+.container{
   width: 100vw;
   height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: grid;
+  grid-template-rows: 100px 40px 1fr;
+  background: rgb(40,40,40);
+}
+
+.screen{
   background: rgb(40,40,40);
   display: flex;
   justify-content: center;
   align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
+  grid-row: 3;
+  width: 100%;
+  height: 100%;
 }
 
 canvas{
   background: rgb(40,40,40);
-  top: 0;
-  left: 0;
-  position: fixed;
+}
+
+.header{
+  grid-row: 1;
+  width: 100%;
+  height: 100%;
+  background: rgb(50,50,50);
+  border-bottom: 1px solid black;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  align-items: center;
+  padding-inline: 50px;
+  color: rgba(255,255,255,0.8);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.stats{
+  grid-row: 2;
+  /* background: rgb(40,40,40); */
+  background: transparent;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  color: rgba(255,255,255,0.8);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 /* Button Styles */
@@ -33,23 +67,6 @@ button:hover{
   color: white;
 }
 
-.header{
-  position: absolute;
-  top: 0;
-  height: 100px;
-  width: calc(100vw - 100px);
-  left: 0;
-  background: rgb(50,50,50);
-  border-bottom: 1px solid black;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding-inline: 50px;
-  color: rgba(255,255,255,0.8);
-  font-family: Arial, Helvetica, sans-serif;
-}
 
 .run{
   width: 100px;
@@ -81,22 +98,7 @@ button:hover{
   
 }
 
-/*  */
-.stats{
-  position: absolute;
-  top: 100px;
-  left: 10%;
-  width: 100%;
-  /* background: red; */
-  height: 50px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  color: rgba(255,255,255,0.8);
-  width: 80%;
-  font-family: Arial, Helvetica, sans-serif;
-}
+
 
 /* Dropdown */
 

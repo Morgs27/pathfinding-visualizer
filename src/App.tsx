@@ -49,7 +49,7 @@ function App() {
   var addingPoint:Boolean = false 
 
   const algorithmNames = ['Brute Force', 'Ant Colony Optimization', 'Greedy Algorithm', 'Nearest Neighbour Algorithm']
-  const algorithmFunctions = [runBruteForceAlgorithm,,runGreedyAlgorithm, runNearestNeighborAlgorithm]
+  const algorithmFunctions = [runBruteForceAlgorithm,runAntColonyAlgorithm,runGreedyAlgorithm, runNearestNeighborAlgorithm]
   const [currentAlgorithm, setCurrentAlgorithm ] = useState(2)
 
   const [status, setStatus] = useState("")
@@ -65,7 +65,15 @@ function App() {
     }
   }
 
-  // Plot Points On first render and when points changes
+  function addRandomPoints(){
+
+    setPoints((points) => [...points, ...Array(10).fill(undefined).map((point) => {
+      return {x: Math.random() * screenDimensions.width, y: Math.random() * screenDimensions.height , solved: false}
+    })])
+    
+  }
+
+  // Plot Points on first render and when points changes
   useEffect(() => {
 
     plotPoints(points);
@@ -92,7 +100,7 @@ function App() {
     window.addEventListener('click', (e) => {
 
       // If header is clicked on ignore
-      if (!e.target.closest('.header')){
+      if (!(e.target as Element).closest('.header')){
 
         // Ensures that points are not spammed
         if (addingPoint == false){
@@ -121,8 +129,6 @@ function App() {
 
     // Add Solution to end of list
     permutations.push(solution)
-
-    const speeds = [1000,100,10]
 
     var counter = -1
 
@@ -198,28 +204,57 @@ function App() {
   // Run/Diplay Greedy Algorithm Algorithm
   function runGreedyAlgorithm(){
     
-    const edges = greedyAlgorithm(points)
+    const [edges, allEdges] = greedyAlgorithm(points)
 
     edges.forEach((edge, index) => {
 
       setTimeout(() => {
 
-        plotPath([edge.point1, edge.point2])
+        let currentPath = edges.filter((edge, filterIndex) => {
+          return filterIndex <= index
+        })
 
-      }, index * 1000);
+        let prevPath = edges.filter((edge, filterIndex) => {
+          return filterIndex < index
+        })
+
+        allEdges.forEach((edge, allEdgesIndex) => {
+          let opacity = Math.pow(1 - (allEdgesIndex / allEdges.length) , 4)
+          console.log(opacity)
+          plotPath([edge.point1, edge.point2], 'rgba(255,255,255,' + opacity + ')')
+        })
+
+        prevPath.forEach((edge) =>{
+          plotPath([edge.point1, edge.point2])
+        })
+
+        setTimeout(() => {
+
+          clearCanvas()
+          plotPoints(points)
+
+          currentPath.forEach((edge) =>{
+            plotPath([edge.point1, edge.point2])
+          })
+
+        }, 1000);
+
+      }, index * 2000);
 
     })
 
 
   }
 
+  // Run/ Display Ant Colony Algorithm
+  function runAntColonyAlgorithm(){
+
+  }
+
   return (
-   <>
-   <div className="screen" ref = {screen}>
+   <div className = 'container'>
 
-    <canvas className="canvas" id = 'canvas' width = { screenDimensions.width | 150} height = {screenDimensions.height | 150} ref={canvas} ></canvas>
-
-    <div className="header">
+    <div className="header" >
       
       <div className="option">
         <div className="optionTitle">ALGORITHM</div>
@@ -233,6 +268,12 @@ function App() {
         />
       </div>
 
+      <div className="option">
+        <button   onClick = {() => {addRandomPoints()}} >
+         Add Random
+        </button>
+      </div>
+
       <button  className="run" onClick = {() => {algorithmFunctions[currentAlgorithm]()}} >
         Run <FaPlay className='icon'></FaPlay>
       </button>
@@ -243,9 +284,12 @@ function App() {
       <div className="stat" id = 'status'>{status}</div>
     </div>
     
+    <div className="screen" ref = {screen}>
 
+     <canvas className="canvas" id = 'canvas' width = { screenDimensions.width | 150} height = {screenDimensions.height | 150} ref={canvas} ></canvas>
+
+    </div>
    </div>
-   </>
   )
 }
 

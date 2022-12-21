@@ -14,7 +14,7 @@ export function plotPoints(points_array: point[]){
 
     point.solved?ctx.fillStyle = "orange":ctx.fillStyle = "white"
     ctx.beginPath();
-    ctx.arc(point.x, point.y, 7, 0, 2 * Math.PI);
+    ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
     ctx.fill();
 
   })

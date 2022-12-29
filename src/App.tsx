@@ -48,11 +48,17 @@ function App() {
   const [points, setPoints] = useState<point[]>([])
   var addingPoint:Boolean = false 
 
+  // Store Algorithm Information in Parallel Arrays
   const algorithmNames = ['Brute Force', 'Ant Colony Optimization', 'Greedy Algorithm', 'Nearest Neighbour Algorithm']
   const algorithmFunctions = [runBruteForceAlgorithm,runAntColonyAlgorithm,runGreedyAlgorithm, runNearestNeighborAlgorithm]
   const [currentAlgorithm, setCurrentAlgorithm ] = useState(2)
 
-  const [status, setStatus] = useState("")
+  const running = useRef<Boolean>(false)
+  const [runningState, setRunningState] = useState(false)
+
+  // Stats for each algorithm
+  const [currentPermutation, setCurrentPermutation] = useState(0)
+  const [totalPermutations, setTotalPermutations] = useState(0)
 
   // Add new point to points array and set all current points to solved = false
   function addPoint(event: any){
@@ -65,9 +71,9 @@ function App() {
     }
   }
 
-  function addRandomPoints(){
+  function addPoints(number: number){
 
-    setPoints((points) => [...points, ...Array(10).fill(undefined).map((point) => {
+    setPoints((points) => [...points, ...Array(number).fill(undefined).map((point) => {
       return {x: Math.random() * screenDimensions.width, y: Math.random() * screenDimensions.height , solved: false}
     })])
     
@@ -77,6 +83,8 @@ function App() {
   useEffect(() => {
 
     plotPoints(points);
+    let total = factorialize(points.length)
+    setTotalPermutations(total)
 
   }, [screenDimensions, points])
 
@@ -127,24 +135,35 @@ function App() {
     // Run calculation
     const [solution, permutations] = bruteForceAlgorithm(points)
 
+    setTotalPermutations(permutations.length)
+
     // Add Solution to end of list
     permutations.push(solution)
 
     var counter = -1
 
+    var timeouts: any = [];
+
     // Loop through all permutations showing them for 10ms
     permutations.forEach((path: point[], index: number) => {
         
-      setTimeout(() => {
+      timeouts.push(setTimeout(() => {
+        console.log(counter, running)
+        if (running.current){
+          counter += 1
+          clearCanvas()
+          plotPath(path)
+          plotPoints(points)
+          setCurrentPermutation(counter)
+          timeouts.shift()
+        }
+        else {
+          timeouts.forEach((timeout: any) => {
+            clearTimeout(timeout)
+          })
+        }
 
-        counter += 1
-        clearCanvas()
-        plotPath(path)
-        plotPoints(points)
-        setStatus(counter + ' / ' + (permutations.length - 1))
-        
-
-      },index * 100)
+      },index * 50))
 
     })
 
@@ -251,6 +270,11 @@ function App() {
 
   }
 
+  function algorithmFinished(){
+    running.current = false;
+    setRunningState(false);
+  }
+
   return (
    <div className = 'container'>
 
@@ -269,19 +293,42 @@ function App() {
       </div>
 
       <div className="option">
-        <button   onClick = {() => {addRandomPoints()}} >
-         Add Random
-        </button>
+        <div className="optionTitle">POINTS</div>
+        <div className="buttonGroup">
+          <button onClick={() => addPoints(1)}>1 +</button>
+          <button onClick={() => addPoints(5)}>5 +</button>
+          <button onClick={() => addPoints(10)}>10 +</button>
+        </div>
       </div>
 
-      <button  className="run" onClick = {() => {algorithmFunctions[currentAlgorithm]()}} >
-        Run <FaPlay className='icon'></FaPlay>
+      {runningState ?
+      <button  className="run" onClick = {() => {running.current = false; setRunningState(false)}} >
+      Stop
       </button>
+      : 
+      <button  className="run" onClick = {() => {running.current = true; setRunningState(true); algorithmFunctions[currentAlgorithm]()}} >
+      Run <FaPlay className='icon'></FaPlay>
+      </button>
+      }
+      
 
     </div>
 
     <div className="stats">
-      <div className="stat" id = 'status'>{status}</div>
+
+      <div className='stat'>{"Points: " + points.length}</div>
+
+      <div className='stat'>{"Current Algorithm: " + currentAlgorithm}</div>
+
+      {currentAlgorithm == 0 && 
+        (
+          <>
+          <div className='stat'>{"Permutations: " + totalPermutations }</div>
+          <div className='stat'>{"Progress: " + currentPermutation + ' / ' + totalPermutations }</div>
+          </>
+        )
+      }
+
     </div>
     
     <div className="screen" ref = {screen}>
@@ -318,5 +365,17 @@ export function swap (array: any, pos1: number, pos2: number) {
   array[pos1] = array[pos2];
   array[pos2] = temp;
 };
+
+// factorial calculation
+function factorialize(num: number) {
+  if (num === 0 || num === 1)
+    return 1;
+  for (var i = num - 1; i >= 1; i--) {
+    num *= i;
+  }
+  return num;
+}
+
+
 
 

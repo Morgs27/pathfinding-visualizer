@@ -5,7 +5,7 @@
 import { distance, point, swap } from "../App";
 
 // Time complexity O(n!)
-export function bruteForceAlgorithm(points: point[]){
+export async function bruteForceAlgorithm(points: point[]){
 
     // Set Initial Min Distance
     var bestDistance = getSolutionDistance(points);

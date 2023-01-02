@@ -9,6 +9,7 @@ import './App.css'
 
 // Import Icons
 import {FaPlay} from 'react-icons/fa'
+import {BsFillStopCircleFill} from 'react-icons/bs'
 
 // Import Algorithms
 import { greedyAlgorithm } from './algorithms/GreedyAlgorithm';
@@ -54,7 +55,7 @@ function App() {
   const [currentAlgorithm, setCurrentAlgorithm ] = useState(2)
 
   const running = useRef<Boolean>(false)
-  const [runningState, setRunningState] = useState(false)
+  const [runningState, setRunningState] = useState<Boolean>(false)
 
   // Stats for each algorithm
   const [currentPermutation, setCurrentPermutation] = useState(0)
@@ -130,10 +131,10 @@ function App() {
   }, [])
 
   // Run/Diplay Brute Force Algorithm
-  function runBruteForceAlgorithm() {
+  async function runBruteForceAlgorithm() {
 
     // Run calculation
-    const [solution, permutations] = bruteForceAlgorithm(points)
+    const [solution, permutations] = await bruteForceAlgorithm(points)
 
     setTotalPermutations(permutations.length)
 
@@ -148,7 +149,7 @@ function App() {
     permutations.forEach((path: point[], index: number) => {
         
       timeouts.push(setTimeout(() => {
-        console.log(counter, running)
+
         if (running.current){
           counter += 1
           clearCanvas()
@@ -163,7 +164,11 @@ function App() {
           })
         }
 
-      },index * 50))
+        if (index == permutations.length - 1 ){
+          algorithmFinished()
+        }
+
+      },index * 20))
 
     })
 
@@ -302,8 +307,8 @@ function App() {
       </div>
 
       {runningState ?
-      <button  className="run" onClick = {() => {running.current = false; setRunningState(false)}} >
-      Stop
+      <button style = {{backgroundColor: 'transparent', color: 'orange'}} className="run" onClick = {() => {running.current = false; setRunningState(false)}} >
+      Stop <BsFillStopCircleFill className='icon'></BsFillStopCircleFill>
       </button>
       : 
       <button  className="run" onClick = {() => {running.current = true; setRunningState(true); algorithmFunctions[currentAlgorithm]()}} >

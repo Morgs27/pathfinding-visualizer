@@ -5,7 +5,7 @@
   left: 0;
   top: 0;
   display: grid;
-  grid-template-rows: 100px 40px 1fr;
+  grid-template-rows: auto auto 1fr;
   background: rgb(40,40,40);
 }
 
@@ -26,33 +26,59 @@ canvas{
 .header{
   grid-row: 1;
   width: 100%;
-  height: 100%;
   background: rgb(50,50,50);
   border-bottom: 1px solid black;
   border-bottom: 1px solid rgba(255,255,255,0.1);
-  display: flex;
-  flex-direction: row;
-  gap: 30px;
-  align-items: center;
-  padding-inline: 50px;
   color: rgba(255,255,255,0.8);
   font-family: Arial, Helvetica, sans-serif;
+  transition: 1s;
+  
+}
+
+.header[data-menu="close"]{
+  height: 0px;
+  overflow: hidden;
 }
 
 .stats{
   grid-row: 2;
   /* background: rgb(40,40,40); */
   background: transparent;
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  gap: 30px;
-  margin-left: 25px;
-  margin-top: 10px;
+  width: 95%;
   font-size: 15px;
-  align-items: center;
   color: rgba(255,255,255,0.3);
   font-family: Arial, Helvetica, sans-serif;
+  height: auto;
+}
+
+.stat{
+  float: left;
+  margin: 15px;
+}
+
+.algorithmInfo{
+  float: left; 
+  width: 90%;
+  height: auto;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.seperator{
+  width: 5px;
+  height: 5px;
+  background: rgba(255,255,255, 0.3);
+  margin-inline: 10px;
+  border-radius: 50%;
+  float: left;
+}
+
+.info{
+  color: rgba(255,255,255,0.5);
+  float: left;
+  margin: 10px;
+  margin-inline: 20px;
 }
 
 /* Button Styles */
@@ -62,7 +88,9 @@ button{
   color: orange;
   border: none;
   padding: 10px;
+  float: left;
 }
+
 
 button:hover{
   cursor: pointer;
@@ -91,13 +119,28 @@ button:hover{
 .optionTitle{
   font-family: Arial, Helvetica, sans-serif;
   letter-spacing: 0.2mm;
-  margin-bottom: 10px;
   color: rgba(255,255,255,0.6);
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.optionContent{
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 .option{
   display: flex;
   flex-direction: column;
+  display: grid;
+  height: 100px;
+  float: left;
+  margin-inline: 20px;
+  grid-template-rows: 1.2fr 2fr;
   
 }
 
@@ -105,9 +148,48 @@ button:hover{
   border: 1px solid orange;
   margin: 5px;
   border-radius: 5px;
+  min-width: 50px;
 }
 
+.headerClose{
+  width: 100%;
+  float: left;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+  color: rgba(255,255,255,0.7);
+  display: none;
+  background: rgb(50,50,50);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
 
+button[data-active="true"]{
+  border: 1px solid rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.6);
+  background: transparent;
+}
+
+@media (max-width: 800px) {
+  .container{
+    grid-template-rows: auto 40px auto 1fr
+  }
+  .stats{
+    grid-row: 3
+  }
+  .screen{
+    grid-row: 4;
+  }
+  .headerClose{
+    display: flex;
+  }
+  .header{
+    border-bottom: none;
+  }
+  
+}
 
 /* Dropdown */
 

@@ -53,8 +53,10 @@ export function greedyAlgorithm(points_array: point[]){
       })
   
     })
+
+    console.log(edges)
     
-    // Sord edges by distance
+    // Sort edges by distance
     edges.sort((a,b) => {
       return a.distance - b.distance
     })
@@ -91,7 +93,7 @@ export function greedyAlgorithm(points_array: point[]){
   
         //  If all guards are passed add point
         else{
-
+      
           pointConnections[edge.point1Index].connections += 1
           pointConnections[edge.point2Index].connections += 1
           edges[index].added = true;

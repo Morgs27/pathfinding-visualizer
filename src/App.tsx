@@ -22,6 +22,9 @@ import {plotPoints, clearCanvas, plotPath, plotLine} from './DrawFunctions'
 // Import Equation visualizer
 import {Equation} from 'react-equation'
 
+// Import Components
+import {TutorialModal, Page} from './components/TutorialModal';
+
 type dimensions = {
   width: number | undefined
   height: number | undefined
@@ -49,6 +52,9 @@ function App() {
 
   // Menu State
   const [menuOpen, setMenuOpen] = useState(true);
+
+  // Tutorial Modal State
+  const [modalOpen, setModalOpen] = useState(true);
 
   // Screen Dimensions
   const [screenDimensions, setScreenDimensions] = useState<dimensions>({width: 150, height: 150}) // Screen dimensions
@@ -79,7 +85,7 @@ function App() {
 
   // Add new point to points array with time delay to stop spamming
   function addPoint(event: any){
-    if (!event.target.closest('.button')){
+    if (!event.target.closest('.button') || !modalOpen){
       setPoints((points) => {
         return [ 
           ...points.map((point) => {return {...point, solved: false}}), 
@@ -106,12 +112,15 @@ function App() {
   }
 
   // Plot Points on first render and when points changes
-  useEffect(() => {
-
-    console.log(points);
+  useEffect( () => {
 
     clearCanvas()
+
     plotPoints(points);
+
+    setTimeout(() => {
+      plotPoints(points)
+    }, 50);
 
     // Update permutations stat
     let total = factorialize(points.length)
@@ -447,6 +456,17 @@ function App() {
   return (
    <div className = 'container'>
 
+    <TutorialModal state = {modalOpen} setState = {setModalOpen}>
+      <Page >
+        <h3>Welcome to TSP Visualizer</h3>
+        <p><i>TSP - Traveling Salesman Problem</i></p>
+        <img height = {150} src="./location-dot-orange.png" alt="" />
+        <p>This short tutorial will walk you through all the features of this application.</p>
+      </Page>
+      <Page >b content</Page>
+      <Page >c content</Page>
+    </TutorialModal>
+
     <div className="header" data-menu = {menuOpen? 'open' : 'close'} >
       
       {/* Algorithm Selector Dropdown */}
@@ -593,6 +613,10 @@ function App() {
           </>
         )
       }
+
+      <div className="helpButton" onClick={() => setModalOpen(true)}>
+        ?
+      </div>
     </div>
     
     {/* Canvas Container */}

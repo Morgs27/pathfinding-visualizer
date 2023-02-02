@@ -8,14 +8,21 @@ export function plotPoints(points_array: point[]){
   // Get Canvas Element
   const canvaseElm = document.getElementById('canvas') as HTMLCanvasElement;
   const ctx = canvaseElm?.getContext("2d");
+
+  var markerObjWhite = new Image();
+  markerObjWhite.src = './location-dot-white.png'
+
+  var markerObjOrange = new Image();
+  markerObjOrange.src = './location-dot-orange.png'
     
   // Draw Each Point
   points_array.forEach((point: point) => {
 
-    point.solved?ctx.fillStyle = "orange":ctx.fillStyle = "white"
-    ctx.beginPath();
-    ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
-    ctx.fill();
+    var thisMarker
+
+    point.solved?thisMarker = markerObjOrange:thisMarker = markerObjWhite
+
+    ctx.drawImage(thisMarker, point.x - 10, point.y - 30, 20, 30)
 
   })
 
@@ -29,6 +36,7 @@ export function clearCanvas(){
 
   // Clear Canvas
   ctx.clearRect(0, 0, canvaseElm.width, canvaseElm.height);
+
 }
 
 export function plotPath(path_points: point[], colour?: string){
@@ -47,6 +55,8 @@ export function plotPath(path_points: point[], colour?: string){
     ctx.lineTo(point.x, point.y);
   }
   ctx.stroke();
+
+  plotPoints(path_points)
   
 }
 

@@ -6,22 +6,21 @@
   top: 0;
   display: grid;
   grid-template-rows: auto auto 1fr;
-  background: rgb(40,40,40);
+  background-image: url('./map.jpg');
+  background-size: cover;
 }
 
+
 .screen{
-  background: rgb(40,40,40);
   display: flex;
   justify-content: center;
   align-items: center;
   grid-row: 3;
   width: 100%;
   height: 100%;
+  background: rgb(40,40,40,0.6);
 }
 
-canvas{
-  background: rgb(40,40,40);
-}
 
 .header{
   grid-row: 1;
@@ -42,13 +41,14 @@ canvas{
 
 .stats{
   grid-row: 2;
-  /* background: rgb(40,40,40); */
-  background: transparent;
-  width: 95%;
+  background: rgb(40,40,40,0.8);
+  width: 100%;
   font-size: 15px;
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.6);
   font-family: Arial, Helvetica, sans-serif;
   height: auto;
+  position: relative;
+
 }
 
 .stat{
@@ -172,6 +172,29 @@ button[data-active="true"]{
   background: transparent;
 }
 
+.helpButton{
+  position: absolute;
+  right: 50px;
+  top: 13px;
+  width: 25px;
+  height: 25px;
+  font-size: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 166, 0, 0.623);
+  color: rgba(255,255,255, 0.4);
+  transition: 0.4s;
+}
+
+.helpButton:hover{
+  cursor: pointer;
+  color: rgba(255,255,255,0.9);
+  border-radius: 30%;
+
+}
+
 @media (max-width: 800px) {
   .container{
     grid-template-rows: auto 40px auto 1fr
@@ -241,3 +264,4 @@ button[data-active="true"]{
 .is-open .Dropdown-control{
   border: 1px solid rgba(255,255,255,0.7);
 }
+

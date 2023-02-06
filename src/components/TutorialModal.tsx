@@ -5,7 +5,7 @@ type ModalProps = {
     children : any,
     open? : boolean,
     state : boolean,
-    setState : any
+    onClose : any
 }
 
 type PageProps = {
@@ -16,7 +16,7 @@ type PageProps = {
 
 
 
-export function TutorialModal({children, open, state, setState} : ModalProps){
+export function TutorialModal({children, open, state, onClose} : ModalProps){
 
     const [currentPage, setCurrentPage] = useState(0)
     const [pagesTransform, setPagesTransform] = useState(0)
@@ -51,7 +51,7 @@ export function TutorialModal({children, open, state, setState} : ModalProps){
 
     function closeModal(){
         setCurrentPage(0)
-        setState(false);
+        onClose()
     }
 
     function checkButtons(){
@@ -78,7 +78,6 @@ export function TutorialModal({children, open, state, setState} : ModalProps){
     useEffect(() => {
         setPagesTransform( -1 * currentPage  * (100 / children.length))
         checkButtons()
-        console.log(children[currentPage])
 
         if(children[currentPage].props.name){
             header.current.innerHTML = children[currentPage].props.name;

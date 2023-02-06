@@ -24,6 +24,7 @@ import {Equation} from 'react-equation'
 
 // Import Components
 import {TutorialModal, Page} from './components/TutorialModal';
+import { LoadingText } from './components/LoadingText';
 
 type dimensions = {
   width: number | undefined
@@ -74,6 +75,8 @@ function App() {
   const running = useRef<Boolean>(false)
   const [runningState, setRunningState] = useState<Boolean>(false)
 
+  const loader = useRef<HTMLDivElement>()
+
   // Speed
   const [speed, setSpeed] = useState<number>(10);
 
@@ -83,19 +86,63 @@ function App() {
   const [totalDistance, setTotalDistance] = useState(0)
   const [completedEdges, setCompletedEdges] = useState(0)
 
-  // Add new point to points array with time delay to stop spamming
-  function addPoint(event: any){
-    if (!event.target.closest('.button') || !modalOpen){
-      setPoints((points) => {
-        return [ 
-          ...points.map((point) => {return {...point, solved: false}}), 
-          {x: event.offsetX, y: event.offsetY, solved: false} ]
-      })
-      checkDuplicatePoints()
-    }
+  /// --- General Functions --- ///
+
+  // Startup Function - Only runs on first render
+  useEffect(() => {
+
+    setScreenDimensions({width: screen?.current?.offsetWidth, height: screen?.current?.offsetHeight})
+
+    window.addEventListener('resize', () => {
+      setScreenDimensions({width: screen?.current?.offsetWidth, height: screen?.current?.offsetHeight})
+    })
+
+    window.addEventListener('click', addPointClick, true)
+    
+  }, [])
+
+  function toggleMenu(){
+    setMenuOpen((menuOpen) => !menuOpen)
   }
 
-  // Add x number of points to screen
+
+  /// --- Points Functions --- ///
+
+  // Add singular point at position (x,y) to screen
+  function addPoint(x : number, y: number){
+
+    setPoints((points) => {
+      return [ 
+        ...points.map((point) => {return {...point, solved: false}}), 
+        {x: x, y: y, solved: false} ]
+    })
+    checkDuplicatePoints()
+
+  }
+
+  // Add point to screen on mouse click (with guards)
+  function addPointClick(e: any){
+
+    // If header or button is target ignore
+    if (!(e.target as Element).closest('.header') && !(e.target as Element).closest('.button') && !(e.target as Element).closest('.pageCover') ){
+
+     // Ensures that points are not spammed
+     if (addingPoint == false){
+
+       addingPoint = true
+       
+       addPoint(e.offsetX, e.offsetY)
+
+       setTimeout(() => {
+         addingPoint = false
+       }, 300);
+
+     }
+
+   }
+  }
+
+  // Add any number of points randomly to screen
   function addPoints(number: number){
 
     setPoints((points) => [...points, ...Array(number).fill(undefined).map((point) => {
@@ -105,6 +152,7 @@ function App() {
     
   }
 
+  // Check for duplicate points
   function checkDuplicatePoints(){
     setPoints((points) => {
       return [...new Map(points.map((point) => [point.x,point])).values()]
@@ -135,50 +183,16 @@ function App() {
 
   }, [currentAlgorithm])
     
-  // Startup Function - Only runs on first render
-  useEffect(() => {
 
-    setScreenDimensions({width: screen?.current?.offsetWidth, height: screen?.current?.offsetHeight})
-
-    window.addEventListener('resize', () => {
-      setScreenDimensions({width: screen?.current?.offsetWidth, height: screen?.current?.offsetHeight})
-    })
-
-    window.addEventListener('click', (e) => {
-
-      // If header is clicked on ignore
-      if (!(e.target as Element).closest('.header')){
-
-        // Ensures that points are not spammed
-        if (addingPoint == false){
-
-          addingPoint = true
-
-          addPoint(e)
-
-          setTimeout(() => {
-            addingPoint = false
-          }, 300);
-
-        }
-
-      }
-
-    })
-    
-  }, [])
+  /// --- Algorithm Run Functions ---- ///
 
   // Run/Diplay Brute Force Algorithm
   async function runBruteForceAlgorithm() {
-
-    console.log('started')
 
     bruteForceAlgorithm(points).then()
 
     // Run calculation
     const [solution, permutations] = await bruteForceAlgorithm(points)
-
-    console.log('finished')
 
     setTotalPermutations(permutations.length)
 
@@ -193,6 +207,10 @@ function App() {
     permutations.forEach((path: point[], index: number) => {
         
       timeouts.push(setTimeout(() => {
+
+        if (index == 0){
+          console.log('Calculation Complete')
+        }
 
         if (running.current){
           counter += 1
@@ -232,7 +250,7 @@ function App() {
 
   }
 
-   // Run/Diplay Nearest Neighbor Algorithm
+  // Run/Diplay Nearest Neighbor Algorithm
   function runNearestNeighborAlgorithm(){
 
     // Run the algorithm 
@@ -405,17 +423,22 @@ function App() {
 
   // Run/ Display Ant Colony Algorithm
   function runAntColonyAlgorithm(){
-
   }
 
   // Function to run before any algorithm
   function algorithmSetup(){
 
     if (currentAlgorithm == 0){
+
       if (points.length > 11){
         window.alert('Calculation too expensive for the browser, try using less than 10 points when running the Brute Force algorithm.')
         return;
       }
+
+      setTimeout(() => {
+        loader.current.className = 'loadingContainer'
+      }, 10);
+
     }
 
     if (points.length == 0){
@@ -449,14 +472,12 @@ function App() {
     
   }
 
-  function toggleMenu(){
-    setMenuOpen((menuOpen) => !menuOpen)
-  }
-
   return (
-   <div className = 'container'>
 
-    <TutorialModal state = {modalOpen} setState = {setModalOpen}>
+   <div className = 'container'>
+  
+    {/* Tutorial Modal Component which shows on page load */}
+    <TutorialModal state = {modalOpen} onClose = {() => setModalOpen(false)}>
       <Page >
         <h3>Welcome to TSP Visualizer</h3>
         <p><i>TSP - Traveling Salesman Problem</i></p>
@@ -487,7 +508,7 @@ function App() {
 
       </div>
 
-      {/* Points adding buttons */}
+      {/* Add Points Buttons */}
       <div className="option">
 
         <div className="optionTitle">POINTS</div>
@@ -518,7 +539,7 @@ function App() {
 
       </div>
 
-
+      {/* Algorithm Time Complexity */}
       <div className="option">
         <div className="optionTitle">
             TIME COMPLEXITY
@@ -529,6 +550,7 @@ function App() {
         </div>
       </div>
 
+      {/* Algorithm Accuracy */}
       <div className="option">
         <div className="optionTitle">
             ACCURACY
@@ -536,6 +558,16 @@ function App() {
 
         <div className="optionContent">
           {algorithmAccuracy[currentAlgorithm]}
+          <div className='infoButton' style={{position: 'relative'}}>
+            ?
+            <div className="infoContent">
+              <h3>The Held-Karp Lower Bound</h3>
+              <p>A common way of measuring the performance of
+TSP heuristics is to compare its results to the HeldKarp (HK) lower bound. This lower bound is actually the solution to the linear programming relaxation
+of the integer programming formulation of the TSP.</p>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -554,6 +586,7 @@ function App() {
             }
 
       </div>
+
     </div>
 
     {/* Header Close Button */}
@@ -572,12 +605,8 @@ function App() {
       {/* Number of points */}
       <div className='stat'>{"Points: " + points.length}</div>
 
-      {/* Speed */}
-      <div className='stat'>{"Speed: " + speed}</div>
-
       {/* Total Distance */}
       <div className='stat'>{"Distance: " + totalDistance + " px"}</div>
-
 
       {/* Show different stats based off of the current algorithm */}
       {/* Brute Force Stats */}
@@ -614,9 +643,9 @@ function App() {
         )
       }
 
-      <div className="helpButton" onClick={() => setModalOpen(true)}>
-        ?
-      </div>
+      {/* Help Button to Open Tutorial */}
+      <div className="helpButton" onClick={() => setModalOpen(true)}>?</div>
+
     </div>
     
     {/* Canvas Container */}
@@ -656,7 +685,7 @@ export function swap (array: any, pos1: number, pos2: number) {
   array[pos2] = temp;
 };
 
-// factorial calculation
+// Factorial Calculation
 function factorialize(num: number) {
   if (num === 0 || num === 1)
     return 1;

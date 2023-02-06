@@ -41,7 +41,7 @@
 
 .stats{
   grid-row: 2;
-  background: rgb(40,40,40,0.8);
+  background: rgb(40,40,40,0.6);
   width: 100%;
   font-size: 15px;
   color: rgba(255,255,255,0.6);
@@ -188,7 +188,40 @@ button[data-active="true"]{
   transition: 0.4s;
 }
 
-.helpButton:hover{
+
+.infoButton{
+  position: relative;
+  margin-left: 5px;
+  border-radius: 50%;
+  background:rgba(255, 166, 0, 0.623);
+  width: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.4s;
+}
+
+.infoContent{
+  display: none;
+  position: absolute;
+  width: clamp(200px, 90vw, 400px);
+  height: auto;
+  background: rgb(40,40,40);
+  padding-inline: 15px;
+  border: 1px solid rgba(255,255,255,0.1);
+  transform: translate(0,calc(50% + 20px));
+  z-index: 100;
+  border-radius: 10px;
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+  letter-spacing: 0.1mm;
+}
+
+.infoButton:hover .infoContent{
+  display: block;
+}
+
+.helpButton:hover, .infoButton:hover{
   cursor: pointer;
   color: rgba(255,255,255,0.9);
   border-radius: 30%;

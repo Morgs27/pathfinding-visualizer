@@ -37,14 +37,6 @@ export type point = {
   solved? : boolean
 }
 
-type ant = {
-  x: number
-  y: number
-  direction: number
-  status: []
-  lines: []
-}
-
 function App() {
 
   // Refrences to container elements
@@ -58,24 +50,22 @@ function App() {
   const [modalOpen, setModalOpen] = useState(true);
 
   // Screen Dimensions
-  const [screenDimensions, setScreenDimensions] = useState<dimensions>({width: 150, height: 150}) // Screen dimensions
+  const [screenDimensions, setScreenDimensions] = useState<dimensions>({width: 150, height: 150})
 
   // Points 
   const [points, setPoints] = useState<point[]>([])
   var addingPoint:Boolean = false 
 
   // Algorithm Information in Parallel Arrays
-  const algorithmNames = ['Brute Force', 'Ant Colony Optimization', 'Greedy Algorithm', 'Nearest Neighbour Algorithm']
-  const algorithmFunctions = [runBruteForceAlgorithm,runAntColonyAlgorithm,runGreedyAlgorithm, runNearestNeighborAlgorithm]
-  const algorithmTimeComplexities = ['O(n)', 'O(n)', 'O(n^2log2(n))' , 'O(n^2)']
-  const algorithmAccuracy = ['100%', '', '80-85%', '75%']
-  const [currentAlgorithm, setCurrentAlgorithm ] = useState(2)
+  const algorithmNames = ['Ant Colony Optimization', 'Nearest Neighbour', 'Greedy', 'Nearest Insertion', 'Convex Hull Insertion', 'Brute Force']
+  const algorithmFunctions = [runAntColonyAlgorithm,runNearestNeighborAlgorithm, runGreedyAlgorithm, runNearestInsertionAlgorithm, runConvexHullAlgorithm, runBruteForceAlgorithm]
+  const algorithmTimeComplexities = ['null', 'O(n^2)',  'O(n^2log_2(n))', 'O(n^2)', 'O(n^2log_2(n))', 'O(n!)']
+  const algorithmAccuracy = ['null', '75%', '80-85%', 'null', 'null', '100%' ]
+  const [currentAlgorithm, setCurrentAlgorithm ] = useState(0)
 
   // Algorithm Running State
   const running = useRef<Boolean>(false)
   const [runningState, setRunningState] = useState<Boolean>(false)
-
-  const loader = useRef<HTMLDivElement>()
 
   // Speed
   const [speed, setSpeed] = useState<number>(10);
@@ -189,7 +179,7 @@ function App() {
   // Run/Diplay Brute Force Algorithm
   async function runBruteForceAlgorithm() {
 
-    bruteForceAlgorithm(points).then()
+    bruteForceAlgorithm(points)
 
     // Run calculation
     const [solution, permutations] = await bruteForceAlgorithm(points)
@@ -425,19 +415,21 @@ function App() {
   function runAntColonyAlgorithm(){
   }
 
+  function runNearestInsertionAlgorithm(){
+  }
+
+  function runConvexHullAlgorithm(){
+  }
+
   // Function to run before any algorithm
   function algorithmSetup(){
 
-    if (currentAlgorithm == 0){
+    if (currentAlgorithm == 5){
 
       if (points.length > 11){
         window.alert('Calculation too expensive for the browser, try using less than 10 points when running the Brute Force algorithm.')
         return;
       }
-
-      setTimeout(() => {
-        loader.current.className = 'loadingContainer'
-      }, 10);
 
     }
 
@@ -546,11 +538,14 @@ function App() {
         </div>
 
         <div className="optionContent">
+          {currentAlgorithm == 5 ? 'O(n!)' : 
           <Equation value = {algorithmTimeComplexities[currentAlgorithm]}></Equation>
+          } 
         </div>
       </div>
 
       {/* Algorithm Accuracy */}
+      {algorithmAccuracy[currentAlgorithm] != 'null' &&
       <div className="option">
         <div className="optionTitle">
             ACCURACY
@@ -570,6 +565,7 @@ of the integer programming formulation of the TSP.</p>
 
         </div>
       </div>
+      }
 
       {/* Run Button */}
       <div className="option" style = {{placeItems: 'center', gridTemplateRows: '1fr'}}>
@@ -610,35 +606,11 @@ of the integer programming formulation of the TSP.</p>
 
       {/* Show different stats based off of the current algorithm */}
       {/* Brute Force Stats */}
-      {currentAlgorithm == 0 && 
+      {currentAlgorithm == 5 && 
         (
           <>
           <div className='stat'>{"Permutations: " + totalPermutations }</div>
           <div className='stat'>{"Progress: " + currentPermutation + ' / ' + totalPermutations }</div>
-          </>
-        )
-      }
-
-      {/* Greedy Algorithm Stats */}
-      {currentAlgorithm == 2 && 
-        (
-          <>
-          </>
-        )
-      }
-
-      {/* Nearest Neighbour Stats */}
-      {currentAlgorithm == 3 && 
-        (
-          <>
-          </>
-        )
-      }
-
-      {/* Ant Colony Optomisation Stats */}
-      {currentAlgorithm == 1 && 
-        (
-          <>
           </>
         )
       }

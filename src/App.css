@@ -6,7 +6,7 @@
   top: 0;
   display: grid;
   grid-template-rows: auto auto 1fr;
-  background-image: url('./map.jpg');
+  background-image: url('../map.jpg');
   background-size: cover;
 }
 

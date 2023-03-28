@@ -37,15 +37,16 @@ export function TutorialModal({children, open, state, onClose} : ModalProps){
         children = [children]
     }
 
-    // Check All Children Are Pages
-    if (!children.every((child: any) => {
-        return child.type.name == 'Page'
-    })){
-        console.log(' All children of `Tutorial Modal` must be pages')
-        return (<>
-            All children of Tutorial Modal must be pages
-        </>)
-    }
+    // Check All Direct Children Are Pages
+    // if (!children.every((child: any) => {
+    //     console.log(child);
+    //     return child.type.name == 'Page'
+    // })){
+    //     console.log(' All children of `Tutorial Modal` must be pages')
+    //     return (<>
+    //         All children of Tutorial Modal must be pages
+    //     </>)
+    // }
 
     let pages = children.length;
 

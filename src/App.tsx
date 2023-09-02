@@ -48,6 +48,7 @@ function App() {
 
   // Tutorial Modal State
   const [modalOpen, setModalOpen] = useState(true);
+  
 
   // Screen Dimensions
   const [screenDimensions, setScreenDimensions] = useState<dimensions>({width: 150, height: 150})
@@ -101,20 +102,26 @@ function App() {
   // Add singular point at position (x,y) to screen
   function addPoint(x : number, y: number){
 
-    setPoints((points) => {
-      return [ 
-        ...points.map((point) => {return {...point, solved: false}}), 
-        {x: x, y: y, solved: false} ]
-    })
-    checkDuplicatePoints()
+      setPoints((points) => {
+        return [ 
+          ...points.map((point) => {return {...point, solved: false}}), 
+          {x: x, y: y, solved: false} ]
+      })
+      checkDuplicatePoints()
 
   }
 
   // Add point to screen on mouse click (with guards)
   function addPointClick(e: any){
 
+    console.log('add', menuOpen)
     // If header or button is target ignore
-    if (!(e.target as Element).closest('.header') && !(e.target as Element).closest('.button') && !(e.target as Element).closest('.pageCover') ){
+    if (
+       !(e.target as Element).closest('.header') 
+    && !(e.target as Element).closest('.button') 
+    && !(e.target as Element).closest('.pageCover')
+    && !menuOpen
+    ){
 
      // Ensures that points are not spammed
      if (addingPoint == false){
@@ -480,8 +487,11 @@ function App() {
       <Page >c content</Page>
     </TutorialModal>
 
+
     <div className="header" data-menu = {menuOpen? 'open' : 'close'} >
       
+      
+
       {/* Algorithm Selector Dropdown */}
       <div className="option">
 
@@ -603,6 +613,8 @@ of the integer programming formulation of the TSP.</p>
 
       {/* Total Distance */}
       <div className='stat'>{"Distance: " + totalDistance + " px"}</div>
+
+      <div className='stat'>Modal Open{modalOpen}</div>
 
       {/* Show different stats based off of the current algorithm */}
       {/* Brute Force Stats */}

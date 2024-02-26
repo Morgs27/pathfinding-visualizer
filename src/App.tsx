@@ -17,7 +17,7 @@ import { bruteForceAlgorithm } from './algorithms/BruteForceAlgorithm';
 import { nearestNeighborAlgorithm } from './algorithms/NearestNeighborAlgorithm';
 
 // Import canvas drawing functions
-import {plotPoints, clearCanvas, plotPath, plotLine} from './DrawFunctions'
+import {getCanvas, plotPoints, clearCanvas, plotPath, plotLine} from './DrawFunctions'
 
 // Import Equation visualizer
 import {Equation} from 'react-equation'
@@ -42,6 +42,7 @@ function App() {
   // Refrences to container elements
   const canvas = useRef<HTMLCanvasElement>()
   const screen = useRef<HTMLDivElement>() 
+  var ctx : null | CanvasRenderingContext2D = null;
 
   // Menu State
   const [menuOpen, setMenuOpen] = useState(true);
@@ -49,7 +50,6 @@ function App() {
   // Tutorial Modal State
   const [modalOpen, setModalOpen] = useState(true);
   
-
   // Screen Dimensions
   const [screenDimensions, setScreenDimensions] = useState<dimensions>({width: 150, height: 150})
 
@@ -88,14 +88,20 @@ function App() {
       setScreenDimensions({width: screen?.current?.offsetWidth, height: screen?.current?.offsetHeight})
     })
 
-    window.addEventListener('click', addPointClick, true)
+    window.addEventListener('click', (e: any) => {addPointClick(e)}, true);
+
+    if (canvas.current != null ){
+      console.log('get canvas')
+      ctx = getCanvas();
+      console.log(ctx)
+    }
     
   }, [])
+
 
   function toggleMenu(){
     setMenuOpen((menuOpen) => !menuOpen)
   }
-
 
   /// --- Points Functions --- ///
 
@@ -111,33 +117,48 @@ function App() {
 
   }
 
-  // Add point to screen on mouse click (with guards)
-  function addPointClick(e: any){
+  let addPointClick = (e: any) => {};
 
-    console.log('add', menuOpen)
-    // If header or button is target ignore
-    if (
-       !(e.target as Element).closest('.header') 
-    && !(e.target as Element).closest('.button') 
-    && !(e.target as Element).closest('.pageCover')
-    && !menuOpen
-    ){
+  useEffect(() => {
 
-     // Ensures that points are not spammed
-     if (addingPoint == false){
+    if (modalOpen == false){
 
-       addingPoint = true
-       
-       addPoint(e.offsetX, e.offsetY)
+      addPointClick = (e: any) => {
 
-       setTimeout(() => {
-         addingPoint = false
-       }, 300);
+        console.log('addingPoint')
 
-     }
+        // If header or button is target ignore
+        if (
+           !(e.target as Element).closest('.header') 
+        && !(e.target as Element).closest('.button') 
+        && !(e.target as Element).closest('.pageCover')
+        ){
+  
+          
+        // Ensures that points are not spammed
+        if (addingPoint == false){
+  
+          addingPoint = true
+          
+          addPoint(e.offsetX, e.offsetY)
+  
+          setTimeout(() => {
+            addingPoint = false
+          }, 300);
+  
+        }
+  
+       }
+  
+      }
 
-   }
-  }
+    }
+    else {
+      addPointClick = (e: any) => {}
+    }
+
+  }, [modalOpen])
+
 
   // Add any number of points randomly to screen
   function addPoints(number: number){
@@ -159,12 +180,12 @@ function App() {
   // Plot Points on first render and when points changes
   useEffect( () => {
 
-    clearCanvas()
+    clearCanvas(canvas.current, ctx)
 
-    plotPoints(points);
+    plotPoints(points, ctx);
 
     setTimeout(() => {
-      plotPoints(points)
+      plotPoints(points, ctx)
     }, 50);
 
     // Update permutations stat
@@ -211,9 +232,9 @@ function App() {
 
         if (running.current){
           counter += 1
-          clearCanvas()
-          plotPath(path)
-          plotPoints(points)
+          clearCanvas(canvas.current, ctx)
+          plotPath(path, ctx)
+          plotPoints(points, ctx)
           setCurrentPermutation(counter)
           timeouts.shift()
         }
@@ -276,10 +297,10 @@ function App() {
           // Add current point to the completed path
           completed_path.push(points_array[pointIndex])
 
-          clearCanvas()
+          clearCanvas(canvas.current, ctx)
 
           // Plot the so far completed path
-          plotPath(completed_path, 'orange')
+          plotPath(completed_path, ctx, 'orange')
 
           // If not on the last point
           if (index != path.length - 1){
@@ -302,7 +323,7 @@ function App() {
 
                 var colour = 'rgba(255,255,255,' + lineStrength + ')';
 
-                plotLine(points_array[pointIndex], points_array[index], colour)
+                plotLine(points_array[pointIndex], points_array[index], ctx, colour)
               }
 
             })
@@ -311,7 +332,7 @@ function App() {
           
           // Set current point to solved and update the points
           points_array[pointIndex].solved = true;
-          plotPoints(points_array)
+          plotPoints(points_array, ctx)
 
           // Remove current frame from list of frames
           timeouts.shift()
@@ -374,22 +395,22 @@ function App() {
           // Display a line between them proportional to the distance
           allEdges.forEach((edge, allEdgesIndex) => {
             let opacity = Math.pow(1 - (allEdgesIndex / allEdges.length) , 4) / 4
-            plotPath([edge.point1, edge.point2], 'rgba(255,255,255,' + opacity + ')')
+            plotPath([edge.point1, edge.point2],ctx, 'rgba(255,255,255,' + opacity + ')')
           })
 
           // Plot all the lines completed in previous frames
           prevPath.forEach((edge) =>{
-            plotPath([edge.point1, edge.point2])
+            plotPath([edge.point1, edge.point2], ctx)
           })
 
           // After a delay plot the next edge
           setTimeout(() => {
 
-            clearCanvas()
-            plotPoints(points)
+            clearCanvas(canvas.current, ctx)
+            plotPoints(points, ctx)
 
             currentPath.forEach((edge) =>{
-              plotPath([edge.point1, edge.point2])
+              plotPath([edge.point1, edge.point2], ctx)
             })
 
           }, 5 * speed);
@@ -447,8 +468,8 @@ function App() {
 
     // Clear Canvas
     setPoints((points) => points.map((points) => {return {...points, solved : false}}))
-    clearCanvas()
-    plotPoints(points)
+    clearCanvas(canvas.current, ctx)
+    plotPoints(points, ctx)
 
     // Setup Running
     running.current = true; 
@@ -476,7 +497,7 @@ function App() {
    <div className = 'container'>
   
     {/* Tutorial Modal Component which shows on page load */}
-    <TutorialModal state = {modalOpen} onClose = {() => setModalOpen(false)}>
+    <TutorialModal state = {modalOpen} setState={setModalOpen}>
       <Page >
         <h3>Welcome to TSP Visualizer</h3>
         <p><i>TSP - Traveling Salesman Problem</i></p>
@@ -520,7 +541,7 @@ function App() {
               <button onClick={() => addPoints(1)}>1 +</button>
               <button onClick={() => addPoints(5)}>5 +</button>
               <button onClick={() => addPoints(10)}>10 +</button>
-              <button onClick = {() => {setPoints([]); clearCanvas()} } style = {{borderColor: 'rgba(255,255,255,0.6)', color: 'rgba(255,255,255,0.6)'}} >Clear</button>
+              <button onClick = {() => {setPoints([]); clearCanvas(canvas.current, ctx)} } style = {{borderColor: 'rgba(255,255,255,0.6)', color: 'rgba(255,255,255,0.6)'}} >Clear</button>
             </div>
         </div>
 
@@ -614,7 +635,7 @@ of the integer programming formulation of the TSP.</p>
       {/* Total Distance */}
       <div className='stat'>{"Distance: " + totalDistance + " px"}</div>
 
-      <div className='stat'>Modal Open{modalOpen}</div>
+      <div className='stat'>{modalOpen == false ? 'False': 'True'}</div>
 
       {/* Show different stats based off of the current algorithm */}
       {/* Brute Force Stats */}
@@ -635,7 +656,7 @@ of the integer programming formulation of the TSP.</p>
     {/* Canvas Container */}
     <div className="screen" ref = {screen}>
 
-      <canvas className="canvas" id = 'canvas' width = { screenDimensions.width | 150} height = {screenDimensions.height | 150} ref={canvas} ></canvas>
+      <canvas  className="canvas" id = 'canvas' width = { screenDimensions.width | 150} height = {screenDimensions.height | 150} ref={canvas} ></canvas>
 
     </div>
 

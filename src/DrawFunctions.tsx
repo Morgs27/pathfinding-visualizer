@@ -3,11 +3,18 @@
 
 import { point } from "./App";
 
-export function plotPoints(points_array: point[]){
+export function getCanvas(){
 
-  // Get Canvas Element
-  const canvaseElm = document.getElementById('canvas') as HTMLCanvasElement;
-  const ctx = canvaseElm?.getContext("2d");
+    // Get Canvas Element
+    const canvasElm = document.getElementById('canvas') as HTMLCanvasElement;
+    const ctx = canvasElm?.getContext("2d");
+
+    return ctx;
+}
+
+export function plotPoints(points_array: point[], ctx: CanvasRenderingContext2D){
+
+  ctx = getCanvas();
 
   var markerObjWhite = new Image();
   markerObjWhite.src = './location-dot-white.png'
@@ -28,24 +35,20 @@ export function plotPoints(points_array: point[]){
 
 }
 
-export function clearCanvas(){
+export function clearCanvas(canvasElm:HTMLCanvasElement, ctx: CanvasRenderingContext2D){
 
-  // Get Canvas Element
-  const canvaseElm = document.getElementById('canvas') as HTMLCanvasElement;
-  const ctx = canvaseElm?.getContext("2d");
+  ctx = getCanvas();
 
   // Clear Canvas
-  ctx.clearRect(0, 0, canvaseElm.width, canvaseElm.height);
+  ctx.clearRect(0, 0, canvasElm.width, canvasElm.height);
 
 }
 
-export function plotPath(path_points: point[], colour?: string){
+export function plotPath(path_points: point[],  ctx: CanvasRenderingContext2D, colour?: string){
+
+  ctx = getCanvas();
 
   colour = colour || 'orange'
-
-  // Get Canvas Element
-  const canvaseElm = document.getElementById('canvas') as HTMLCanvasElement;
-  const ctx = canvaseElm?.getContext("2d");
 
   ctx.lineWidth = 2;
   ctx.strokeStyle = colour;
@@ -56,23 +59,21 @@ export function plotPath(path_points: point[], colour?: string){
   }
   ctx.stroke();
 
-  plotPoints(path_points)
+  plotPoints(path_points, ctx)
   
 }
 
-export function plotLine(start: point, end: point, colour?: string){
+export function plotLine(start: point, end: point,ctx: CanvasRenderingContext2D, colour?: string){
     
+  ctx = getCanvas();
+  
   colour = colour || 'orange'
 
-    // Get Canvas Element
-    const canvaseElm = document.getElementById('canvas') as HTMLCanvasElement;
-    const ctx = canvaseElm?.getContext("2d");
-
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = colour;
-    ctx.beginPath();
-    ctx.moveTo(start.x, start.y);
-    ctx.lineTo(end.x, end.y);
-    ctx.stroke();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = colour;
+  ctx.beginPath();
+  ctx.moveTo(start.x, start.y);
+  ctx.lineTo(end.x, end.y);
+  ctx.stroke();
 
 }

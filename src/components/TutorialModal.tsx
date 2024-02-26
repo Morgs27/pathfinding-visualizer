@@ -5,7 +5,7 @@ type ModalProps = {
     children : any,
     open? : boolean,
     state : boolean,
-    onClose : any
+    setState : any
 }
 
 type PageProps = {
@@ -16,7 +16,7 @@ type PageProps = {
 
 
 
-export function TutorialModal({children, open, state, onClose} : ModalProps){
+export function TutorialModal({children, open, state, setState} : ModalProps){
 
     const [currentPage, setCurrentPage] = useState(0)
     const [pagesTransform, setPagesTransform] = useState(0)
@@ -52,7 +52,8 @@ export function TutorialModal({children, open, state, onClose} : ModalProps){
 
     function closeModal(){
         setCurrentPage(0)
-        onClose()
+        console.log('close modal')
+        setState(false)
     }
 
     function checkButtons(){

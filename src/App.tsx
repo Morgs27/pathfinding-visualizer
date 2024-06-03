@@ -88,8 +88,6 @@ function App() {
       setScreenDimensions({width: screen?.current?.offsetWidth, height: screen?.current?.offsetHeight})
     })
 
-    window.addEventListener('click', (e: any) => {addPointClick(e)}, true);
-
     if (canvas.current != null ){
       console.log('get canvas')
       ctx = getCanvas();
@@ -117,7 +115,9 @@ function App() {
 
   }
 
-  let addPointClick = (e: any) => {};
+  let addPointClick = (e: any) => {
+    console.log('addPointClick')
+  };
 
   useEffect(() => {
 
@@ -132,6 +132,8 @@ function App() {
            !(e.target as Element).closest('.header') 
         && !(e.target as Element).closest('.button') 
         && !(e.target as Element).closest('.pageCover')
+        && !(e.target as Element).closest('.tutorialModal')
+        && !(e.target as Element).closest('.stats')
         ){
   
           
@@ -154,8 +156,13 @@ function App() {
 
     }
     else {
-      addPointClick = (e: any) => {}
+      addPointClick = (e: any) => {
+        console.log('modalOpen')
+        console.log(modalOpen)
+      }
     }
+
+    window.addEventListener('click', (e: any) => {addPointClick(e)}, true);
 
   }, [modalOpen])
 
@@ -511,13 +518,9 @@ function App() {
 
     <div className="header" data-menu = {menuOpen? 'open' : 'close'} >
       
-      
-
       {/* Algorithm Selector Dropdown */}
       <div className="option">
-
         <div className="optionTitle">ALGORITHM</div>
-
         <div className="optionContent">
             <Dropdown 
             options={algorithmNames} 
@@ -528,14 +531,11 @@ function App() {
             placeholder="Select an algorithm"
             />
         </div>
-
       </div>
 
       {/* Add Points Buttons */}
       <div className="option">
-
         <div className="optionTitle">POINTS</div>
-
         <div className="optionContent">
             <div className="buttonGroup">
               <button onClick={() => addPoints(1)}>1 +</button>
@@ -544,14 +544,11 @@ function App() {
               <button onClick = {() => {setPoints([]); clearCanvas(canvas.current, ctx)} } style = {{borderColor: 'rgba(255,255,255,0.6)', color: 'rgba(255,255,255,0.6)'}} >Clear</button>
             </div>
         </div>
-
       </div>
 
       {/* Speed Buttons */}
       <div className="option">
-
         <div className="optionTitle">TIME DELAY</div>
-
         <div className="optionContent">
             <div className="buttonGroup">
               <button data-active = {speed == 1? 'true' : 'false'} onClick={() => setSpeed(1)}>1</button>
@@ -559,7 +556,6 @@ function App() {
               <button data-active = {speed == 100? 'true' : 'false'} onClick={() => setSpeed(100)}>100</button>
             </div>
         </div>
-
       </div>
 
       {/* Algorithm Time Complexity */}
@@ -567,7 +563,6 @@ function App() {
         <div className="optionTitle">
             TIME COMPLEXITY
         </div>
-
         <div className="optionContent">
           {currentAlgorithm == 5 ? 'O(n!)' : 
           <Equation value = {algorithmTimeComplexities[currentAlgorithm]}></Equation>
@@ -581,7 +576,6 @@ function App() {
         <div className="optionTitle">
             ACCURACY
         </div>
-
         <div className="optionContent">
           {algorithmAccuracy[currentAlgorithm]}
           <div className='infoButton' style={{position: 'relative'}}>
@@ -600,8 +594,6 @@ of the integer programming formulation of the TSP.</p>
 
       {/* Run Button */}
       <div className="option" style = {{placeItems: 'center', gridTemplateRows: '1fr'}}>
-
-
             {runningState ?
             <button style = {{backgroundColor: 'transparent', color: 'orange'}} className="run" onClick = {() => {running.current = false; setRunningState(false)}} >
             Stop <BsFillStopCircleFill className='icon'></BsFillStopCircleFill>
@@ -611,7 +603,6 @@ of the integer programming formulation of the TSP.</p>
             Run <FaPlay className='icon'></FaPlay>
             </button>
             }
-
       </div>
 
     </div>
@@ -634,8 +625,6 @@ of the integer programming formulation of the TSP.</p>
 
       {/* Total Distance */}
       <div className='stat'>{"Distance: " + totalDistance + " px"}</div>
-
-      <div className='stat'>{modalOpen == false ? 'False': 'True'}</div>
 
       {/* Show different stats based off of the current algorithm */}
       {/* Brute Force Stats */}

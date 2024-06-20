@@ -26,6 +26,8 @@ import {Equation} from 'react-equation'
 import {TutorialModal, Page} from './components/TutorialModal';
 import { LoadingText } from './components/LoadingText';
 
+import {edge} from './algorithms/GreedyAlgorithm'
+
 type dimensions = {
   width: number | undefined
   height: number | undefined
@@ -52,6 +54,7 @@ function App() {
   
   // Screen Dimensions
   const [screenDimensions, setScreenDimensions] = useState<dimensions>({width: 150, height: 150})
+  const offsetTop = 60;
 
   // Points 
   const [points, setPoints] = useState<point[]>([])
@@ -60,6 +63,7 @@ function App() {
   // Algorithm Information in Parallel Arrays
   const algorithmNames = ['Ant Colony Optimization', 'Nearest Neighbour', 'Greedy', 'Nearest Insertion', 'Convex Hull Insertion', 'Brute Force']
   const algorithmFunctions = [runAntColonyAlgorithm,runNearestNeighborAlgorithm, runGreedyAlgorithm, runNearestInsertionAlgorithm, runConvexHullAlgorithm, runBruteForceAlgorithm]
+  const algorithmCalculateFunctions = [null, nearestNeighborAlgorithm, greedyAlgorithm, null, null, bruteForceAlgorithm]
   const algorithmTimeComplexities = ['null', 'O(n^2)',  'O(n^2log_2(n))', 'O(n^2)', 'O(n^2log_2(n))', 'O(n!)']
   const algorithmAccuracy = ['null', '75%', '80-85%', 'null', 'null', '100%' ]
   const [currentAlgorithm, setCurrentAlgorithm ] = useState(0)
@@ -76,6 +80,9 @@ function App() {
   const [totalPermutations, setTotalPermutations] = useState(0)
   const [totalDistance, setTotalDistance] = useState(0)
   const [completedEdges, setCompletedEdges] = useState(0)
+
+  // Loading State
+  const [loading, setLoading] = useState(false)
 
   /// --- General Functions --- ///
 
@@ -115,17 +122,14 @@ function App() {
 
   }
 
-  let addPointClick = (e: any) => {
-    console.log('addPointClick')
-  };
+  // Initiate addPointClick function to be rewritten bellow 
+  let addPointClick = (e: any) => {};
 
   useEffect(() => {
 
     if (modalOpen == false){
 
       addPointClick = (e: any) => {
-
-        console.log('addingPoint')
 
         // If header or button is target ignore
         if (
@@ -141,9 +145,14 @@ function App() {
         if (addingPoint == false){
   
           addingPoint = true
+
+          console.log(e.offsetX, e.offsetY)
+
+          // Check the point is not too close to the top of the screen
+          if (e.offsetY > offsetTop){
+            addPoint(e.offsetX, e.offsetY)
+          }
           
-          addPoint(e.offsetX, e.offsetY)
-  
           setTimeout(() => {
             addingPoint = false
           }, 300);
@@ -171,7 +180,7 @@ function App() {
   function addPoints(number: number){
 
     setPoints((points) => [...points, ...Array(number).fill(undefined).map((point) => {
-      return {x: Math.random() * screenDimensions.width, y: Math.random() * screenDimensions.height , solved: false}
+      return {x: Math.random() * screenDimensions.width, y: (Math.random() * (screenDimensions.height - offsetTop)) + offsetTop , solved: false}
     })])
     checkDuplicatePoints()
     
@@ -207,17 +216,22 @@ function App() {
     algorithmFinished()
 
   }, [currentAlgorithm])
-    
 
+  // Run Algorithm on runningState change
+  useEffect(() => {
+      if (runningState){
+        setTimeout(() => {
+          runAlgorithm()
+        }, 100);
+      }
+  }, [runningState])
+  
   /// --- Algorithm Run Functions ---- ///
 
   // Run/Diplay Brute Force Algorithm
-  async function runBruteForceAlgorithm() {
+  async function runBruteForceAlgorithm(result: any) {
 
-    bruteForceAlgorithm(points)
-
-    // Run calculation
-    const [solution, permutations] = await bruteForceAlgorithm(points)
+    const [solution, permutations] = result;
 
     setTotalPermutations(permutations.length)
 
@@ -257,7 +271,7 @@ function App() {
 
           // Calculate distance between all points
           let totalDistance = 0
-          solution.forEach((point: point, index) => {
+          solution.forEach((point: point, index:number) => {
             if (index != 0){
               totalDistance += distance(point, solution[index - 1])
             }
@@ -276,10 +290,10 @@ function App() {
   }
 
   // Run/Diplay Nearest Neighbor Algorithm
-  function runNearestNeighborAlgorithm(){
+  function runNearestNeighborAlgorithm(result: any){
 
     // Run the algorithm 
-    const [steps, path] = nearestNeighborAlgorithm(points)
+    const [steps, path] = result;
 
     // Create an idendical array to points
     const points_array: point[] = points.map((point) => {
@@ -368,10 +382,10 @@ function App() {
   }
 
   // Run/Diplay Greedy Algorithm Algorithm
-  function runGreedyAlgorithm(){
+  function runGreedyAlgorithm(result:any){
     
     /// Run Algorithm ///
-    const [edges, allEdges] = greedyAlgorithm(points)
+    const [edges, allEdges] = result;
 
     /// Display Algorithm ///
 
@@ -379,7 +393,7 @@ function App() {
     var timeouts: any[] = []
 
     // Loop through path edges
-    edges.forEach((edge, index) => {
+    edges.forEach((edge: edge, index: number) => {
 
       // Create frame and add to array
       timeouts.push(setTimeout(() => {
@@ -390,23 +404,23 @@ function App() {
           // Add distance of current edge to total
           setTotalDistance((distance) => Math.floor(distance + edge.distance))
 
-          let currentPath = edges.filter((edge, filterIndex) => {
+          let currentPath = edges.filter((edge: edge, filterIndex: number) => {
             return filterIndex <= index
           })
 
-          let prevPath = edges.filter((edge, filterIndex) => {
+          let prevPath = edges.filter((edge:edge, filterIndex: number) => {
             return filterIndex < index
           })
 
           // Loop through all possible edges between points
           // Display a line between them proportional to the distance
-          allEdges.forEach((edge, allEdgesIndex) => {
+          allEdges.forEach((edge: edge, allEdgesIndex: number) => {
             let opacity = Math.pow(1 - (allEdgesIndex / allEdges.length) , 4) / 4
             plotPath([edge.point1, edge.point2],ctx, 'rgba(255,255,255,' + opacity + ')')
           })
 
           // Plot all the lines completed in previous frames
-          prevPath.forEach((edge) =>{
+          prevPath.forEach((edge: edge) =>{
             plotPath([edge.point1, edge.point2], ctx)
           })
 
@@ -416,7 +430,7 @@ function App() {
             clearCanvas(canvas.current, ctx)
             plotPoints(points, ctx)
 
-            currentPath.forEach((edge) =>{
+            currentPath.forEach((edge:edge) =>{
               plotPath([edge.point1, edge.point2], ctx)
             })
 
@@ -436,6 +450,8 @@ function App() {
 
         // If all the frames have ran end the algorithm
         if (timeouts.length == 0){
+          // set all the points to solved
+          setPoints((points) => points.map((point) => {return {...point, solved: true}}))
           algorithmFinished()
         }
 
@@ -447,17 +463,19 @@ function App() {
   }
 
   // Run/ Display Ant Colony Algorithm
-  function runAntColonyAlgorithm(){
+  function runAntColonyAlgorithm(result:any){
   }
 
-  function runNearestInsertionAlgorithm(){
+  function runNearestInsertionAlgorithm(result:any){
   }
 
-  function runConvexHullAlgorithm(){
+  function runConvexHullAlgorithm(result:any){
   }
 
   // Function to run before any algorithm
   function algorithmSetup(){
+
+    setLoading(true)
 
     if (currentAlgorithm == 5){
 
@@ -485,10 +503,16 @@ function App() {
     // Reset Stats
     setTotalDistance(0)
     setCurrentPermutation(0)
-    
-    // Run Function 
-    algorithmFunctions[currentAlgorithm]()
+  }
 
+  const runAlgorithm = async () => {
+     // Calculate algorithm 
+     let result = await algorithmCalculateFunctions[currentAlgorithm](points)
+
+     setLoading(false)
+
+     // Run Function 
+     algorithmFunctions[currentAlgorithm](result)
   }
 
   // Function to run when any algorithm is finished
@@ -515,6 +539,8 @@ function App() {
       <Page >c content</Page>
     </TutorialModal>
 
+    {/* Loading Text Component */}
+    <LoadingText state = {loading} setState = {setLoading} />
 
     <div className="header" data-menu = {menuOpen? 'open' : 'close'} >
       

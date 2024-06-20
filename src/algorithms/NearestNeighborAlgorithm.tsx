@@ -65,8 +65,8 @@ export function nearestNeighborAlgorithm(points: point[]){
         if (nextPointIndex == null){
     
             pathSolved = true
-            steps.push([Array(points.length).fill(null), 0])
-            path.push(path[0])
+            // steps.push([Array(points.length).fill(null), 0])
+            // path.push(path[0])
     
         }
     

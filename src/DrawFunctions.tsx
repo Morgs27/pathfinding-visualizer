@@ -21,6 +21,7 @@ export function plotPoints(points_array: point[], ctx: CanvasRenderingContext2D)
 
   var markerObjOrange = new Image();
   markerObjOrange.src = './location-dot-orange.png'
+  
     
   // Draw Each Point
   points_array.forEach((point: point) => {

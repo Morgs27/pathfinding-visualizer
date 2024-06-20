@@ -1,9 +1,13 @@
 @import url("https://fonts.googleapis.com/css?family=Raleway:400,700");
 
-.loading-container{
+.loading-container {
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
   position: absolute;
   z-index: 1000;
   pointer-events: none;
@@ -24,7 +28,7 @@ h2 {
   line-height: 46px;
   display: inline-block;
   font-family: "Raleway", sans-serif;
- letter-spacing: 1mm;
+  letter-spacing: 1mm;
 }
 
 .text-center {
@@ -34,7 +38,7 @@ h2 {
 .loading-data {
   left: 50%;
   top: 50%;
-  transform: translate(-50%,-50%);
+  transform: translate(-50%, -50%);
   position: absolute;
 }
 
@@ -45,7 +49,7 @@ h2 {
   color: orange;
 }
 
-.loading-text .char.white{
+.loading-text .char.white {
   color: white;
 }
 
@@ -71,25 +75,25 @@ h2 {
   animation-delay: 1.2s;
 }
 .loading-text .char:nth-child(8) {
-    animation-delay: 1.25s;
+  animation-delay: 1.25s;
 }
 .loading-text .char:nth-child(9) {
-    animation-delay: 1.3s;
+  animation-delay: 1.3s;
 }
 .loading-text .char:nth-child(10) {
-    animation-delay: 1.35s;
+  animation-delay: 1.35s;
 }
 .loading-text .char:nth-child(11) {
-    animation-delay: 1.4s;
+  animation-delay: 1.4s;
 }
 .loading-text .char:nth-child(12) {
-    animation-delay: 1.7s;
+  animation-delay: 1.7s;
 }
 .loading-text .char:nth-child(13) {
-    animation-delay: 1.8s;
+  animation-delay: 1.8s;
 }
 .loading-text .char:nth-child(14) {
-    animation-delay: 1.9s;
+  animation-delay: 1.9s;
 }
 
 @keyframes loading-text {
@@ -117,6 +121,6 @@ h2 {
   }
 }
 
-.hide{
-    display: none;
+.hide {
+  display: none;
 }

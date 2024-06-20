@@ -1,142 +1,130 @@
 .tutorialModal {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%,-50%);
-    display: grid;
-    grid-template-rows: auto auto 70px;
-    max-height: 90vh;
-    width: clamp(400px, 90vw, 800px);
-    max-width: calc(95vw - 50px);
-    overflow: hidden;
-    background: rgba(40,40,40);
-    padding: 25px;
-    color: rgba(255,255,255,0.7);
-    font-family: Arial, Helvetica, sans-serif;
-    border: 1px solid rgba(255,255,255,0.1);
-    -webkit-box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.75);
-    -moz-box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.75);
-    box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.75);
-    z-index: 1000;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  grid-template-rows: auto auto 70px;
+  max-height: 90vh;
+  width: clamp(400px, 90vw, 800px);
+  max-width: calc(95vw - 50px);
+  overflow: hidden;
+  background: rgba(40, 40, 40);
+  padding: 25px;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: Arial, Helvetica, sans-serif;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  -webkit-box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.75);
+  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.75);
+  z-index: 1000;
 }
 
-/* .test{
-    z-index: -100;
-    opacity: 0.1;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-} */
-.pageCover{
-    content: '';
-    width: 100vw;
-    height: 100vh;
-    position: fixed;
-    background: rgba(100,100,100,0.6);
-    z-index: 1000;
-    /* pointer-events: none; */
-
+.pageCover {
+  content: "";
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  background: rgba(100, 100, 100, 0.6);
+  z-index: 1000;
+  /* pointer-events: none; */
 }
 
-.overflowContainer{
-    width: 100%;
-    overflow: hidden;
-    grid-row: 2;
-    padding: 20px 0;
-    padding-bottom: 40px;
-    transition: 0.6s;
+.overflowContainer {
+  width: 100%;
+  overflow: hidden;
+  grid-row: 2;
+  padding: 20px 0;
+  padding-bottom: 40px;
+  transition: 0.6s;
 }
 
-.tutorialModal .modalHeader{
-    grid-row: 1;
-    width: 100%;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+.tutorialModal .modalHeader {
+  grid-row: 1;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.tutorialModal .modalPages{
-    display: flex;
-    flex-direction: row;
-    transition: 0.6s;
+.tutorialModal .modalPages {
+  display: flex;
+  flex-direction: row;
+  transition: 0.6s;
 }
 
-.tutorialModal .modalFooter{
-    grid-row: 3;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: flex-end;
-    justify-content: right;
-    border-top: 1px solid rgba(255,255,255,0.1);
+.tutorialModal .modalFooter {
+  grid-row: 3;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: right;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.tutorialModal .pageContainer{
-    height: 100%;
-    display: inline-block;
+.tutorialModal .pageContainer {
+  height: 100%;
+  display: inline-block;
 }
 
-.tutorialModal .modalButtons{
-    display: flex;
-    flex-direction: row-reverse;
-    gap: 10px;
-    position: relative;
+.tutorialModal .modalButtons {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 10px;
+  position: relative;
 }
 
-.tutorialModal .button{
-    min-width: 100px;
-    height: 40px;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid orange;
-    color: orange;
+.tutorialModal .button {
+  min-width: 100px;
+  height: 40px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid orange;
+  color: orange;
 }
 
-.tutorialModal .button.hide{
-    display: none;
+.tutorialModal .button.hide {
+  display: none;
 }
 
-
-.tutorialModal .button:hover{
-    cursor: pointer;
-    background: orange;
-    color: white;
+.tutorialModal .button:hover {
+  cursor: pointer;
+  background: orange;
+  color: white;
 }
 
-.tutorialModal .button.skip{
-    color: rgba(255,255,255,0.7);
-    border: none;
-    align-items: center;
-    margin-right: 10px;
-    transition: 0.3s;
-    background: transparent
+.tutorialModal .button.skip {
+  color: rgba(255, 255, 255, 0.7);
+  border: none;
+  align-items: center;
+  margin-right: 10px;
+  transition: 0.3s;
+  background: transparent;
 }
 
-.tutorialModal .page{
-    text-align: center;
-    font-size: clamp(20px, 1.3vw, 36px);
-    font-weight: lighter;
-    
+.tutorialModal .page {
+  text-align: center;
+  font-size: clamp(20px, 1.3vw, 36px);
+  font-weight: lighter;
 }
 
-.tutorialModal .page p{
-    color: rgba(255,255,255,0.6);
-    font-size: 0.7em;
+.tutorialModal .page p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.7em;
 }
 
 @media (max-width: 800px) {
-    .tutorialModal .page p{
-        font-size: 0.8em;
-    }
+  .tutorialModal .page p {
+    font-size: 0.8em;
+  }
 }
 
-.tutorialModal .page img{
-    max-height: 300px;
-    margin-top: 30px;
-    margin-bottom: 30px;
+.tutorialModal .page img {
+  max-height: 300px;
+  margin-top: 30px;
+  margin-bottom: 30px;
 }

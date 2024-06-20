@@ -1,4 +1,6 @@
+import { useEffect, useRef, useState } from "react";
 import "./LoadingText.css";
+import { RxCross1 } from "react-icons/rx";
 
 interface LoadingTextProps {
   state: boolean;
@@ -9,6 +11,9 @@ export function LoadingText({ state, setState }: LoadingTextProps) {
   if (state) {
     return (
       <div className="loading-container">
+        <div className="loading-close" onClick={() => window.location.reload()}>
+          <RxCross1 />
+        </div>
         <section className="loading-data">
           <h2 className="loading-text text-center text-uppercase">
             <span className="char">c</span>

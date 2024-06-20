@@ -1,4 +1,4 @@
-import { LegacyRef, useEffect, useRef, useState } from "react";
+import { LegacyRef, useCallback, useEffect, useRef, useState } from "react";
 
 // Import Dropdown Component
 import Dropdown from "react-dropdown";
@@ -31,9 +31,9 @@ import { Equation } from "react-equation";
 // Import Components
 import { TutorialModal, Page } from "./components/TutorialModal";
 import { LoadingText } from "./components/LoadingText";
+import ErrorMessage from "./components/ErrorMessage";
 
 import { edge } from "./algorithms/GreedyAlgorithm";
-import ErrorMessage from "./components/ErrorMessage";
 
 type dimensions = {
   width: number | undefined;
@@ -67,9 +67,17 @@ function App() {
     height: 150,
   });
 
-  // Offset from top of screen for adding points
-  const offsetTop = 60;
+  // Check if device is mobile
+  const isMobile = window.innerWidth < 800;
 
+  // Offset from top of screen for adding points
+  const margins = {
+    top: 60,
+    bottom: 10,
+    left: 10,
+    right: 10,
+  };
+  
   // Points
   const [points, setPoints] = useState<point[]>([]);
   var addingPoint: Boolean = false;
@@ -130,18 +138,29 @@ function App() {
 
   /// --- General Functions --- ///
 
-  // Startup Function - Only runs on first render
-  useEffect(() => {
-    setScreenDimensions({
-      width: screen?.current?.offsetWidth,
-      height: screen?.current?.offsetHeight,
-    });
-
-    window.addEventListener("resize", () => {
+  const sortScreenDimensions = useCallback(
+    debounce(() => {
+      // Set screen dimensions
       setScreenDimensions({
         width: screen?.current?.offsetWidth,
         height: screen?.current?.offsetHeight,
       });
+
+      // set --vh in styles to be equal to 1% of the viewport height
+      document.documentElement.style.setProperty(
+        "--vh",
+        `${window.innerHeight * 0.01}px`
+      );
+    }, 100),
+    [screen]
+  );
+
+  // Startup Function - Only runs on first render
+  useEffect(() => {
+    sortScreenDimensions();
+
+    window.addEventListener("resize", () => {
+      sortScreenDimensions();
     });
 
     if (canvas.current != null) {
@@ -150,6 +169,7 @@ function App() {
   }, []);
 
   function toggleMenu() {
+    isMobile &&
     setMenuOpen((menuOpen) => !menuOpen);
   }
 
@@ -186,12 +206,12 @@ function App() {
           if (addingPoint == false) {
             addingPoint = true;
 
-            console.log(e.offsetX, e.offsetY);
-
             // Check the point is not too close to the top of the screen
-            if (e.offsetY > offsetTop) {
+            if (e.offsetY > margins.top) {
               addPoint(e.offsetX, e.offsetY);
             }
+
+            toggleMenu();
 
             setTimeout(() => {
               addingPoint = false;
@@ -216,16 +236,15 @@ function App() {
 
   // Add any number of points randomly to screen
   function addPoints(number: number) {
+    toggleMenu();
     setPoints((points) => [
       ...points,
       ...Array(number)
         .fill(undefined)
         .map(() => {
           return {
-            x: Math.random() * (screenDimensions.width || 0),
-            y:
-              Math.random() * ((screenDimensions.width || 0) - offsetTop) +
-              offsetTop,
+            x: Math.random() * ((screenDimensions.width || 0) - margins.left - margins.right) + margins.left,
+            y: Math.random() * ((screenDimensions.height || 0) - margins.top - margins.bottom ) + margins.top,
             solved: false,
           };
         }),
@@ -529,6 +548,8 @@ function App() {
 
     setLoading(true);
 
+    toggleMenu();
+
     // Clear Canvas
     setPoints((points) =>
       points.map((points) => {
@@ -606,7 +627,7 @@ function App() {
 
         {/* Add Points Buttons */}
         <div className="option">
-          <div className="optionTitle">POINTS</div>
+          <div className="optionTitle">ADD POINTS</div>
           <div className="optionContent">
             <div className="buttonGroup">
               <button onClick={() => addPoints(1)}>1 +</button>
@@ -615,6 +636,7 @@ function App() {
               <button
                 onClick={() => {
                   setPoints([]);
+                  toggleMenu();
                   clearCanvas(canvas.current!, ctx!);
                 }}
                 style={{
@@ -693,11 +715,12 @@ function App() {
         )}
 
         {/* Run Button */}
-        <div
-          className="option"
-          style={{ placeItems: "center", gridTemplateRows: "1fr" }}
-        >
-          {runningState ? (
+        {!isMobile && (
+          <div
+            className="option"
+            style={{ placeItems: "center", gridTemplateRows: "1fr" }}
+          >
+            {runningState ? (
             <button
               style={{ backgroundColor: "transparent", color: "orange" }}
               className="run"
@@ -709,12 +732,13 @@ function App() {
               Stop{" "}
               <BsFillStopCircleFill className="icon"></BsFillStopCircleFill>
             </button>
-          ) : (
+            ) : (
             <button className="run" onClick={() => algorithmSetup()}>
               Run <FaPlay className="icon"></FaPlay>
             </button>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Header Close Button */}
@@ -738,6 +762,30 @@ function App() {
             <div className="stat">
               {"Progress: " + currentPermutation + " / " + totalPermutations}
             </div>
+          </>
+        )}
+
+        {isMobile && (
+          <>
+            <div className="flex-seperator"></div>
+
+            {runningState ? (
+              <button
+                style={{ backgroundColor: "transparent", color: "orange" }}
+                className="run"
+                onClick={() => {
+                  running.current = false;
+                  setRunningState(false);
+                }}
+              >
+                Stop{" "}
+                <BsFillStopCircleFill className="icon"></BsFillStopCircleFill>
+              </button>
+            ) : (
+              <button className="run mobile" onClick={() => algorithmSetup()}>
+                Run <FaPlay className="icon"></FaPlay>
+              </button>
+            )}
           </>
         )}
 
@@ -792,4 +840,18 @@ function factorialize(num: number) {
     num *= i;
   }
   return num;
+}
+
+// Debounce function
+function debounce<F extends (...args: any[]) => any>(
+  this: any,
+  func: F,
+  wait: number
+): (...args: Parameters<F>) => void {
+  let timeout: ReturnType<typeof setTimeout>;
+  return function (this: any, ...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
 }

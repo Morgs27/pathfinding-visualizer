@@ -124,3 +124,20 @@ h2 {
 .hide {
   display: none;
 }
+
+.loading-close {
+  position: absolute;
+  top: 20px;
+  width: 40px;
+  height: 40px;
+  right: 20px;
+  color: white;
+  font-size: 30px;
+  pointer-events: all;
+}
+
+.loading-close:hover {
+  color: orange;
+  cursor: pointer;
+  pointer-events: all;
+}

@@ -26,7 +26,7 @@ import {
 } from "./DrawFunctions";
 
 // Import Equation visualizer
-import { Equation } from "react-equation";
+// import { Equation } from "react-equation";
 
 // Import Components
 import { TutorialModal, Page } from "./components/TutorialModal";
@@ -684,9 +684,10 @@ function App() {
             {currentAlgorithm == 5 ? (
               "O(n!)"
             ) : (
-              <Equation
-                value={algorithmTimeComplexities[currentAlgorithm]}
-              ></Equation>
+              // <Equation
+              //   value={algorithmTimeComplexities[currentAlgorithm]}
+              // ></Equation>
+              <p>{algorithmTimeComplexities[currentAlgorithm]}</p>
             )}
           </div>
         </div>

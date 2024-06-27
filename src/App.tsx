@@ -23,7 +23,7 @@ import {
   clearCanvas,
   plotPath,
   plotLine,
-} from "./DrawFunctions";
+} from "./functions/DrawFunctions";
 
 // Import Equation visualizer
 // import { Equation } from "react-equation";
@@ -33,18 +33,18 @@ import { TutorialModal, Page } from "./components/TutorialModal";
 import { LoadingText } from "./components/LoadingText";
 import ErrorMessage from "./components/ErrorMessage";
 
-import { edge } from "./algorithms/GreedyAlgorithm";
+import edge from "./types/Edge";
+import { nearestInsertionAlgorithm } from "./algorithms/NearestInsertion";
 
-type dimensions = {
-  width: number | undefined;
-  height: number | undefined;
-};
+import dimensions from "./types/Dimensions";
+import point from "./types/Point";
 
-export type point = {
-  x: number;
-  y: number;
-  solved?: boolean;
-};
+import {
+  factorialize,
+  debounce,
+  distance,
+  generateEdges,
+} from "./functions/helpers";
 
 function App() {
   // Refrences to container elements
@@ -77,7 +77,7 @@ function App() {
     left: 10,
     right: 10,
   };
-  
+
   // Points
   const [points, setPoints] = useState<point[]>([]);
   var addingPoint: Boolean = false;
@@ -103,7 +103,7 @@ function App() {
     null,
     nearestNeighborAlgorithm,
     greedyAlgorithm,
-    null,
+    nearestInsertionAlgorithm,
     null,
     bruteForceAlgorithm,
   ];
@@ -169,8 +169,7 @@ function App() {
   }, []);
 
   function toggleMenu() {
-    isMobile &&
-    setMenuOpen((menuOpen) => !menuOpen);
+    isMobile && setMenuOpen((menuOpen) => !menuOpen);
   }
 
   /// --- Points Functions --- ///
@@ -243,8 +242,16 @@ function App() {
         .fill(undefined)
         .map(() => {
           return {
-            x: Math.random() * ((screenDimensions.width || 0) - margins.left - margins.right) + margins.left,
-            y: Math.random() * ((screenDimensions.height || 0) - margins.top - margins.bottom ) + margins.top,
+            x:
+              Math.random() *
+                ((screenDimensions.width || 0) - margins.left - margins.right) +
+              margins.left,
+            y:
+              Math.random() *
+                ((screenDimensions.height || 0) -
+                  margins.top -
+                  margins.bottom) +
+              margins.top,
             solved: false,
           };
         }),
@@ -434,12 +441,12 @@ function App() {
           if (timeouts.length == 0) {
             algorithmFinished();
           }
-        }, index * 10 * speed)
+        }, index * 15 * speed)
       );
     });
   }
 
-  // Run/Diplay Greedy Algorithm Algorithm
+  // Run/Display Greedy Algorithm Algorithm
   function runGreedyAlgorithm(result: any) {
     /// Run Algorithm ///
     const [edges, allEdges] = result;
@@ -479,7 +486,8 @@ function App() {
               plotPath(
                 [edge.point1, edge.point2],
                 ctx!,
-                "rgba(255,255,255," + opacity + ")"
+                "rgba(255,255,255," + opacity + ")",
+                false
               );
             });
 
@@ -491,12 +499,31 @@ function App() {
             // After a delay plot the next edge
             setTimeout(() => {
               clearCanvas(canvas.current!, ctx!);
+
+              currentPath.forEach((edge: edge) => {
+                if (
+                  currentPath.filter(
+                    (e) => e.point1 === edge.point1 || e.point2 === edge.point1
+                  ).length > 1
+                ) {
+                  edge.point1.solved = true;
+                }
+                if (
+                  currentPath.filter(
+                    (e) => e.point1 === edge.point2 || e.point2 === edge.point2
+                  ).length > 1
+                ) {
+                  edge.point2.solved = true;
+                }
+              });
+
+              // Plot all the points
               plotPoints(points, ctx!);
 
               currentPath.forEach((edge: edge) => {
                 plotPath([edge.point1, edge.point2], ctx!);
               });
-            }, 5 * speed);
+            }, 10 * speed);
 
             timeouts.shift();
           } else {
@@ -526,7 +553,67 @@ function App() {
   // Run/ Display Ant Colony Algorithm
   function runAntColonyAlgorithm(result: any) {}
 
-  function runNearestInsertionAlgorithm(result: any) {}
+  function runNearestInsertionAlgorithm(result: any) {
+    const [frames, solutionCost] = result;
+
+    const allEdges = generateEdges(points);
+
+    const edgeMax = allEdges.reduce((max, edge) => {
+      return Math.max(max, edge.distance);
+    }, 0);
+
+    var timeouts: any = [];
+
+    console.table(frames);
+
+    // Loop through all permutations showing them for 10ms
+    frames.forEach((path: point[], index: number) => {
+      timeouts.push(
+        setTimeout(() => {
+          if (running.current) {
+            clearCanvas(canvas.current!, ctx!);
+            const pointSet = new Set(
+              path.map((point) => `${point.x},${point.y}`)
+            );
+            allEdges.forEach((edge) => {
+              const point1Key = `${edge.point1.x},${edge.point1.y}`;
+              const point2Key = `${edge.point2.x},${edge.point2.y}`;
+              if (pointSet.has(point1Key) || pointSet.has(point2Key)) {
+                const otherPointKey = pointSet.has(point1Key)
+                  ? point2Key
+                  : point1Key;
+                if (!pointSet.has(otherPointKey)) {
+                  const opacity = Math.pow(1 - edge.distance / edgeMax, 8);
+                  plotPath(
+                    [edge.point1, edge.point2],
+                    ctx!,
+                    "rgba(255,255,255," + opacity + ")",
+                    false
+                  );
+                }
+              }
+            });
+            plotPoints(points, ctx!);
+            plotPath(path, ctx!, undefined, true);
+
+            timeouts.shift();
+          } else {
+            timeouts.forEach((timeout: any) => {
+              clearTimeout(timeout);
+            });
+            algorithmFinished();
+          }
+
+          if (index == frames.length - 1) {
+            // Set total distance
+            setTotalDistance(Math.floor(solutionCost));
+
+            algorithmFinished();
+          }
+        }, index * 20 * speed)
+      );
+    });
+  }
 
   function runConvexHullAlgorithm(result: any) {}
 
@@ -722,21 +809,21 @@ function App() {
             style={{ placeItems: "center", gridTemplateRows: "1fr" }}
           >
             {runningState ? (
-            <button
-              style={{ backgroundColor: "transparent", color: "orange" }}
-              className="run"
-              onClick={() => {
-                running.current = false;
-                setRunningState(false);
-              }}
-            >
-              Stop{" "}
-              <BsFillStopCircleFill className="icon"></BsFillStopCircleFill>
-            </button>
+              <button
+                style={{ backgroundColor: "transparent", color: "orange" }}
+                className="run"
+                onClick={() => {
+                  running.current = false;
+                  setRunningState(false);
+                }}
+              >
+                Stop{" "}
+                <BsFillStopCircleFill className="icon"></BsFillStopCircleFill>
+              </button>
             ) : (
-            <button className="run" onClick={() => algorithmSetup()}>
-              Run <FaPlay className="icon"></FaPlay>
-            </button>
+              <button className="run" onClick={() => algorithmSetup()}>
+                Run <FaPlay className="icon"></FaPlay>
+              </button>
             )}
           </div>
         )}
@@ -811,48 +898,3 @@ function App() {
 }
 
 export default App;
-
-/// General Helper Functions ///
-
-// Distance between 2 points
-export function distance(point1: point, point2: point) {
-  return Math.sqrt(
-    (point1.x - point2.x) * (point1.x - point2.x) +
-      (point1.y - point2.y) * (point1.y - point2.y)
-  );
-}
-
-// Check if device is touchScreen
-export function isTouchDevice() {
-  return "ontouchstart" in window || navigator.maxTouchPoints > 0;
-}
-
-// Swap Elements in array
-export function swap(array: any, pos1: number, pos2: number) {
-  var temp = array[pos1];
-  array[pos1] = array[pos2];
-  array[pos2] = temp;
-}
-
-// Factorial Calculation
-function factorialize(num: number) {
-  if (num === 0 || num === 1) return 1;
-  for (var i = num - 1; i >= 1; i--) {
-    num *= i;
-  }
-  return num;
-}
-
-// Debounce function
-function debounce<F extends (...args: any[]) => any>(
-  this: any,
-  func: F,
-  wait: number
-): (...args: Parameters<F>) => void {
-  let timeout: ReturnType<typeof setTimeout>;
-  return function (this: any, ...args) {
-    const context = this;
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(context, args), wait);
-  };
-}

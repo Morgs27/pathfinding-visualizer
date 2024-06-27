@@ -1,0 +1,79 @@
+import point from "../types/Point";
+import edge from "../types/Edge";
+
+export function distance(point1: point, point2: point) {
+  return Math.sqrt(
+    (point1.x - point2.x) * (point1.x - point2.x) +
+      (point1.y - point2.y) * (point1.y - point2.y)
+  );
+}
+
+export function isTouchDevice() {
+  return "ontouchstart" in window || navigator.maxTouchPoints > 0;
+}
+
+export function swap(array: any, pos1: number, pos2: number) {
+  var temp = array[pos1];
+  array[pos1] = array[pos2];
+  array[pos2] = temp;
+}
+
+export function factorialize(num: number) {
+  if (num === 0 || num === 1) return 1;
+  for (var i = num - 1; i >= 1; i--) {
+    num *= i;
+  }
+  return num;
+}
+
+export function debounce<F extends (...args: any[]) => any>(
+  this: any,
+  func: F,
+  wait: number
+): (...args: Parameters<F>) => void {
+  let timeout: ReturnType<typeof setTimeout>;
+  return function (this: any, ...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
+}
+
+export const generateEdges = (points: point[]): edge[] => {
+  const edges: edge[] = [];
+  for (let i = 0; i < points.length; i++) {
+    for (let j = i + 1; j < points.length; j++) {
+      edges.push({
+        point1Index: i,
+        point2Index: j,
+        distance: distance(points[i], points[j]),
+        point1: points[i],
+        point2: points[j],
+        added: false,
+      });
+    }
+  }
+  return edges;
+};
+
+export const shortestEdge = (edges: edge[]): edge => {
+  return edges.reduce((shortest, current) => {
+    return current.distance < shortest.distance ? current : shortest;
+  });
+};
+
+export const removeEdge = (edges: edge[], edge: edge) => {
+  return edges.filter((e) => e !== edge);
+};
+
+export const getRandomPoint = (points: point[]): point => {
+  return points[Math.floor(Math.random() * points.length)];
+};
+
+export async function pathCost(points: point[]): Promise<number> {
+  let cost = 0;
+  for (let i = 1; i < points.length; i++) {
+    cost += distance(points[i - 1], points[i]);
+  }
+  return cost;
+}

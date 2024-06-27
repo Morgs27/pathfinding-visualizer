@@ -1,6 +1,6 @@
 /// Draw Functions ///
 
-import { point } from "./App";
+import point from "../types/Point";
 
 export function getCanvas() {
   // Get Canvas Element
@@ -24,13 +24,17 @@ export function plotPoints(
 
   // Draw Each Point
   points_array.forEach((point: point) => {
-    var thisMarker;
+    var thisMarker = point.solved ? markerObjOrange : markerObjWhite;
 
-    point.solved
-      ? (thisMarker = markerObjOrange)
-      : (thisMarker = markerObjWhite);
+    const size = { w: 20, h: 30 };
 
-    ctx.drawImage(thisMarker, point.x - 10, point.y - 30, 20, 30);
+    ctx.drawImage(
+      thisMarker,
+      point.x - size.w / 2,
+      point.y - size.h,
+      size.w,
+      size.h
+    );
   });
 }
 
@@ -47,7 +51,8 @@ export function clearCanvas(
 export function plotPath(
   path_points: point[],
   ctx: CanvasRenderingContext2D,
-  colour?: string
+  colour?: string,
+  shouldPlotPoints: boolean = true
 ) {
   ctx = ctx || getCanvas();
 
@@ -62,7 +67,9 @@ export function plotPath(
   }
   ctx.stroke();
 
-  plotPoints(path_points, ctx);
+  if (shouldPlotPoints) {
+    plotPoints(path_points, ctx);
+  }
 }
 
 export function plotLine(

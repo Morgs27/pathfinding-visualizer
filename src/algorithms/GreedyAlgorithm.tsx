@@ -1,13 +1,6 @@
-import { distance, point } from "../App";
-
-export type edge = {
-  point1: point;
-  point1Index: number;
-  point2: point;
-  point2Index: number;
-  distance: number;
-  added: boolean;
-};
+import point from "../types/Point";
+import { distance } from "../functions/helpers";
+import edge from "../types/Edge";
 
 type pointConnection = {
   point: point;
@@ -17,7 +10,6 @@ type pointConnection = {
 // Greedy Algorithm
 // Time Complexity - O(n^2log2(n))
 // Within 15 - 20% of the Held-Karp lower bound
-
 export function greedyAlgorithm(points_array: point[]) {
   // Set N to number of points
   const N = points_array.length;
@@ -59,8 +51,8 @@ export function greedyAlgorithm(points_array: point[]) {
   });
 
   // Add shortest edge to start
-  pointConnections[edges[0].point1Index].connections += 1;
-  pointConnections[edges[0].point2Index].connections += 1;
+  pointConnections[edges[0].point1Index ?? 0].connections += 1;
+  pointConnections[edges[0].point2Index ?? 0].connections += 1;
   edges[0].added = true;
   completeEdges.push(edges[0]);
 
@@ -80,8 +72,8 @@ export function greedyAlgorithm(points_array: point[]) {
 
       // Check that neither point in edge already has 2 connections
       else if (
-        pointConnections[edge.point1Index].connections == 2 ||
-        pointConnections[edge.point2Index].connections == 2
+        pointConnections[edge.point1Index ?? 0].connections == 2 ||
+        pointConnections[edge.point2Index ?? 0].connections == 2
       ) {
       }
 
@@ -91,8 +83,8 @@ export function greedyAlgorithm(points_array: point[]) {
 
       //  If all guards are passed add point
       else {
-        pointConnections[edge.point1Index].connections += 1;
-        pointConnections[edge.point2Index].connections += 1;
+        pointConnections[edge.point1Index ?? 0].connections += 1;
+        pointConnections[edge.point2Index ?? 0].connections += 1;
         edges[index].added = true;
 
         completeEdges.push(edge);
@@ -103,7 +95,6 @@ export function greedyAlgorithm(points_array: point[]) {
 
   return [completeEdges, edges];
 }
-
 // Function to check if adding an edge will cause a closed loop
 function checkClosedLoop(some_edges: edge[]) {
   const pairs = some_edges.map((edge) => [edge.point1Index, edge.point2Index]);
@@ -126,10 +117,10 @@ function checkClosedLoop(some_edges: edge[]) {
           targetValue = a === targetValue ? b : a;
           pairsToBeTraversed.splice(j, 1);
           finding = true;
-          j--; // adjust index after splicing
+          j--;
 
           if (targetValue === end) {
-            return true; // terminate the function, not just the loop
+            return true;
           }
         }
       }

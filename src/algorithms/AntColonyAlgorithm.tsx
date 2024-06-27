@@ -1,3 +1,3 @@
-import { distance, point, swap } from "../App";
+import point from "../types/Point";
 
 export async function antColonyAlgorithm(points: point[]) {}

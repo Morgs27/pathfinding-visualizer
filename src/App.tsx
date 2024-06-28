@@ -11,11 +11,6 @@ import "./App.css";
 import { FaAngleDown, FaAngleUp, FaPlay } from "react-icons/fa";
 import { BsFillStopCircleFill } from "react-icons/bs";
 
-// Import Algorithms
-import { greedyAlgorithm } from "./algorithms/GreedyAlgorithm";
-import { bruteForceAlgorithm } from "./algorithms/BruteForceAlgorithm";
-import { nearestNeighborAlgorithm } from "./algorithms/NearestNeighborAlgorithm";
-
 // Import canvas drawing functions
 import {
   getCanvas,
@@ -33,11 +28,10 @@ import { TutorialModal, Page } from "./components/TutorialModal";
 import { LoadingText } from "./components/LoadingText";
 import ErrorMessage from "./components/ErrorMessage";
 
-import edge from "./types/Edge";
-import { nearestInsertionAlgorithm } from "./algorithms/NearestInsertion";
-
 import dimensions from "./types/Dimensions";
 import point from "./types/Point";
+
+import algorithms from "./Algorithms";
 
 import {
   factorialize,
@@ -45,6 +39,7 @@ import {
   distance,
   generateEdges,
 } from "./functions/helpers";
+import convexHullAlgorithm from "./algorithms/ConvexHull/ConvexHullAlgorithm";
 
 function App() {
   // Refrences to container elements
@@ -81,41 +76,6 @@ function App() {
   // Points
   const [points, setPoints] = useState<point[]>([]);
   var addingPoint: Boolean = false;
-
-  // Algorithm Information in Parallel Arrays
-  const algorithmNames = [
-    "Ant Colony Optimization",
-    "Nearest Neighbour",
-    "Greedy",
-    "Nearest Insertion",
-    "Convex Hull Insertion",
-    "Brute Force",
-  ];
-  const algorithmFunctions = [
-    runAntColonyAlgorithm,
-    runNearestNeighborAlgorithm,
-    runGreedyAlgorithm,
-    runNearestInsertionAlgorithm,
-    runConvexHullAlgorithm,
-    runBruteForceAlgorithm,
-  ];
-  const algorithmCalculateFunctions = [
-    null,
-    nearestNeighborAlgorithm,
-    greedyAlgorithm,
-    nearestInsertionAlgorithm,
-    null,
-    bruteForceAlgorithm,
-  ];
-  const algorithmTimeComplexities = [
-    "null",
-    "O(n^2)",
-    "O(n^2log_2(n))",
-    "O(n^2)",
-    "O(n^2log_2(n))",
-    "O(n!)",
-  ];
-  const algorithmAccuracy = ["null", "75%", "80-85%", "null", "null", "100%"];
 
   // Current Algorithm
   const [currentAlgorithm, setCurrentAlgorithm] = useState(0);
@@ -295,328 +255,6 @@ function App() {
     }
   }, [runningState]);
 
-  /// --- Algorithm Run Functions ---- ///
-
-  // Run/Diplay Brute Force Algorithm
-  async function runBruteForceAlgorithm(result: any) {
-    const [solution, permutations] = result;
-
-    setTotalPermutations(permutations.length);
-
-    // Add Solution to end of list
-    permutations.push(solution);
-
-    var counter = -1;
-
-    var timeouts: any = [];
-
-    // Loop through all permutations showing them for 10ms
-    permutations.forEach((path: point[], index: number) => {
-      timeouts.push(
-        setTimeout(() => {
-          if (index == 0) {
-            // Calculation Complete
-          }
-
-          if (running.current) {
-            counter += 1;
-            clearCanvas(canvas.current!, ctx!);
-            plotPath(path, ctx!);
-            plotPoints(points, ctx!);
-            setCurrentPermutation(counter);
-            timeouts.shift();
-          } else {
-            timeouts.forEach((timeout: any) => {
-              clearTimeout(timeout);
-            });
-            algorithmFinished();
-          }
-
-          // When the algorithm is completed displaying
-          if (index == permutations.length - 1) {
-            // Calculate distance between all points
-            let totalDistance = 0;
-            solution.forEach((point: point, index: number) => {
-              if (index != 0) {
-                totalDistance += distance(point, solution[index - 1]);
-              }
-            });
-
-            // Set total distance
-            setTotalDistance(Math.floor(totalDistance));
-
-            algorithmFinished();
-          }
-        }, index * 2 * speed)
-      );
-    });
-  }
-
-  // Run/Diplay Nearest Neighbor Algorithm
-  function runNearestNeighborAlgorithm(result: any) {
-    // Run the algorithm
-    const [steps, path] = result;
-
-    // Create an idendical array to points
-    const points_array: point[] = points.map((point) => {
-      return { ...point, solved: false };
-    });
-
-    // Setup array to hold the points in the completed path
-    var completed_path: point[] = [];
-
-    // Setup array to hold all the timeouts/frames
-    var timeouts: any[] = [];
-
-    // Loop through all the points in the path
-    path.forEach((pointIndex: number, index: number) => {
-      // Create frame then add to timeouts array
-      timeouts.push(
-        setTimeout(() => {
-          // If running
-          if (running.current) {
-            // Add current point to the completed path
-            completed_path.push(points_array[pointIndex]);
-
-            clearCanvas(canvas.current!, ctx!);
-
-            // Plot the so far completed path
-            plotPath(completed_path, ctx!, "orange");
-
-            // If not on the last point
-            if (index != path.length - 1) {
-              // Add distance to total
-              if (completed_path.length > 1) {
-                setTotalDistance(
-                  (prevDistance) =>
-                    prevDistance +
-                    Math.floor(
-                      distance(completed_path.at(-1)!, completed_path.at(-2)!)
-                    )
-                );
-              }
-
-              var stepDistances = steps[index][0];
-              var minDistance = steps[index][1];
-
-              // Display a line for each of the options from the current point
-              // with opacity proportionalized to the distance
-              stepDistances.forEach(
-                (distance: number | null, index: number) => {
-                  if (distance != null) {
-                    var lineStrength = Math.pow(
-                      Math.round((1 / (distance / minDistance)) * 100) / 100,
-                      4
-                    );
-
-                    var colour = "rgba(255,255,255," + lineStrength + ")";
-
-                    plotLine(
-                      points_array[pointIndex],
-                      points_array[index],
-                      ctx!,
-                      colour
-                    );
-                  }
-                }
-              );
-            }
-
-            // Set current point to solved and update the points
-            points_array[pointIndex].solved = true;
-            plotPoints(points_array, ctx!);
-
-            // Remove current frame from list of frames
-            timeouts.shift();
-          } else {
-            // If algorithm is stopped
-            // Clear all the frames that are still to run
-            timeouts.forEach((timeout: any) => {
-              clearTimeout(timeout);
-            });
-            algorithmFinished();
-          }
-
-          // If all the frames have ran end the algorithm
-          if (timeouts.length == 0) {
-            algorithmFinished();
-          }
-        }, index * 15 * speed)
-      );
-    });
-  }
-
-  // Run/Display Greedy Algorithm Algorithm
-  function runGreedyAlgorithm(result: any) {
-    /// Run Algorithm ///
-    const [edges, allEdges] = result;
-
-    /// Display Algorithm ///
-
-    // Create array to hold all the frames
-    var timeouts: any[] = [];
-
-    // Loop through path edges
-    edges.forEach((edge: edge, index: number) => {
-      // Create frame and add to array
-      timeouts.push(
-        setTimeout(() => {
-          // If algorithm is running
-          if (running.current) {
-            // Add distance of current edge to total
-            setTotalDistance((distance) =>
-              Math.floor(distance + edge.distance)
-            );
-
-            let currentPath = edges.filter(
-              (edge: edge, filterIndex: number) => {
-                return filterIndex <= index;
-              }
-            );
-
-            let prevPath = edges.filter((edge: edge, filterIndex: number) => {
-              return filterIndex < index;
-            });
-
-            // Loop through all possible edges between points
-            // Display a line between them proportional to the distance
-            allEdges.forEach((edge: edge, allEdgesIndex: number) => {
-              let opacity =
-                Math.pow(1 - allEdgesIndex / allEdges.length, 4) / 4;
-              plotPath(
-                [edge.point1, edge.point2],
-                ctx!,
-                "rgba(255,255,255," + opacity + ")",
-                false
-              );
-            });
-
-            // Plot all the lines completed in previous frames
-            prevPath.forEach((edge: edge) => {
-              plotPath([edge.point1, edge.point2], ctx!);
-            });
-
-            // After a delay plot the next edge
-            setTimeout(() => {
-              clearCanvas(canvas.current!, ctx!);
-
-              currentPath.forEach((edge: edge) => {
-                if (
-                  currentPath.filter(
-                    (e) => e.point1 === edge.point1 || e.point2 === edge.point1
-                  ).length > 1
-                ) {
-                  edge.point1.solved = true;
-                }
-                if (
-                  currentPath.filter(
-                    (e) => e.point1 === edge.point2 || e.point2 === edge.point2
-                  ).length > 1
-                ) {
-                  edge.point2.solved = true;
-                }
-              });
-
-              // Plot all the points
-              plotPoints(points, ctx!);
-
-              currentPath.forEach((edge: edge) => {
-                plotPath([edge.point1, edge.point2], ctx!);
-              });
-            }, 10 * speed);
-
-            timeouts.shift();
-          } else {
-            // If algorithm is stopped
-            // Clear all the frames that are still to run
-            timeouts.forEach((timeout: any) => {
-              clearTimeout(timeout);
-            });
-            algorithmFinished();
-          }
-
-          // If all the frames have ran end the algorithm
-          if (timeouts.length == 0) {
-            // set all the points to solved
-            setPoints((points) =>
-              points.map((point) => {
-                return { ...point, solved: true };
-              })
-            );
-            algorithmFinished();
-          }
-        }, index * 10 * speed)
-      );
-    });
-  }
-
-  // Run/ Display Ant Colony Algorithm
-  function runAntColonyAlgorithm(result: any) {}
-
-  function runNearestInsertionAlgorithm(result: any) {
-    const [frames, solutionCost] = result;
-
-    const allEdges = generateEdges(points);
-
-    const edgeMax = allEdges.reduce((max, edge) => {
-      return Math.max(max, edge.distance);
-    }, 0);
-
-    var timeouts: any = [];
-
-    console.table(frames);
-
-    // Loop through all permutations showing them for 10ms
-    frames.forEach((path: point[], index: number) => {
-      timeouts.push(
-        setTimeout(() => {
-          if (running.current) {
-            clearCanvas(canvas.current!, ctx!);
-            const pointSet = new Set(
-              path.map((point) => `${point.x},${point.y}`)
-            );
-            allEdges.forEach((edge) => {
-              const point1Key = `${edge.point1.x},${edge.point1.y}`;
-              const point2Key = `${edge.point2.x},${edge.point2.y}`;
-              if (pointSet.has(point1Key) || pointSet.has(point2Key)) {
-                const otherPointKey = pointSet.has(point1Key)
-                  ? point2Key
-                  : point1Key;
-                if (!pointSet.has(otherPointKey)) {
-                  const opacity = Math.pow(1 - edge.distance / edgeMax, 8);
-                  plotPath(
-                    [edge.point1, edge.point2],
-                    ctx!,
-                    "rgba(255,255,255," + opacity + ")",
-                    false
-                  );
-                }
-              }
-            });
-            plotPoints(points, ctx!);
-            plotPath(path, ctx!, undefined, true);
-
-            timeouts.shift();
-          } else {
-            timeouts.forEach((timeout: any) => {
-              clearTimeout(timeout);
-            });
-            algorithmFinished();
-          }
-
-          if (index == frames.length - 1) {
-            // Set total distance
-            setTotalDistance(Math.floor(solutionCost));
-
-            algorithmFinished();
-          }
-        }, index * 20 * speed)
-      );
-    });
-  }
-
-  function runConvexHullAlgorithm(result: any) {}
-
   // Function to run before any algorithm
   function algorithmSetup() {
     if (currentAlgorithm == 5) {
@@ -657,12 +295,23 @@ function App() {
 
   const runAlgorithm = async () => {
     // Calculate algorithm
-    let result = await algorithmCalculateFunctions[currentAlgorithm]!(points);
+    let result = await algorithms[currentAlgorithm].calculateFunction!(points);
 
     setLoading(false);
 
     // Run Function
-    algorithmFunctions[currentAlgorithm](result);
+    algorithms[currentAlgorithm].runFunction({
+      result,
+      points,
+      canvas,
+      ctx,
+      running,
+      setTotalDistance,
+      algorithmFinished,
+      speed,
+      setTotalPermutations,
+      setCurrentPermutation,
+    });
   };
 
   // Function to run when any algorithm is finished
@@ -702,11 +351,13 @@ function App() {
           <div className="optionTitle">ALGORITHM</div>
           <div className="optionContent">
             <Dropdown
-              options={algorithmNames}
+              options={algorithms.map((algo) => algo.name)}
               onChange={(e) => {
-                setCurrentAlgorithm(algorithmNames.indexOf(e.value));
+                setCurrentAlgorithm(
+                  algorithms.findIndex((algo) => algo.name === e.value)
+                );
               }}
-              value={algorithmNames[currentAlgorithm]}
+              value={algorithms[currentAlgorithm].name}
               placeholder="Select an algorithm"
             />
           </div>
@@ -771,20 +422,17 @@ function App() {
             {currentAlgorithm == 5 ? (
               "O(n!)"
             ) : (
-              // <Equation
-              //   value={algorithmTimeComplexities[currentAlgorithm]}
-              // ></Equation>
-              <p>{algorithmTimeComplexities[currentAlgorithm]}</p>
+              <p>{algorithms[currentAlgorithm].timeComplexity}</p>
             )}
           </div>
         </div>
 
         {/* Algorithm Accuracy */}
-        {algorithmAccuracy[currentAlgorithm] != "null" && (
+        {algorithms[currentAlgorithm].accuracy != "null" && (
           <div className="option">
             <div className="optionTitle">ACCURACY</div>
             <div className="optionContent">
-              {algorithmAccuracy[currentAlgorithm]}
+              {algorithms[currentAlgorithm].accuracy}
               <div className="infoButton" style={{ position: "relative" }}>
                 ?
                 <div className="infoContent">

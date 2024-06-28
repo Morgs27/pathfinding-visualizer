@@ -1,6 +1,6 @@
-import point from "../types/Point";
-import { distance } from "../functions/helpers";
-import edge from "../types/Edge";
+import point from "../../types/Point";
+import { distance } from "../../functions/helpers";
+import edge from "../../types/Edge";
 
 type pointConnection = {
   point: point;
@@ -10,7 +10,7 @@ type pointConnection = {
 // Greedy Algorithm
 // Time Complexity - O(n^2log2(n))
 // Within 15 - 20% of the Held-Karp lower bound
-export function greedyAlgorithm(points_array: point[]) {
+function greedyAlgorithm(points_array: point[]) {
   // Set N to number of points
   const N = points_array.length;
 
@@ -129,3 +129,5 @@ function checkClosedLoop(some_edges: edge[]) {
 
   return false;
 }
+
+export default greedyAlgorithm;

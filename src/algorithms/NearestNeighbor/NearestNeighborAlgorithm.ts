@@ -2,10 +2,10 @@
 // Time Complexity - O(n^2)
 // Within 25% of the Held-Karp lower bound
 
-import point from "../types/Point";
-import { distance } from "../functions/helpers";
+import point from "../../types/Point";
+import { distance } from "../../functions/helpers";
 
-export function nearestNeighborAlgorithm(points: point[]) {
+function nearestNeighborAlgorithm(points: point[]) {
   // Generate random index for starting point
   var randomIndex = Math.floor(Math.random() * points.length);
 
@@ -70,3 +70,5 @@ export function nearestNeighborAlgorithm(points: point[]) {
 
   return [steps, path];
 }
+
+export default nearestNeighborAlgorithm;

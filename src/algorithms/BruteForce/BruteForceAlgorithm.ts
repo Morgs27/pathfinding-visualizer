@@ -1,11 +1,11 @@
 // Brute Force Algorithm - Try all possible compinations
 // Guarantees Shortest Distance
 
-import point from "../types/Point";
-import { distance, swap } from "../functions/helpers";
+import point from "../../types/Point";
+import { distance, swap } from "../../functions/helpers";
 
 // Time complexity O(n!)
-export async function bruteForceAlgorithm(points: point[]) {
+async function bruteForceAlgorithm(points: point[]) {
   // Set Initial Min Distance
   var bestDistance = getSolutionDistance(points);
 
@@ -64,3 +64,5 @@ export async function bruteForceAlgorithm(points: point[]) {
 
   return [solution, permutations];
 }
+
+export default bruteForceAlgorithm;

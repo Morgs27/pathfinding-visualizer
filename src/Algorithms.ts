@@ -1,57 +1,77 @@
-import runAntColonyAlgorithm from "./algorithms/AntColony/runAntColonyAlgorithm";
-import runNearestNeighborAlgorithm from "./algorithms/NearestNeighbor/runNearestNeighborAlgorithm";
-import runGreedyAlgorithm from "./algorithms/Greedy/runGreedyAlgorithm";
-import runNearestInsertionAlgorithm from "./algorithms/NearestInsertion/runNearestInsertion";
-import runConvexHullAlgorithm from "./algorithms/ConvexHull/runConvexHullAlgorithm";
-import runBruteForceAlgorithm from "./algorithms/BruteForce/runBruteForceAlgorithm";
-
 import antColonyAlgorithm from "./algorithms/AntColony/AntColonyAlgorithm";
 import nearestNeighborAlgorithm from "./algorithms/NearestNeighbor/NearestNeighborAlgorithm";
 import greedyAlgorithm from "./algorithms/Greedy/GreedyAlgorithm";
 import nearestInsertionAlgorithm from "./algorithms/NearestInsertion/NearestInsertion";
 import convexHullAlgorithm from "./algorithms/ConvexHull/ConvexHullAlgorithm";
 import bruteForceAlgorithm from "./algorithms/BruteForce/BruteForceAlgorithm";
+import VisualiseAlgorithm, {
+  Frame,
+  VisualiseAlgorithmProps,
+} from "./algorithms/runAlgorithm";
+import point from "./types/Point";
+
+export type Algorithms = {
+  name: string;
+  runOptions?: Partial<VisualiseAlgorithmProps>;
+  calculateFunction: (points: point[]) => Frame[] | Promise<Frame[]>;
+  timeComplexity: string;
+  accuracy: string;
+};
 
 // Algorithm Information
-const algorithms = [
+const algorithms: Algorithms[] = [
   {
     name: "Ant Colony Optimization",
-    runFunction: runAntColonyAlgorithm,
+    runOptions: {
+      visualiseAllPossibleEdges: true,
+    },
     calculateFunction: antColonyAlgorithm,
     timeComplexity: "null",
     accuracy: "null",
   },
   {
     name: "Nearest Neighbour",
-    runFunction: runNearestNeighborAlgorithm,
+    runOptions: {
+      visualiseHeadEdges: true,
+      animatePath: true,
+    },
     calculateFunction: nearestNeighborAlgorithm,
     timeComplexity: "O(n^2)",
     accuracy: "75%",
   },
   {
     name: "Greedy",
-    runFunction: runGreedyAlgorithm,
+    runOptions: {
+      visualiseAllPossibleEdges: true,
+      animatePath: true,
+    },
     calculateFunction: greedyAlgorithm,
     timeComplexity: "O(n^2log_2(n))",
     accuracy: "80-85%",
   },
   {
     name: "Nearest Insertion",
-    runFunction: runNearestInsertionAlgorithm,
+    runOptions: {
+      visualiseCloseEdges: true,
+      visualiseAllPossibleEdges: false,
+      calculateDistances: false,
+    },
     calculateFunction: nearestInsertionAlgorithm,
     timeComplexity: "O(n^2)",
     accuracy: "null",
   },
   {
     name: "Convex Hull Insertion",
-    runFunction: runConvexHullAlgorithm,
+    runOptions: {
+      visualiseCloseEdges: true,
+      visualiseAllPossibleEdges: false,
+    },
     calculateFunction: convexHullAlgorithm,
     timeComplexity: "O(n^2log_2(n))",
     accuracy: "null",
   },
   {
     name: "Brute Force",
-    runFunction: runBruteForceAlgorithm,
     calculateFunction: bruteForceAlgorithm,
     timeComplexity: "O(n!)",
     accuracy: "100%",

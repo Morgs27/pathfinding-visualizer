@@ -40,6 +40,7 @@ import {
   generateEdges,
 } from "./functions/helpers";
 import convexHullAlgorithm from "./algorithms/ConvexHull/ConvexHullAlgorithm";
+import VisualiseAlgorithm from "./algorithms/runAlgorithm";
 
 function App() {
   // Refrences to container elements
@@ -294,23 +295,25 @@ function App() {
   }
 
   const runAlgorithm = async () => {
-    // Calculate algorithm
-    let result = await algorithms[currentAlgorithm].calculateFunction!(points);
+    // Calculate + Build Frames
+    const frames = await algorithms[currentAlgorithm].calculateFunction!([
+      ...points,
+    ]);
 
     setLoading(false);
 
-    // Run Function
-    algorithms[currentAlgorithm].runFunction({
-      result,
+    // Visualise Frames with Animation
+    VisualiseAlgorithm({
+      frames,
       points,
       canvas,
-      ctx,
+      ctx: ctx!,
       running,
       setTotalDistance,
       algorithmFinished,
       speed,
-      setTotalPermutations,
       setCurrentPermutation,
+      ...algorithms[currentAlgorithm].runOptions,
     });
   };
 

@@ -11,11 +11,12 @@
 
 import point from "../../types/Point";
 import { distance, getRandomPoint, pathCost } from "../../functions/helpers";
+import { Frame } from "../runAlgorithm";
 
 async function nearestInsertionAlgorithm(pointsParam: point[]) {
   const points = [...pointsParam];
   const path = [{ ...getRandomPoint(points), solved: true }];
-  const frames = [];
+  const frames: Frame[] = [];
 
   // Sort the remaining points based on their distance to the first point in the path
   points.sort((a, b) => distance(path[0], b) - distance(path[0], a));
@@ -23,7 +24,7 @@ async function nearestInsertionAlgorithm(pointsParam: point[]) {
   const nextPoint = points.pop() ?? points[0];
 
   path.push({ ...nextPoint, solved: true });
-  frames.push([...path]);
+  frames.push({ path: [...path], distance: await pathCost(path) });
 
   // Loop until all points are added to the path
   while (points.length > 0) {
@@ -59,11 +60,11 @@ async function nearestInsertionAlgorithm(pointsParam: point[]) {
     // Insert the selected point at the best position in the path and mark it as solved
     path.splice(bestIdx!, 0, { ...nextPoint, solved: true });
 
-    frames.push([...path]);
+    frames.push({ path: [...path], distance: await pathCost(path) });
   }
 
-  frames.push([...path]);
-  return [frames, await pathCost(path)];
+  frames.push({ path: [...path], distance: await pathCost(path) });
+  return frames;
 }
 
 export default nearestInsertionAlgorithm;

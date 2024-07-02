@@ -3,6 +3,7 @@
 
 import point from "../../types/Point";
 import { distance, swap } from "../../functions/helpers";
+import { Frame } from "../runAlgorithm";
 
 // Time complexity O(n!)
 async function bruteForceAlgorithm(points: point[]) {
@@ -16,12 +17,14 @@ async function bruteForceAlgorithm(points: point[]) {
   const permutations = heapsPermute(points);
 
   // Heaps Algorithm - Generates all possible permutations of points array
-  function heapsPermute(array: point[], n?: number, results: any[] = []) {
+  function heapsPermute(array: point[], n?: number, results: Frame[] = []) {
     n = n || array.length;
     if (n === 1) {
-      results.push(array.slice());
+      const path = array.slice();
+      path.push(path[0]); // Join the two endpoints
+      results.push({ path, distance: null });
 
-      evaluateSolution(array.slice());
+      evaluateSolution(path);
     } else {
       for (var i = 1; i <= n; i += 1) {
         heapsPermute(array, n - 1, results);
@@ -62,7 +65,9 @@ async function bruteForceAlgorithm(points: point[]) {
   // Add connection back to original point
   solution.push(solution[0]);
 
-  return [solution, permutations];
+  permutations.push({ path: solution, distance: bestDistance });
+
+  return permutations;
 }
 
 export default bruteForceAlgorithm;

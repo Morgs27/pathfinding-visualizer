@@ -1,6 +1,7 @@
 import point from "../../types/Point";
 import { distance } from "../../functions/helpers";
 import edge from "../../types/Edge";
+import { Frame } from "../runAlgorithm";
 
 type pointConnection = {
   point: point;
@@ -17,6 +18,8 @@ function greedyAlgorithm(points_array: point[]) {
   // Setup array to hold all edges
   const edges: edge[] = [];
   const completeEdges: edge[] = [];
+
+  const frames: Frame[] = [];
 
   // Setup array to hold information about point connections
   const pointConnections: pointConnection[] = points_array.map((point) => {
@@ -55,6 +58,7 @@ function greedyAlgorithm(points_array: point[]) {
   pointConnections[edges[0].point2Index ?? 0].connections += 1;
   edges[0].added = true;
   completeEdges.push(edges[0]);
+  frames.push({ path: null, paths: [...completeEdges], distance: null });
 
   // Add Edge Code Block
   while (completeEdges.length < N - 1) {
@@ -88,12 +92,18 @@ function greedyAlgorithm(points_array: point[]) {
         edges[index].added = true;
 
         completeEdges.push(edge);
+        frames.push({ path: null, paths: [...completeEdges], distance: null });
         edgeAdded = true;
       }
     }
   }
 
-  return [completeEdges, edges];
+  // add an edge between the only two points with connection = 1
+  const finalEdge = getFinalEdge(points_array, pointConnections);
+  completeEdges.push(finalEdge);
+  frames.push({ path: null, paths: [...completeEdges], distance: null });
+
+  return frames;
 }
 // Function to check if adding an edge will cause a closed loop
 function checkClosedLoop(some_edges: edge[]) {
@@ -128,6 +138,25 @@ function checkClosedLoop(some_edges: edge[]) {
   }
 
   return false;
+}
+
+function getFinalEdge(
+  points_array: point[],
+  pointConnections: pointConnection[]
+) {
+  const pointsToConnect = pointConnections.filter(
+    (point: pointConnection) => point.connections === 1
+  );
+
+  const point1 = pointsToConnect[0].point;
+  const point2 = pointsToConnect[1].point;
+
+  return {
+    point1: point1,
+    point2: point2,
+    distance: distance(point1, point2),
+    added: true,
+  };
 }
 
 export default greedyAlgorithm;

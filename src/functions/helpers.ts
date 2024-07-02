@@ -1,5 +1,6 @@
 import point from "../types/Point";
 import edge from "../types/Edge";
+import { Frame } from "../algorithms/runAlgorithm";
 
 export function distance(point1: point, point2: point) {
   return Math.sqrt(
@@ -77,3 +78,4 @@ export async function pathCost(points: point[]): Promise<number> {
   }
   return cost;
 }
+

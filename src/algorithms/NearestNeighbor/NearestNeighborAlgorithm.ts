@@ -4,6 +4,7 @@
 
 import point from "../../types/Point";
 import { distance } from "../../functions/helpers";
+import { Frame } from "../runAlgorithm";
 
 function nearestNeighborAlgorithm(points: point[]) {
   // Generate random index for starting point
@@ -13,7 +14,7 @@ function nearestNeighborAlgorithm(points: point[]) {
   var path: any = [randomIndex];
 
   // Setup array to hold info about each step to help with display
-  var steps = [];
+  var steps: Frame[] = [];
 
   // Set starting point to solved
   points[randomIndex].solved = true;
@@ -55,20 +56,26 @@ function nearestNeighborAlgorithm(points: point[]) {
     // Exit while loop and push path back to starting point
     if (nextPointIndex == null) {
       pathSolved = true;
-      // steps.push([Array(points.length).fill(null), 0])
-      // path.push(path[0])
+      path.push(path[0]);
+      steps.push({
+        path: path.map((index: number) => points[index]),
+        distance: null,
+      });
     }
 
     // If there are more points to be solved
     // Push current solved point
     else {
-      steps.push([stepDistances, minDistance]);
       points[nextPointIndex].solved = true;
       path.push(nextPointIndex);
+      steps.push({
+        path: path.map((index: number) => points[index]),
+        distance: null,
+      });
     }
   }
 
-  return [steps, path];
+  return steps;
 }
 
 export default nearestNeighborAlgorithm;

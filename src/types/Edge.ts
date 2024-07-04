@@ -1,6 +1,6 @@
 import point from "./Point";
 
-export type edge = {
+export type Edge = {
     point1: point;
     point1Index?: number;
     point2: point;
@@ -9,4 +9,4 @@ export type edge = {
     added?: boolean;
 };
 
-export default edge;
+export default Edge;

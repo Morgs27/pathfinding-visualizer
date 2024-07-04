@@ -1,8 +1,7 @@
-import point from "../types/Point";
-import edge from "../types/Edge";
-import { Frame } from "../algorithms/runAlgorithm";
+import Point from "../types/Point";
+import Edge from "../types/Edge";
 
-export function distance(point1: point, point2: point) {
+export function distance(point1: Point, point2: Point) {
   return Math.sqrt(
     (point1.x - point2.x) * (point1.x - point2.x) +
       (point1.y - point2.y) * (point1.y - point2.y)
@@ -40,8 +39,8 @@ export function debounce<F extends (...args: any[]) => any>(
   };
 }
 
-export const generateEdges = (points: point[]): edge[] => {
-  const edges: edge[] = [];
+export const generateEdges = (points: Point[]): Edge[] => {
+  const edges: Edge[] = [];
   for (let i = 0; i < points.length; i++) {
     for (let j = i + 1; j < points.length; j++) {
       edges.push({
@@ -57,21 +56,21 @@ export const generateEdges = (points: point[]): edge[] => {
   return edges;
 };
 
-export const shortestEdge = (edges: edge[]): edge => {
+export const shortestEdge = (edges: Edge[]): Edge => {
   return edges.reduce((shortest, current) => {
     return current.distance < shortest.distance ? current : shortest;
   });
 };
 
-export const removeEdge = (edges: edge[], edge: edge) => {
+export const removeEdge = (edges: Edge[], edge: Edge) => {
   return edges.filter((e) => e !== edge);
 };
 
-export const getRandomPoint = (points: point[]): point => {
+export const getRandomPoint = (points: Point[]): Point => {
   return points[Math.floor(Math.random() * points.length)];
 };
 
-export async function pathCost(points: point[]): Promise<number> {
+export async function pathCost(points: Point[]): Promise<number> {
   let cost = 0;
   for (let i = 1; i < points.length; i++) {
     cost += distance(points[i - 1], points[i]);

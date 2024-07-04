@@ -1,12 +1,12 @@
 // Brute Force Algorithm - Try all possible compinations
 // Guarantees Shortest Distance
 
-import point from "../../types/Point";
+import Point from "../../types/Point";
 import { distance, swap } from "../../functions/helpers";
-import { Frame } from "../runAlgorithm";
+import { Frame } from "../../functions/runAlgorithm";
 
 // Time complexity O(n!)
-async function bruteForceAlgorithm(points: point[]) {
+async function bruteForceAlgorithm(points: Point[]) {
   // Set Initial Min Distance
   var bestDistance = getSolutionDistance(points);
 
@@ -17,12 +17,20 @@ async function bruteForceAlgorithm(points: point[]) {
   const permutations = heapsPermute(points);
 
   // Heaps Algorithm - Generates all possible permutations of points array
-  function heapsPermute(array: point[], n?: number, results: Frame[] = []) {
+  function heapsPermute(array: Point[], n?: number, results: Frame[] = []) {
     n = n || array.length;
     if (n === 1) {
       const path = array.slice();
       path.push(path[0]); // Join the two endpoints
-      results.push({ path, distance: null });
+      results.push({
+        paths: [
+          {
+            path,
+            distance: null,
+          },
+        ],
+        distance: null,
+      });
 
       evaluateSolution(path);
     } else {
@@ -41,7 +49,7 @@ async function bruteForceAlgorithm(points: point[]) {
   }
 
   // Get total distance for a solution
-  function getSolutionDistance(points_array: point[]) {
+  function getSolutionDistance(points_array: Point[]) {
     var solutionDistance = 0;
 
     points_array.forEach((point, index) => {
@@ -53,7 +61,7 @@ async function bruteForceAlgorithm(points: point[]) {
   }
 
   // Evaluate solution
-  function evaluateSolution(points_array: point[]) {
+  function evaluateSolution(points_array: Point[]) {
     var solutionDistance = getSolutionDistance(points_array);
 
     if (solutionDistance < bestDistance) {
@@ -65,7 +73,15 @@ async function bruteForceAlgorithm(points: point[]) {
   // Add connection back to original point
   solution.push(solution[0]);
 
-  permutations.push({ path: solution, distance: bestDistance });
+  permutations.push({
+    paths: [
+      {
+        path: solution,
+        distance: bestDistance,
+      },
+    ],
+    distance: bestDistance,
+  });
 
   return permutations;
 }

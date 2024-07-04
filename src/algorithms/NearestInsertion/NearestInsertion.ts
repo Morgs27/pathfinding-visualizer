@@ -9,11 +9,11 @@
 //     edge's cities will be minimal.
 //     4. Repeat step 2 until no more cities remain.
 
-import point from "../../types/Point";
+import Point from "../../types/Point";
 import { distance, getRandomPoint, pathCost } from "../../functions/helpers";
-import { Frame } from "../runAlgorithm";
+import { Frame } from "../../functions/runAlgorithm";
 
-async function nearestInsertionAlgorithm(pointsParam: point[]) {
+async function nearestInsertionAlgorithm(pointsParam: Point[]) {
   const points = [...pointsParam];
   const path = [{ ...getRandomPoint(points), solved: true }];
   const frames: Frame[] = [];
@@ -24,7 +24,15 @@ async function nearestInsertionAlgorithm(pointsParam: point[]) {
   const nextPoint = points.pop() ?? points[0];
 
   path.push({ ...nextPoint, solved: true });
-  frames.push({ path: [...path], distance: await pathCost(path) });
+  frames.push({
+    paths: [
+      {
+        path: [...path],
+        distance: await pathCost(path),
+      },
+    ],
+    distance: await pathCost(path),
+  });
 
   // Loop until all points are added to the path
   while (points.length > 0) {
@@ -60,10 +68,26 @@ async function nearestInsertionAlgorithm(pointsParam: point[]) {
     // Insert the selected point at the best position in the path and mark it as solved
     path.splice(bestIdx!, 0, { ...nextPoint, solved: true });
 
-    frames.push({ path: [...path], distance: await pathCost(path) });
+    frames.push({
+      paths: [
+        {
+          path: [...path],
+          distance: await pathCost(path),
+        },
+      ],
+      distance: await pathCost(path),
+    });
   }
 
-  frames.push({ path: [...path], distance: await pathCost(path) });
+  frames.push({
+    paths: [
+      {
+        path: [...path],
+        distance: await pathCost(path),
+      },
+    ],
+    distance: await pathCost(path),
+  });
   return frames;
 }
 

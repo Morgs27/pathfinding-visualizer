@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css?family=Raleway:400,700");
 
 .error-message {
-  --error-colour: rgb(214, 76, 76);
+  --error-colour: rgb(190, 130, 0);
   position: absolute;
   left: 50%;
   bottom: 10%;

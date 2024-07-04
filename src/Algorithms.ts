@@ -7,7 +7,7 @@ import bruteForceAlgorithm from "./algorithms/BruteForce/BruteForceAlgorithm";
 import VisualiseAlgorithm, {
   Frame,
   VisualiseAlgorithmProps,
-} from "./algorithms/runAlgorithm";
+} from "./functions/runAlgorithm";
 import point from "./types/Point";
 
 export type Algorithms = {
@@ -43,7 +43,6 @@ const algorithms: Algorithms[] = [
     name: "Greedy",
     runOptions: {
       visualiseAllPossibleEdges: true,
-      animatePath: true,
     },
     calculateFunction: greedyAlgorithm,
     timeComplexity: "O(n^2log_2(n))",
@@ -73,6 +72,9 @@ const algorithms: Algorithms[] = [
   {
     name: "Brute Force",
     calculateFunction: bruteForceAlgorithm,
+    runOptions: {
+      defaultSpeed: 10,
+    },
     timeComplexity: "O(n!)",
     accuracy: "100%",
   },

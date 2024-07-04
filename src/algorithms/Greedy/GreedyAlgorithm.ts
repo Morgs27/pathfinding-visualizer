@@ -1,23 +1,23 @@
-import point from "../../types/Point";
+import Point from "../../types/Point";
 import { distance } from "../../functions/helpers";
-import edge from "../../types/Edge";
-import { Frame } from "../runAlgorithm";
+import Edge from "../../types/Edge";
+import { Frame } from "../../functions/runAlgorithm";
 
 type pointConnection = {
-  point: point;
+  point: Point;
   connections: number;
 };
 
 // Greedy Algorithm
 // Time Complexity - O(n^2log2(n))
 // Within 15 - 20% of the Held-Karp lower bound
-function greedyAlgorithm(points_array: point[]) {
+function greedyAlgorithm(points_array: Point[]) {
   // Set N to number of points
   const N = points_array.length;
 
   // Setup array to hold all edges
-  const edges: edge[] = [];
-  const completeEdges: edge[] = [];
+  const edges: Edge[] = [];
+  const completeEdges: Edge[] = [];
 
   const frames: Frame[] = [];
 
@@ -31,7 +31,7 @@ function greedyAlgorithm(points_array: point[]) {
   // Loop through all points
   points_array.forEach((point1, index1) => {
     // Get all points to be connected to current point
-    var points_to_be_connected: point[] = points_array.slice(index1 + 1);
+    var points_to_be_connected: Point[] = points_array.slice(index1 + 1);
 
     // Loop through points to be connected
     points_to_be_connected.forEach((point2, index2) => {
@@ -58,7 +58,13 @@ function greedyAlgorithm(points_array: point[]) {
   pointConnections[edges[0].point2Index ?? 0].connections += 1;
   edges[0].added = true;
   completeEdges.push(edges[0]);
-  frames.push({ path: null, paths: [...completeEdges], distance: null });
+  frames.push({
+    paths: completeEdges.map((edge) => ({
+      path: [edge.point1, edge.point2],
+      distance: edge.distance,
+    })),
+    distance: null,
+  });
 
   // Add Edge Code Block
   while (completeEdges.length < N - 1) {
@@ -92,21 +98,33 @@ function greedyAlgorithm(points_array: point[]) {
         edges[index].added = true;
 
         completeEdges.push(edge);
-        frames.push({ path: null, paths: [...completeEdges], distance: null });
+        frames.push({
+          paths: completeEdges.map((edge) => ({
+            path: [edge.point1, edge.point2],
+            distance: edge.distance,
+          })),
+          distance: edge.distance,
+        });
         edgeAdded = true;
       }
     }
   }
 
   // add an edge between the only two points with connection = 1
-  const finalEdge = getFinalEdge(points_array, pointConnections);
+  const finalEdge = getFinalEdge(pointConnections);
   completeEdges.push(finalEdge);
-  frames.push({ path: null, paths: [...completeEdges], distance: null });
+  frames.push({
+    paths: completeEdges.map((edge) => ({
+      path: [edge.point1, edge.point2],
+      distance: edge.distance,
+    })),
+    distance: null,
+  });
 
   return frames;
 }
 // Function to check if adding an edge will cause a closed loop
-function checkClosedLoop(some_edges: edge[]) {
+function checkClosedLoop(some_edges: Edge[]) {
   const pairs = some_edges.map((edge) => [edge.point1Index, edge.point2Index]);
 
   for (let i = 0; i < pairs.length; i++) {
@@ -140,10 +158,7 @@ function checkClosedLoop(some_edges: edge[]) {
   return false;
 }
 
-function getFinalEdge(
-  points_array: point[],
-  pointConnections: pointConnection[]
-) {
+function getFinalEdge(pointConnections: pointConnection[]) {
   const pointsToConnect = pointConnections.filter(
     (point: pointConnection) => point.connections === 1
   );

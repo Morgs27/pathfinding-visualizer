@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "generate-css": "node src/utils/generateCSS.js",
     "build": "tsc && vite build",
     "prebuild": "npm run test",
     "test": "jest",

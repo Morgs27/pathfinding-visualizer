@@ -6,18 +6,18 @@
 // Add p to the path between i and j
 // Repeat from #3 until there are no remaining points
 
-import point from "../../types/Point";
+import Point from "../../types/Point";
 import { pathCost } from "../../functions/helpers";
-import { Frame } from "../../algorithms/runAlgorithm";
+import { Frame } from "../../functions/runAlgorithm";
 
-function orientation(p: point, q: point, r: point): number {
+function orientation(p: Point, q: Point, r: Point): number {
   const val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
   if (val === 0) return 0; // collinear
   return val > 0 ? 1 : 2; // clock or counterclock wise
 }
 
-async function convexHullAlgorithm(pointsParam: point[]) {
-  const points: point[] = [...pointsParam];
+async function convexHullAlgorithm(pointsParam: Point[]) {
+  const points: Point[] = [...pointsParam];
   const frames: Frame[] = [];
 
   const startingPoint = points[0];
@@ -31,7 +31,15 @@ async function convexHullAlgorithm(pointsParam: point[]) {
   }
 
   const path = [leftmost];
-  frames.push({ path: [...path], distance: null });
+  frames.push({
+    paths: [
+      {
+        path: [...path],
+        distance: null,
+      },
+    ],
+    distance: null,
+  });
 
   while (true) {
     const curPoint = path[path.length - 1];
@@ -56,7 +64,15 @@ async function convexHullAlgorithm(pointsParam: point[]) {
 
     // add to hull
     path.push(selectedPoint!);
-    frames.push({ path: [...path], distance: null });
+    frames.push({
+      paths: [
+        {
+          path: [...path],
+          distance: null,
+        },
+      ],
+      distance: null,
+    });
   }
 
   while (points.length > 0) {
@@ -95,7 +111,15 @@ async function convexHullAlgorithm(pointsParam: point[]) {
     const [nextPoint] = points.splice(bestPointIdx, 1);
     path.splice(insertIdx, 0, nextPoint);
 
-    frames.push({ path: [...path], distance: null });
+    frames.push({
+      paths: [
+        {
+          path: [...path],
+          distance: null,
+        },
+      ],
+      distance: null,
+    });
   }
 
   // rotate the array so that starting point is back first
@@ -104,7 +128,15 @@ async function convexHullAlgorithm(pointsParam: point[]) {
 
   // go back home
   path.push(startingPoint);
-  frames.push({ path: [...path], distance: null });
+  frames.push({
+    paths: [
+      {
+        path: [...path],
+        distance: null,
+      },
+    ],
+    distance: null,
+  });
 
   return frames;
 }

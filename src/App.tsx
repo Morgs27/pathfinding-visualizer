@@ -18,7 +18,7 @@ import {
   clearCanvas,
   plotPath,
   plotLine,
-} from "./functions/DrawFunctions";
+} from "./functions/basicDrawFunctions";
 
 // Import Equation visualizer
 // import { Equation } from "react-equation";
@@ -40,7 +40,7 @@ import {
   generateEdges,
 } from "./functions/helpers";
 import convexHullAlgorithm from "./algorithms/ConvexHull/ConvexHullAlgorithm";
-import VisualiseAlgorithm from "./algorithms/runAlgorithm";
+import VisualiseAlgorithm from "./functions/runAlgorithm";
 
 function App() {
   // Refrences to container elements

@@ -1,5 +1,5 @@
 import point from "../../types/Point";
-import { Frame } from "../runAlgorithm";
+import { Frame } from "../../functions/runAlgorithm";
 
 async function antColonyAlgorithm(points: point[]) {
   const frames: Frame[] = [];
@@ -93,7 +93,12 @@ async function antColonyAlgorithm(points: point[]) {
     // Save the current best path
     const bestAnt = allDistances.indexOf(Math.min(...allDistances));
     frames.push({
-      path: allPaths[bestAnt].map((index) => points[index]),
+      paths: [
+        {
+          path: allPaths[bestAnt].map((index) => points[index]),
+          distance: allDistances[bestAnt],
+        },
+      ],
       distance: allDistances[bestAnt],
     });
   }

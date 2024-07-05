@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "generate-css": "node src/utils/generateCSS.js",
     "build": "tsc && vite build",
     "prebuild": "npm run test",
     "test": "jest",
@@ -14,17 +13,20 @@
   "dependencies": {
     "jest": "^29.7.0",
     "jest-transform-css": "^6.0.1",
+    "katex": "^0.16.11",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropdown": "^1.11.0",
     "react-icons": "^4.7.1",
-    "react-input-slider": "^6.0.1"
+    "react-input-slider": "^6.0.1",
+    "react-katex": "^3.0.1"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.24.7",
     "@jest/globals": "^29.7.0",
     "@types/react": "^18.0.24",
     "@types/react-dom": "^18.0.8",
+    "@types/react-katex": "^3.0.4",
     "@vitejs/plugin-react": "^2.2.0",
     "identity-obj-proxy": "^3.0.0",
     "ts-jest": "^29.1.5",

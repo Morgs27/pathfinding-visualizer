@@ -22,7 +22,8 @@ const drawCloseEdges = (
           [edge.point1, edge.point2],
           ctx!,
           "rgba(255,255,255," + opacity + ")",
-          false
+          false,
+          2
         );
       }
     }

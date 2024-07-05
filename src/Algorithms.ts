@@ -34,6 +34,7 @@ const algorithms: Algorithms[] = [
     runOptions: {
       visualiseHeadEdges: true,
       animatePath: true,
+      calculateDistances: true,
     },
     calculateFunction: nearestNeighborAlgorithm,
     timeComplexity: "O(n^2)",
@@ -43,6 +44,7 @@ const algorithms: Algorithms[] = [
     name: "Greedy",
     runOptions: {
       visualiseAllPossibleEdges: true,
+      calculateDistances: true,
     },
     calculateFunction: greedyAlgorithm,
     timeComplexity: "O(n^2log_2(n))",
@@ -64,6 +66,7 @@ const algorithms: Algorithms[] = [
     runOptions: {
       visualiseCloseEdges: true,
       visualiseAllPossibleEdges: false,
+      calculateDistances: true,
     },
     calculateFunction: convexHullAlgorithm,
     timeComplexity: "O(n^2log_2(n))",

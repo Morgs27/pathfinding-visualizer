@@ -1,7 +1,7 @@
 import { MutableRefObject } from "react";
 import Point from "../types/Point";
 import { clearCanvas, plotPath, plotPoints } from "./basicDrawFunctions";
-import { generateEdges } from "./helpers";
+import { generateEdges, pathCost } from "./helpers";
 import drawAnimatedPath from "./drawAnimatedPath";
 import getHeadEdges from "./getHeadEdges";
 import drawAllPossibleEdges from "./drawAllPossibleEdges";
@@ -24,11 +24,15 @@ export type VisualiseAlgorithmProps = {
   visualiseHeadEdges?: boolean;
   animatePath?: boolean;
   defaultSpeed?: number;
+  colour?: string;
+  completionColour?: string;
+  showExtraLines?: boolean;
 };
 
 export type Path = {
   path: Point[];
   distance: number | null;
+  pathIndexes?: number[];
 };
 
 export type Frame = {
@@ -52,6 +56,9 @@ const VisualiseAlgorithm = async ({
   visualiseCloseEdges = false,
   visualiseAllPossibleEdges = false,
   animatePath = false,
+  colour = "white",
+  completionColour = "white",
+  showExtraLines = false,
 }: VisualiseAlgorithmProps) => {
   if (result) {
     frames = result;
@@ -63,12 +70,15 @@ const VisualiseAlgorithm = async ({
     frames = await Promise.all(
       frames.map(async (frame: Frame) => {
         const distance = Math.floor(
-          frame.paths.reduce((acc, curr) => acc + (curr.distance ?? 0), 0)
+          (await Promise.all(frame.paths.map(async (curr) => await pathCost(curr.path) ?? 0)))
+            .reduce((acc, curr) => acc + curr, 0)
         );
         return { ...frame, distance };
       })
     );
   }
+
+  console.log(frames);
 
   var timeouts: any = [];
 
@@ -89,16 +99,21 @@ const VisualiseAlgorithm = async ({
           /// Draw Frame ///
           clearCanvas(canvas.current!, ctx!);
 
-          if (visualiseCloseEdges) {
-            drawCloseEdges(paths, allEdges, ctx!, edgeMax);
-          }
+          if (showExtraLines) {
+            if (visualiseCloseEdges) {
+              drawCloseEdges(paths, allEdges, ctx!, edgeMax);
+            }
 
-          if (visualiseAllPossibleEdges) {
-            drawAllPossibleEdges(paths, allEdges, ctx!, edgeMax);
+            if (visualiseAllPossibleEdges) {
+              drawAllPossibleEdges(paths, allEdges, ctx!, edgeMax);
+            }
           }
 
           if (animatePath) {
-            const extraDraw = getHeadEdges(paths, allEdges, edgeMax);
+            const extraDraw = showExtraLines
+              ? getHeadEdges(paths, allEdges, edgeMax)
+              : [];
+
             drawAnimatedPath({
               path: paths[0].path,
               ctx: ctx!,
@@ -106,10 +121,12 @@ const VisualiseAlgorithm = async ({
               speed: speed * 2,
               lastFrame,
               canvas: canvas.current!,
+              colour,
+              completionColour,
             });
           } else {
             paths?.forEach(({ path }) => {
-              plotPath(path, ctx!, lastFrame ? "green" : "orange", true);
+              plotPath(path, ctx!, lastFrame ? completionColour : colour, true);
             });
           }
 

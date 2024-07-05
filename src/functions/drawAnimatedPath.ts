@@ -14,6 +14,8 @@ type DrawAnimatedPathProps = {
   extraDraw: any;
   lastFrame: boolean;
   canvas: HTMLCanvasElement;
+  colour: string;
+  completionColour: string;
 };
 
 function drawAnimatedPath({
@@ -23,11 +25,13 @@ function drawAnimatedPath({
   speed,
   lastFrame,
   canvas,
+  colour,
+  completionColour,
 }: DrawAnimatedPathProps) {
   ctx = ctx || getCanvas();
 
   if (path.length > 1) {
-    plotPath(path.slice(0, -1), ctx, undefined, false);
+    plotPath(path.slice(0, -1), ctx, colour, false);
   }
 
   const mainLineWaypoints = calcWaypoints([
@@ -46,11 +50,11 @@ function drawAnimatedPath({
     const progress = (timestamp - startTime) / speed;
 
     if (lastFrame) {
-      drawPath(mainLineWaypoints, ctx!, progress, "orange", 3);
+      drawPath(mainLineWaypoints, ctx!, progress, colour, 3);
     } else {
       if (progress < 0.5) {
         const mainProgress = progress / 0.5; // Scale progress to [0, 1] for the first 50%
-        drawPath(mainLineWaypoints, ctx!, mainProgress, "orange", 3);
+        drawPath(mainLineWaypoints, ctx!, mainProgress, colour, 3);
       } else {
         const extraProgress = (progress - 0.5) / 0.5; // Scale progress to [0, 1] for the last 50%
         extraDrawWaypoints.forEach((edge: any) => {
@@ -67,7 +71,7 @@ function drawAnimatedPath({
   if (lastFrame) {
     setTimeout(() => {
       clearCanvas(canvas, ctx!);
-      plotPath(path, ctx!, "green", false);
+      plotPath(path, ctx!, completionColour, false);
       plotPoints(path, ctx!);
     }, speed + 100);
   }

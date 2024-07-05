@@ -3,35 +3,30 @@ import Edge from "../types/Edge";
 import Point from "../types/Point";
 
 const getHeadEdges = (paths: Path[], allEdges: Edge[], edgeMax: number) => {
-  const reOrder = (extraPath: Point[]) => {
-    const startingPoint = extraPath[0];
-    if (extraPath[0] != startingPoint) {
-      return [extraPath[1], extraPath[0]];
-    }
-    return extraPath;
-  };
+  const lastPath = paths[paths.length - 1];
+  const lastPoint = lastPath.path[lastPath.path.length - 1];
 
-  const lastPoint =
-    paths[paths.length - 1].path[paths[paths.length - 1].path.length - 1];
-
-  return allEdges
+  const headEdges = allEdges
     .map((edge) => {
-      const point1Key = `${edge.point1.x},${edge.point1.y}`;
-      const point2Key = `${edge.point2.x},${edge.point2.y}`;
-
-      if (
-        point1Key === `${lastPoint.x},${lastPoint.y}` ||
-        point2Key === `${lastPoint.x},${lastPoint.y}`
-      ) {
+      const isConnectedToLastPoint =
+        edge.point1 === lastPoint || edge.point2 === lastPoint;
+      const isConnectedToOtherPoints = paths.some(
+        (path) =>
+          path.path.includes(edge.point1) && path.path.includes(edge.point2)
+      );
+      if (isConnectedToLastPoint && !isConnectedToOtherPoints) {
         const opacity = Math.pow(1 - edge.distance / edgeMax, 4);
         return {
-          path: reOrder([edge.point1, edge.point2]),
+          path: [edge.point1, edge.point2],
           colour: "rgba(255,255,255," + opacity + ")",
         };
+      } else {
+        return null;
       }
-      return null;
     })
     .filter((edge) => edge !== null);
+
+  return headEdges;
 };
 
 export default getHeadEdges;

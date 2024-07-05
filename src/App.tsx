@@ -4,8 +4,14 @@ import { LegacyRef, useCallback, useEffect, useRef, useState } from "react";
 import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
 
+import { IoMdColorPalette } from "react-icons/io";
+import { MdMultilineChart } from "react-icons/md";
+
 // Import App Styles
 import "./App.css";
+
+import { InlineMath, BlockMath } from "react-katex";
+import "katex/dist/katex.min.css";
 
 // Import Icons
 import { FaAngleDown, FaAngleUp, FaPlay } from "react-icons/fa";
@@ -16,8 +22,6 @@ import {
   getCanvas,
   plotPoints,
   clearCanvas,
-  plotPath,
-  plotLine,
 } from "./functions/basicDrawFunctions";
 
 // Import Equation visualizer
@@ -32,6 +36,8 @@ import dimensions from "./types/Dimensions";
 import point from "./types/Point";
 
 import algorithms from "./Algorithms";
+
+import themes, { Theme } from "./utils/Themes";
 
 import {
   factorialize,
@@ -50,6 +56,9 @@ function App() {
 
   // Error State
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Theme State
+  const [theme, setTheme] = useState<Theme>(themes[0]);
 
   // Menu State
   const [menuOpen, setMenuOpen] = useState<boolean>(true);
@@ -73,6 +82,10 @@ function App() {
     left: 10,
     right: 10,
   };
+
+  const [showPoints, setShowPoints] = useState(true);
+
+  const [showExtraLines, setShowExtraLines] = useState(true);
 
   // Points
   const [points, setPoints] = useState<point[]>([]);
@@ -115,6 +128,12 @@ function App() {
     }, 100),
     [screen]
   );
+
+  useEffect(() => {
+    // change the root styles
+    document.documentElement.style.setProperty("--map", theme.image);
+    document.documentElement.style.setProperty("--primary", theme.colour);
+  }, [theme]);
 
   // Startup Function - Only runs on first render
   useEffect(() => {
@@ -244,11 +263,15 @@ function App() {
 
   // Reset Points on algorithm change
   useEffect(() => {
+    setTotalDistance(0);
+    setTotalPermutations(0);
     algorithmFinished();
   }, [currentAlgorithm]);
 
   // Run Algorithm on runningState change
   useEffect(() => {
+    setModalOpen(false);
+    // setMenuOpen(false);
     if (runningState) {
       setTimeout(() => {
         runAlgorithm();
@@ -274,7 +297,7 @@ function App() {
 
     setLoading(true);
 
-    toggleMenu();
+    setMenuOpen(() => !isMobile);
 
     // Clear Canvas
     setPoints((points) =>
@@ -314,6 +337,9 @@ function App() {
       speed,
       setCurrentPermutation,
       ...algorithms[currentAlgorithm].runOptions,
+      colour: theme.colour,
+      completionColour: theme.completionColour,
+      showExtraLines,
     });
   };
 
@@ -335,7 +361,7 @@ function App() {
           <p>
             <i>TSP - Traveling Salesman Problem</i>
           </p>
-          <img height={150} src="./location-dot-orange.png" alt="" />
+          <img height={150} src={theme.locationDot} alt={theme.name} />
           <p>
             This short tutorial will walk you through all the features of this
             application.
@@ -422,16 +448,12 @@ function App() {
         <div className="option">
           <div className="optionTitle">TIME COMPLEXITY</div>
           <div className="optionContent">
-            {currentAlgorithm == 5 ? (
-              "O(n!)"
-            ) : (
-              <p>{algorithms[currentAlgorithm].timeComplexity}</p>
-            )}
+            <BlockMath>{algorithms[currentAlgorithm].timeComplexity}</BlockMath>
           </div>
         </div>
 
         {/* Algorithm Accuracy */}
-        {algorithms[currentAlgorithm].accuracy != "null" && (
+        {/* {algorithms[currentAlgorithm].accuracy != "null" && (
           <div className="option">
             <div className="optionTitle">ACCURACY</div>
             <div className="optionContent">
@@ -451,7 +473,48 @@ function App() {
               </div>
             </div>
           </div>
-        )}
+        )} */}
+
+        {/* Settings */}
+        <div className="option">
+          <div className="optionTitle">SETTINGS</div>
+          <div className="optionContent">
+            <div className="buttonGroup settings">
+              <button
+                data-active={"false"}
+                onClick={() =>
+                  setTheme((theme) => {
+                    let newIndex;
+                    do {
+                      newIndex = Math.floor(Math.random() * themes.length);
+                    } while (themes[newIndex] === theme);
+                    return themes[newIndex];
+                  })
+                }
+              >
+                <IoMdColorPalette />
+              </button>
+              <button
+                data-active={!showPoints ? "true" : "false"}
+                onClick={() => setShowPoints((showPoints) => !showPoints)}
+              >
+                {showPoints ? (
+                  <img src={theme.locationDot} alt={theme.name} />
+                ) : (
+                  <img src={"./location-dot-white.png"} alt={theme.name} />
+                )}
+              </button>
+              <button
+                data-active={!showExtraLines ? "true" : "false"}
+                onClick={() =>
+                  setShowExtraLines((showExtraLines) => !showExtraLines)
+                }
+              >
+                <MdMultilineChart />
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Run Button */}
         {!isMobile && (
@@ -461,7 +524,10 @@ function App() {
           >
             {runningState ? (
               <button
-                style={{ backgroundColor: "transparent", color: "orange" }}
+                style={{
+                  backgroundColor: "transparent",
+                  color: "var(--primary)",
+                }}
                 className="run"
                 onClick={() => {
                   running.current = false;
@@ -510,7 +576,10 @@ function App() {
 
             {runningState ? (
               <button
-                style={{ backgroundColor: "transparent", color: "orange" }}
+                style={{
+                  backgroundColor: "transparent",
+                  color: "var(--primary)",
+                }}
                 className="run"
                 onClick={() => {
                   running.current = false;

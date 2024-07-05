@@ -49,13 +49,14 @@ export function plotPath(
   path_points: Point[],
   ctx: CanvasRenderingContext2D,
   colour?: string,
-  shouldPlotPoints: boolean = true
+  shouldPlotPoints: boolean = true,
+  lineWidth?: number
 ) {
   ctx = ctx || getCanvas();
 
-  colour = colour || "orange";
+  colour = colour ?? "white";
 
-  ctx.lineWidth = colour === "orange" || colour === "green" ? 3 : 2;
+  ctx.lineWidth = lineWidth ?? 3;
 
   ctx.strokeStyle = colour;
   ctx.beginPath();
@@ -78,7 +79,7 @@ export function plotLine(
 ) {
   ctx = ctx || getCanvas();
 
-  colour = colour || "orange";
+  colour = colour || "white";
 
   ctx.lineWidth = 2;
   ctx.strokeStyle = colour;

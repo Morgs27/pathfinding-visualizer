@@ -1,13 +1,12 @@
 @import url("https://fonts.googleapis.com/css?family=Raleway:400,700");
 
 .error-message {
-  --error-colour: rgb(190, 130, 0);
   position: absolute;
   left: 50%;
   bottom: 10%;
   transform: translateX(-50%);
-  color: var(--error-colour);
-  background: rgb(40, 40, 40);
+  color: var(--error);
+  background: var(--background);
   z-index: 10000000;
   font-family: "Raleway", sans-serif;
   padding: 10px;
@@ -16,7 +15,7 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
-  border: 0.5px solid var(--error-colour);
+  border: 0.5px solid var(--error);
   transition: 0.5s;
   text-align: center;
   pointer-events: none;

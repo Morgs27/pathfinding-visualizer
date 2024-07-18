@@ -6,6 +6,7 @@ import drawAnimatedPath from "./drawAnimatedPath";
 import getHeadEdges from "./getHeadEdges";
 import drawAllPossibleEdges from "./drawAllPossibleEdges";
 import drawCloseEdges from "./drawCloseEdges";
+import drawAnimatedPathV2 from "./drawAnimatedPathV2";
 
 export type VisualiseAlgorithmProps = {
   points: Point[];
@@ -27,6 +28,7 @@ export type VisualiseAlgorithmProps = {
   colour?: string;
   completionColour?: string;
   showExtraLines?: boolean;
+  animate?: boolean;
 };
 
 export type Path = {
@@ -59,6 +61,7 @@ const VisualiseAlgorithm = async ({
   colour = "white",
   completionColour = "white",
   showExtraLines = false,
+  animate = false,
 }: VisualiseAlgorithmProps) => {
   if (result) {
     frames = result;
@@ -70,8 +73,11 @@ const VisualiseAlgorithm = async ({
     frames = await Promise.all(
       frames.map(async (frame: Frame) => {
         const distance = Math.floor(
-          (await Promise.all(frame.paths.map(async (curr) => await pathCost(curr.path) ?? 0)))
-            .reduce((acc, curr) => acc + curr, 0)
+          (
+            await Promise.all(
+              frame.paths.map(async (curr) => (await pathCost(curr.path)) ?? 0)
+            )
+          ).reduce((acc, curr) => acc + curr, 0)
         );
         return { ...frame, distance };
       })
@@ -109,21 +115,44 @@ const VisualiseAlgorithm = async ({
             }
           }
 
-          if (animatePath) {
+          if (animate) {
             const extraDraw = showExtraLines
               ? getHeadEdges(paths, allEdges, edgeMax)
               : [];
+            if (animatePath) {
+              const numberPoints = paths[0].path.length;
 
-            drawAnimatedPath({
-              path: paths[0].path,
-              ctx: ctx!,
-              extraDraw,
-              speed: speed * 2,
-              lastFrame,
-              canvas: canvas.current!,
-              colour,
-              completionColour,
-            });
+              for (let i = 0; i < numberPoints - 1; i++) {
+                setTimeout(() => {
+                  drawAnimatedPathV2({
+                    paths: paths.map(({ path }) => [path[i], path[i + 1]]),
+                    ctx: ctx!,
+                    extraDraw,
+                    speed: 2000,
+                    lastFrame,
+                    canvas: canvas.current!,
+                    colour,
+                    completionColour,
+                    plotPreviousPath: false,
+                    points,
+                    previousPaths: paths.map(({ path }) =>
+                      path.slice(0, i + 1)
+                    ),
+                  });
+                }, i * 1000);
+              }
+            } else {
+              drawAnimatedPath({
+                path: paths[0].path,
+                ctx: ctx!,
+                extraDraw,
+                speed: speed * 2,
+                lastFrame,
+                canvas: canvas.current!,
+                colour,
+                completionColour,
+              });
+            }
           } else {
             paths?.forEach(({ path }) => {
               plotPath(path, ctx!, lastFrame ? completionColour : colour, true);

@@ -8,7 +8,7 @@ async function antColonyAlgorithm(points: point[]) {
   const beta = 5; // distance priority
   const evaporationRate = 0.5; // pheromone evaporation rate
   const Q = 100; // pheromone deposit factor
-  const numAnts = 20; // number of ants
+  const numAnts = 2; // number of ants
   const numIterations = 100; // number of iterations
 
   // Initialize pheromone levels
@@ -90,16 +90,15 @@ async function antColonyAlgorithm(points: point[]) {
       }
     }
 
-    // Save the current best path
-    const bestAnt = allDistances.indexOf(Math.min(...allDistances));
+    // Save the paths of all ants in the current iteration
+    const paths = allPaths.map((path, index) => ({
+      path: path.map((pointIndex) => points[pointIndex]),
+      distance: allDistances[index],
+    }));
+
     frames.push({
-      paths: [
-        {
-          path: allPaths[bestAnt].map((index) => points[index]),
-          distance: allDistances[bestAnt],
-        },
-      ],
-      distance: allDistances[bestAnt],
+      paths,
+      distance: Math.min(...allDistances),
     });
   }
 

@@ -23,7 +23,12 @@ const algorithms: Algorithms[] = [
   {
     name: "Ant Colony Optimization",
     runOptions: {
-      visualiseAllPossibleEdges: true,
+      // visualiseAllPossibleEdges: true,
+      visualiseHeadEdges: true,
+      animatePath: true,
+      animate: true,
+      calculateDistances: true,
+      defaultSpeed: 10000,
     },
     calculateFunction: antColonyAlgorithm,
     timeComplexity: "null",
@@ -33,7 +38,7 @@ const algorithms: Algorithms[] = [
     name: "Nearest Neighbour",
     runOptions: {
       visualiseHeadEdges: true,
-      animatePath: true,
+      animate: true,
       calculateDistances: true,
     },
     calculateFunction: nearestNeighborAlgorithm,

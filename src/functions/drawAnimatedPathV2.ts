@@ -6,6 +6,7 @@ import {
   plotPath,
   plotPoints,
 } from "./basicDrawFunctions";
+import { Path } from "./runAlgorithm";
 
 type DrawAnimatedPathProps = {
   paths: Point[][];
@@ -19,6 +20,8 @@ type DrawAnimatedPathProps = {
   plotPreviousPath?: boolean;
   points?: Point[];
   previousPaths?: Point[][];
+  bestPath?: Path;
+  antImage?: HTMLImageElement;
 };
 
 function drawAnimatedPathV2({
@@ -33,16 +36,10 @@ function drawAnimatedPathV2({
   plotPreviousPath = true,
   points = paths[0],
   previousPaths = [],
+  bestPath = { path: [], distance: 0 },
+  antImage,
 }: DrawAnimatedPathProps) {
   ctx = ctx || getCanvas();
-
-  paths.forEach((path) => {
-    if (plotPreviousPath && path.length > 1) {
-      plotPath(path.slice(0, -1), ctx, colour, false);
-    }
-  });
-
-  console.log(previousPaths);
 
   const mainLineWaypoints = paths.map((path) =>
     calcWaypoints([path[0], path[path.length - 1]])
@@ -55,31 +52,43 @@ function drawAnimatedPathV2({
   let startTime: number | null = null;
 
   function drawInterval(timestamp: number) {
+    if (!startTime) startTime = timestamp;
+    const progress = (timestamp - startTime) / speed;
+
     clearCanvas(canvas, ctx!);
 
     previousPaths.forEach((path) => {
-      plotPath(path, ctx, "white", false);
+      if (progress < 0.5 || lastFrame) {
+        plotPath(path.slice(0, -1), ctx, colour, false);
+      } else {
+        plotPath(path, ctx, colour, false);
+      }
     });
 
     plotPoints(points, ctx!);
 
-    if (!startTime) startTime = timestamp;
-    const progress = (timestamp - startTime) / speed;
-
     if (lastFrame) {
       mainLineWaypoints.forEach((waypoints) => {
-        drawPath(waypoints, ctx!, progress, colour, 3);
+        drawPath(waypoints, ctx!, progress, colour, 3, true, antImage);
       });
     } else {
       if (progress < 0.5) {
         const mainProgress = progress / 0.5;
         mainLineWaypoints.forEach((waypoints) => {
-          drawPath(waypoints, ctx!, mainProgress, colour, 3);
+          drawPath(waypoints, ctx!, mainProgress, colour, 3, true, antImage);
         });
       } else {
         const extraProgress = (progress - 0.5) / 0.5;
         extraDrawWaypoints.forEach((edge: any) => {
-          drawPath(edge.waypoints, ctx!, extraProgress, edge.colour, 1);
+          drawPath(
+            edge.waypoints,
+            ctx!,
+            extraProgress,
+            edge.colour,
+            1,
+            false,
+            antImage
+          );
         });
       }
     }
@@ -92,10 +101,9 @@ function drawAnimatedPathV2({
   if (lastFrame) {
     setTimeout(() => {
       clearCanvas(canvas, ctx!);
-      paths.forEach((path) => {
-        plotPath(path, ctx!, completionColour, false);
-        plotPoints(path, ctx!);
-      });
+
+      plotPath(bestPath.path, ctx!, completionColour, false);
+      plotPoints(bestPath.path, ctx!);
     }, speed + 100);
   }
 
@@ -107,7 +115,9 @@ function drawPath(
   ctx: CanvasRenderingContext2D,
   progress: number,
   strokeStyle: string,
-  lineWidth: number
+  lineWidth: number,
+  isAnt: boolean,
+  antImage?: HTMLImageElement
 ) {
   ctx.strokeStyle = strokeStyle;
   ctx.lineWidth = lineWidth;
@@ -123,15 +133,25 @@ function drawPath(
   }
   ctx.stroke();
 
-  // Draw a circle at the front of the line
-  if (maxIndex < waypoints.length) {
-    const frontPoint = waypoints[maxIndex];
-    if (frontPoint) {
-      ctx.beginPath();
-      ctx.arc(frontPoint.x, frontPoint.y, lineWidth * 2, 0, 2 * Math.PI);
-      ctx.fillStyle = strokeStyle;
-      ctx.fill();
-    }
+  const antPoint = isAnt ? waypoints[maxIndex] : waypoints[0];
+  if (antPoint) {
+    const nextPoint = waypoints[maxIndex + 1] || waypoints[maxIndex];
+    const angle = isAnt
+      ? Math.atan2(nextPoint.y - antPoint.y, nextPoint.x - antPoint.x) -
+        Math.PI / 2
+      : 0;
+
+    ctx.save();
+    ctx.translate(antPoint.x, antPoint.y);
+    ctx.rotate(angle);
+    ctx.drawImage(
+      antImage!,
+      -10, // Adjust the position to center the image
+      -10, // Adjust the position to center the image
+      20, // Set the width of the image
+      20 // Set the height of the image
+    );
+    ctx.restore();
   }
 }
 

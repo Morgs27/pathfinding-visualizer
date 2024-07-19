@@ -1,14 +1,12 @@
-import antColonyAlgorithm from "./algorithms/AntColony/AntColonyAlgorithm";
-import nearestNeighborAlgorithm from "./algorithms/NearestNeighbor/NearestNeighborAlgorithm";
-import greedyAlgorithm from "./algorithms/Greedy/GreedyAlgorithm";
-import nearestInsertionAlgorithm from "./algorithms/NearestInsertion/NearestInsertion";
-import convexHullAlgorithm from "./algorithms/ConvexHull/ConvexHullAlgorithm";
-import bruteForceAlgorithm from "./algorithms/BruteForce/BruteForceAlgorithm";
-import VisualiseAlgorithm, {
-  Frame,
-  VisualiseAlgorithmProps,
-} from "./functions/runAlgorithm";
-import point from "./types/Point";
+import antColonyAlgorithm from "../algorithms/AntColony/AntColonyAlgorithm";
+import nearestNeighborAlgorithm from "../algorithms/NearestNeighbor/NearestNeighborAlgorithm";
+import greedyAlgorithm from "../algorithms/Greedy/GreedyAlgorithm";
+import nearestInsertionAlgorithm from "../algorithms/NearestInsertion/NearestInsertion";
+import convexHullAlgorithm from "../algorithms/ConvexHull/ConvexHullAlgorithm";
+import bruteForceAlgorithm from "../algorithms/BruteForce/BruteForceAlgorithm";
+import { Frame, VisualiseAlgorithmProps } from "../functions/runAlgorithm";
+import point from "../types/Point";
+import { StatID } from "./Stats";
 
 export type Algorithms = {
   name: string;
@@ -16,6 +14,7 @@ export type Algorithms = {
   calculateFunction: (points: point[]) => Frame[] | Promise<Frame[]>;
   timeComplexity: string;
   accuracy: string;
+  stats?: StatID[];
 };
 
 // Algorithm Information
@@ -23,16 +22,15 @@ const algorithms: Algorithms[] = [
   {
     name: "Ant Colony Optimization",
     runOptions: {
-      // visualiseAllPossibleEdges: true,
       visualiseHeadEdges: true,
       animatePath: true,
       animate: true,
       calculateDistances: true,
-      defaultSpeed: 10000,
     },
     calculateFunction: antColonyAlgorithm,
     timeComplexity: "null",
     accuracy: "null",
+    stats: ["bestPath", "iterations", "ants"],
   },
   {
     name: "Nearest Neighbour",
@@ -44,6 +42,7 @@ const algorithms: Algorithms[] = [
     calculateFunction: nearestNeighborAlgorithm,
     timeComplexity: "O(n^2)",
     accuracy: "75%",
+    stats: ["totalDistance", "solvedPoints"],
   },
   {
     name: "Greedy",
@@ -54,6 +53,7 @@ const algorithms: Algorithms[] = [
     calculateFunction: greedyAlgorithm,
     timeComplexity: "O(n^2log_2(n))",
     accuracy: "80-85%",
+    stats: ["totalDistance", "completedEdges"],
   },
   {
     name: "Nearest Insertion",
@@ -65,6 +65,7 @@ const algorithms: Algorithms[] = [
     calculateFunction: nearestInsertionAlgorithm,
     timeComplexity: "O(n^2)",
     accuracy: "null",
+    stats: ["totalDistance", "completedPoints"],
   },
   {
     name: "Convex Hull Insertion",
@@ -76,6 +77,7 @@ const algorithms: Algorithms[] = [
     calculateFunction: convexHullAlgorithm,
     timeComplexity: "O(n^2log_2(n))",
     accuracy: "null",
+    stats: ["totalDistance", "completedPoints"],
   },
   {
     name: "Brute Force",
@@ -85,6 +87,7 @@ const algorithms: Algorithms[] = [
     },
     timeComplexity: "O(n!)",
     accuracy: "100%",
+    stats: ["totalDistance", "currentPermutation", "totalPermutations"],
   },
 ];
 

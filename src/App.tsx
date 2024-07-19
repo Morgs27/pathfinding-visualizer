@@ -35,9 +35,9 @@ import ErrorMessage from "./components/ErrorMessage";
 import dimensions from "./types/Dimensions";
 import point from "./types/Point";
 
-import algorithms from "./Algorithms";
+import algorithms from "./config/Algorithms";
 
-import themes, { Theme } from "./utils/Themes";
+import themes, { Theme } from "./config/Themes";
 
 import {
   factorialize,
@@ -47,6 +47,7 @@ import {
 } from "./functions/helpers";
 import convexHullAlgorithm from "./algorithms/ConvexHull/ConvexHullAlgorithm";
 import VisualiseAlgorithm from "./functions/runAlgorithm";
+import { defaultStats, Stat } from "./config/Stats";
 
 function App() {
   // Refrences to container elements
@@ -102,10 +103,7 @@ function App() {
   const [speed, setSpeed] = useState<number>(10);
 
   // Stats for each algorithm
-  const [currentPermutation, setCurrentPermutation] = useState(0);
-  const [totalPermutations, setTotalPermutations] = useState(0);
-  const [totalDistance, setTotalDistance] = useState(0);
-  const [completedEdges, setCompletedEdges] = useState(0);
+  const [stats, setStats] = useState<Stat[]>([]);
 
   // Loading State
   const [loading, setLoading] = useState(false);
@@ -246,6 +244,23 @@ function App() {
     });
   }
 
+  function resetStats() {
+    setStats(
+      algorithms[currentAlgorithm].stats
+        ?.map((statID) => {
+          const defaultStat = defaultStats.find((stat) => stat.id === statID);
+          const defaultValue = defaultStat?.defaultValue;
+          return defaultStat
+            ? {
+                ...defaultStat,
+                value: defaultValue ? defaultValue(points.length) : 0,
+              }
+            : null;
+        })
+        .filter((stat) => stat !== null) || []
+    );
+  }
+
   // Plot Points on first render and when points changes
   useEffect(() => {
     clearCanvas(canvas.current!, ctx!);
@@ -256,15 +271,12 @@ function App() {
       plotPoints(points, ctx!);
     }, 50);
 
-    // Update permutations stat
-    let total = factorialize(points.length);
-    setTotalPermutations(total);
+    resetStats();
   }, [screenDimensions, points]);
 
   // Reset Points on algorithm change
   useEffect(() => {
-    setTotalDistance(0);
-    setTotalPermutations(0);
+    resetStats();
     algorithmFinished();
   }, [currentAlgorithm]);
 
@@ -313,8 +325,7 @@ function App() {
     setRunningState(true);
 
     // Reset Stats
-    setTotalDistance(0);
-    setCurrentPermutation(0);
+    resetStats();
   }
 
   const runAlgorithm = async () => {
@@ -332,14 +343,15 @@ function App() {
       canvas,
       ctx: ctx!,
       running,
-      setTotalDistance,
       algorithmFinished,
       speed,
-      setCurrentPermutation,
       ...algorithms[currentAlgorithm].runOptions,
       colour: theme.colour,
       completionColour: theme.completionColour,
       showExtraLines,
+      numberOfPoints: points.length,
+      setStats,
+      stats,
     });
   };
 
@@ -556,19 +568,17 @@ function App() {
         {/* Number of points */}
         <div className="stat">{"Points: " + points.length}</div>
 
-        {/* Total Distance */}
-        <div className="stat">{"Distance: " + totalDistance + " px"}</div>
-
         {/* Show different stats based off of the current algorithm */}
-        {/* Brute Force Stats */}
-        {currentAlgorithm == 5 && (
-          <>
-            <div className="stat">{"Permutations: " + totalPermutations}</div>
-            <div className="stat">
-              {"Progress: " + currentPermutation + " / " + totalPermutations}
-            </div>
-          </>
-        )}
+        {stats.map((stat, index) => {
+          if (stat.value !== null) {
+            return (
+              <div key={index} className="stat">
+                {`${stat.name}: ${stat.value} ${stat.unit || ""}`}
+              </div>
+            );
+          }
+          return null;
+        })}
 
         {isMobile && (
           <>

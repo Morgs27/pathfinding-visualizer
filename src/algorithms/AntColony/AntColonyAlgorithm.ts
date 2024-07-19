@@ -8,8 +8,8 @@ async function antColonyAlgorithm(points: point[]) {
   const beta = 5; // distance priority
   const evaporationRate = 0.5; // pheromone evaporation rate
   const Q = 100; // pheromone deposit factor
-  const numAnts = 2; // number of ants
-  const numIterations = 100; // number of iterations
+  const numAnts = 10; // number of ants
+  const numIterations = 5; // number of iterations
 
   // Initialize pheromone levels
   const pheromones = Array(points.length)

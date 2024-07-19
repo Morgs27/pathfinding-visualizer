@@ -48,6 +48,7 @@ import {
 import convexHullAlgorithm from "./algorithms/ConvexHull/ConvexHullAlgorithm";
 import VisualiseAlgorithm from "./functions/runAlgorithm";
 import { defaultStats, Stat } from "./config/Stats";
+import Record from "./types/Record";
 
 function App() {
   // Refrences to container elements
@@ -83,6 +84,9 @@ function App() {
     left: 10,
     right: 10,
   };
+
+  // Save Algorithm Run History
+  const [history, setHistory] = useState<Record[]>([]);
 
   const [showPoints, setShowPoints] = useState(true);
 
@@ -126,6 +130,11 @@ function App() {
     }, 100),
     [screen]
   );
+
+  useEffect(() => {
+    localStorage.setItem("history", JSON.stringify(history));
+    console.log("History", history);
+  }, [history]);
 
   useEffect(() => {
     // change the root styles
@@ -352,6 +361,9 @@ function App() {
       numberOfPoints: points.length,
       setStats,
       stats,
+      setHistory,
+      history,
+      currentAlgorithm,
     });
   };
 
@@ -622,6 +634,36 @@ function App() {
           height={screenDimensions.height || 150}
           ref={canvas}
         ></canvas>
+      </div>
+
+      <div className="history-buttons">
+        {history.map((record, index) => (
+          <button
+            key={index}
+            onClick={() => {
+              setPoints(record.points);
+              setCurrentAlgorithm(record.algorithmIndex);
+              setTimeout(() => {
+                algorithmSetup();
+              }, 1000);
+            }}
+          >
+            <div className="algorithm-name">
+              {algorithms[record.algorithmIndex].name}
+            </div>
+            <div className="row">
+              <div className="distance">{record.distance} px</div>
+              <div className="points">
+                {record.points.length}
+                <img
+                  src={theme.locationDot}
+                  alt="point"
+                  className="point-icon"
+                />
+              </div>
+            </div>
+          </button>
+        ))}
       </div>
     </div>
   );

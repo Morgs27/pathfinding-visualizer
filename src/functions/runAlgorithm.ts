@@ -8,6 +8,7 @@ import drawAllPossibleEdges from "./drawAllPossibleEdges";
 import drawCloseEdges from "./drawCloseEdges";
 import drawAnimatedPathV2 from "./drawAnimatedPathV2";
 import { Stat } from "../config/Stats";
+import Record from "../types/Record";
 
 export type VisualiseAlgorithmProps = {
   points: Point[];
@@ -31,6 +32,9 @@ export type VisualiseAlgorithmProps = {
   numberOfPoints: number;
   setStats: (stats: Stat[]) => void;
   stats: Stat[];
+  setHistory: (history: Record[]) => void;
+  history: Record[];
+  currentAlgorithm: number;
 };
 
 export type Path = {
@@ -66,6 +70,9 @@ const VisualiseAlgorithm = async ({
   visualiseHeadEdges = false,
   setStats,
   stats,
+  setHistory,
+  history,
+  currentAlgorithm,
 }: VisualiseAlgorithmProps) => {
   const antImage = new Image();
   antImage.src = "./ant.svg";
@@ -243,6 +250,24 @@ const VisualiseAlgorithm = async ({
         }
 
         if (lastFrame) {
+          const record: Record = {
+            id: (history.length + 1).toString(),
+            algorithmIndex: currentAlgorithm,
+            points: points,
+            distance: Math.round(distance ?? 0),
+          };
+
+          const isDuplicate = history.some(
+            (r) =>
+              r.algorithmIndex === record.algorithmIndex &&
+              JSON.stringify(r.points) === JSON.stringify(record.points) &&
+              r.distance === record.distance
+          );
+
+          if (!isDuplicate) {
+            setHistory([...history, record]);
+          }
+
           algorithmFinished();
         }
       }, index * speed)

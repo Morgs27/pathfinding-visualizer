@@ -5,3 +5,7 @@
   --text: #cecdcd;
   --error: var(--primary);
 }
+
+html {
+  background: var(--background);
+}

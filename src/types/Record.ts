@@ -1,3 +1,4 @@
+import { Frame } from "../functions/runAlgorithm";
 import Point from "./Point";
 
 type Record = {
@@ -5,6 +6,7 @@ type Record = {
   algorithmIndex: number;
   distance: number;
   points: Point[];
+  frames: Frame[];
 };
 
 export default Record;

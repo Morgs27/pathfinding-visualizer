@@ -12,6 +12,7 @@
   grid-template-rows: auto 2px 1fr;
   background-image: var(--map);
   background-size: cover;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .screen {
@@ -23,6 +24,7 @@
   height: 100%;
   background: rgb(40, 40, 40, 0.6);
   z-index: 100;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .header {
@@ -128,9 +130,6 @@ button:hover {
   border-radius: 5px;
 }
 
-.run.mobile {
-}
-
 .run .icon {
   margin-left: 8px;
 }
@@ -163,10 +162,11 @@ button:hover {
 }
 
 .option button {
-  border: 1px solid var(--primary);
   margin: 5px;
   border-radius: 5px;
   min-width: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .headerClose {
@@ -184,27 +184,57 @@ button:hover {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-button[data-active="true"] {
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  color: rgba(255, 255, 255, 0.6);
+.buttonGroup {
+  height: 35px;
+  display: flex;
+  flex-direction: row;
+  gap: 7px;
+}
+
+.buttonGroup button {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  margin: 0px;
+}
+
+.buttonGroup.themes button:hover {
   background: transparent;
+  border-width: 1px;
+}
+
+.buttonGroup img {
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 30px;
+}
+
+button[data-active="true"] {
+  background: transparent;
+  border: 1px solid var(--primary) !important;
+  color: var(--primary) !important;
 }
 
 .helpButton {
-  position: absolute;
-  right: 50px;
-  top: 13px;
-  width: 30px;
-  height: 30px;
-  font-size: 18px;
-  border-radius: 50%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--background);
-  color: var(--primary);
-  border: 1px solid var(--primary);
-  transition: 0.4s;
+  gap: 4px;
+  /* color: rgb(255, 255, 255, 0.6) !important; */
+}
+
+.flex-seperator-horizontal {
+  flex-grow: 1;
+}
+
+.helpButton svg {
+  font-size: 12px;
+  transform: scaleX(-1);
+  color: rgb(255, 255, 255, 0.6) !important;
 }
 
 .infoButton {
@@ -356,11 +386,13 @@ button[data-active="true"] {
 .history-buttons {
   display: flex;
   position: absolute;
-  left: 30px;
-  bottom: 30px;
+  left: 15px;
+  bottom: 15px;
   flex-direction: row;
   gap: 10px;
-  z-index: 100000;
+  z-index: 100;
+  flex-wrap: wrap;
+  width: calc(100% - 30px);
 }
 
 .history-buttons button {
@@ -372,6 +404,8 @@ button[data-active="true"] {
   text-align: left;
   background: var(--background);
   animation: fadeDown 1s ease-in-out;
+  transition: 0.3s;
+  position: relative;
 }
 
 @keyframes fadeDown {
@@ -386,12 +420,14 @@ button[data-active="true"] {
 }
 
 .history-buttons button:hover {
-  background: var(--primary);
-  color: white;
+  /* background: var(--primary);
+  color: white; */
+  border-radius: 0px;
 }
 
 .history-buttons .algorithm-name {
   font-size: 12px;
+  transition: 0.3s;
 }
 
 .history-buttons .row {
@@ -400,6 +436,7 @@ button[data-active="true"] {
   justify-content: space-between;
   gap: 10px;
   margin-top: 2px;
+  transition: 0.3s;
 }
 
 .history-buttons .distance {
@@ -416,4 +453,49 @@ button[data-active="true"] {
   /* width: 12px; */
   height: 9px;
   margin-left: 3px;
+}
+
+.history-buttons .run {
+  display: flex;
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  transform: translate(50%, 0%);
+  border: none;
+  transition: 0.3s;
+  opacity: 0;
+}
+
+.history-buttons button:hover > .run {
+  transform: translate(50%, -50%);
+  opacity: 1;
+}
+
+.history-buttons button:hover > .row,
+.history-buttons button:hover > .algorithm-name {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.clear-history {
+  transition: 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  gap: 2px;
+  /* color: rgba(255, 255, 255, 0.6) !important; */
+}
+
+.clear-history svg {
+  font-size: 14px;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.6) !important;
+  transition: 0.3s ease-in-out;
+}
+
+.clear-history:hover > svg {
+  transform: rotate(90deg);
 }

@@ -1,4 +1,5 @@
 import { factorialize } from "../functions/helpers";
+import AntColonyOptions from "../types/AntColonyOptions";
 
 export type Stat = {
   id: StatID;
@@ -15,9 +16,10 @@ export type StatID =
   | "completedEdges"
   | "completedPoints"
   | "solvedPoints"
-  | "iterations"
+  | "iteration"
   | "ants"
-  | "bestPath";
+  | "bestPath"
+  | "pointsExplored";
 
 export const defaultStats: Stat[] = [
   { id: "currentPermutation", name: "Current Permutation", value: null },
@@ -31,12 +33,13 @@ export const defaultStats: Stat[] = [
   { id: "completedEdges", name: "Completed Edges", value: null },
   { id: "completedPoints", name: "Solved Points", value: null },
   { id: "solvedPoints", name: "Solved Points", value: null },
-  { id: "iterations", name: "Iterations", value: null },
+  { id: "iteration", name: "Iteration", value: null },
   {
     id: "ants",
     name: "Ants",
     value: null,
-    defaultValue: (number: number) => 10,
+    defaultValue: (number: number) => number,
   },
   { id: "bestPath", name: "Best Path", value: null, unit: "px" },
+  { id: "pointsExplored", name: "Points Explored", value: null },
 ];

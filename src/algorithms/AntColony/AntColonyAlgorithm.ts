@@ -1,15 +1,12 @@
 import point from "../../types/Point";
 import { Frame } from "../../functions/runAlgorithm";
+import AntColonyOptions from "../../types/AntColonyOptions";
 
-async function antColonyAlgorithm(points: point[]) {
+async function antColonyAlgorithm(
+  points: point[],
+  { alpha, beta, evaporationRate, Q, numAnts, numIterations }: AntColonyOptions
+) {
   const frames: Frame[] = [];
-
-  const alpha = 1; // pheromone importance
-  const beta = 5; // distance priority
-  const evaporationRate = 0.5; // pheromone evaporation rate
-  const Q = 100; // pheromone deposit factor
-  const numAnts = 10; // number of ants
-  const numIterations = 5; // number of iterations
 
   // Initialize pheromone levels
   const pheromones = Array(points.length)

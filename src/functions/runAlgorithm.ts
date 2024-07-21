@@ -9,6 +9,8 @@ import drawCloseEdges from "./drawCloseEdges";
 import drawAnimatedPathV2 from "./drawAnimatedPathV2";
 import { Stat } from "../config/Stats";
 import Record from "../types/Record";
+import Ant from "../utils/ant";
+import AntColonyOptions from "../types/AntColonyOptions";
 
 export type VisualiseAlgorithmProps = {
   points: Point[];
@@ -35,6 +37,7 @@ export type VisualiseAlgorithmProps = {
   setHistory: (history: Record[]) => void;
   history: Record[];
   currentAlgorithm: number;
+  antColonyOptions?: AntColonyOptions;
 };
 
 export type Path = {
@@ -73,9 +76,12 @@ const VisualiseAlgorithm = async ({
   setHistory,
   history,
   currentAlgorithm,
+  antColonyOptions,
 }: VisualiseAlgorithmProps) => {
   const antImage = new Image();
   antImage.src = "./ant.svg";
+
+  const antSVG = Ant(colour);
 
   if (result) {
     frames = result;
@@ -128,7 +134,7 @@ const VisualiseAlgorithm = async ({
                 completedEdges: index,
                 completedPoints: index,
                 solvedPoints: index + 1,
-                iterations: index,
+                iteration: index + 1,
                 bestPath: Math.round(bestPath.distance ?? 0),
               };
 
@@ -157,6 +163,11 @@ const VisualiseAlgorithm = async ({
 
               const opacity = 1 / paths.length;
 
+              const [r, g, b] = colour.match(/\d+/g)!.map(Number);
+              const newColour = `rgba(${r},${g},${b},${opacity})`;
+
+              const showHeadEdges = visualiseHeadEdges && showExtraLines;
+
               for (let i = 0; i < numberPoints - 1; i++) {
                 const extraDraw: {
                   path: Point[];
@@ -164,7 +175,7 @@ const VisualiseAlgorithm = async ({
                   colour: string;
                 }[] = [];
 
-                if (visualiseHeadEdges) {
+                if (showHeadEdges) {
                   paths.map(({ path }) => {
                     const previousPoints = path.slice(0, i + 1);
                     allEdges.forEach((edge) => {
@@ -172,7 +183,7 @@ const VisualiseAlgorithm = async ({
                         if (!previousPoints.includes(edge.point2)) {
                           const opacity = Math.pow(
                             1 - edge.distance / edgeMax,
-                            5
+                            8
                           );
                           extraDraw.push({
                             path: [edge.point1, edge.point2],
@@ -184,7 +195,7 @@ const VisualiseAlgorithm = async ({
                         if (!previousPoints.includes(edge.point1)) {
                           const opacity = Math.pow(
                             1 - edge.distance / edgeMax,
-                            5
+                            8
                           );
                           extraDraw.push({
                             path: [edge.point2, edge.point1],
@@ -198,6 +209,17 @@ const VisualiseAlgorithm = async ({
                 }
 
                 setTimeout(() => {
+                  setStats(
+                    stats.map((stat) => {
+                      if (stat.id === "pointsExplored") {
+                        return { ...stat, value: i + 1 };
+                      } else if (stat.id === "iteration") {
+                        return { ...stat, value: index + 1 };
+                      }
+                      return stat;
+                    })
+                  );
+
                   drawAnimatedPathV2({
                     paths: paths.map(({ path }) => [path[i], path[i + 1]]),
                     ctx: ctx!,
@@ -205,7 +227,7 @@ const VisualiseAlgorithm = async ({
                     speed: 1000,
                     lastFrame: i == numberPoints - 2,
                     canvas: canvas.current!,
-                    colour: `rgba(43,207,207,${opacity})`,
+                    colour: newColour,
                     completionColour,
                     plotPreviousPath: false,
                     points,
@@ -213,9 +235,9 @@ const VisualiseAlgorithm = async ({
                       path.slice(0, i + 2)
                     ),
                     bestPath,
-                    antImage,
+                    antImage: antSVG,
                   });
-                }, i * (visualiseHeadEdges ? 1000 : 500));
+                }, i * (showHeadEdges ? 1000 : 500));
               }
             } else {
               const extraDraw = showExtraLines
@@ -250,25 +272,31 @@ const VisualiseAlgorithm = async ({
         }
 
         if (lastFrame) {
-          const record: Record = {
-            id: (history.length + 1).toString(),
-            algorithmIndex: currentAlgorithm,
-            points: points,
-            distance: Math.round(distance ?? 0),
-          };
+          setTimeout(
+            () => {
+              const record: Record = {
+                id: (history.length + 1).toString(),
+                algorithmIndex: currentAlgorithm,
+                points: points,
+                distance: Math.round(distance ?? 0),
+                frames: frames,
+              };
 
-          const isDuplicate = history.some(
-            (r) =>
-              r.algorithmIndex === record.algorithmIndex &&
-              JSON.stringify(r.points) === JSON.stringify(record.points) &&
-              r.distance === record.distance
+              const isDuplicate = history.some(
+                (r) =>
+                  r.algorithmIndex === record.algorithmIndex &&
+                  JSON.stringify(r.points) === JSON.stringify(record.points) &&
+                  r.distance === record.distance
+              );
+
+              if (!isDuplicate) {
+                setHistory([...history, record]);
+              }
+
+              algorithmFinished();
+            },
+            animatePath ? 1500 : 0
           );
-
-          if (!isDuplicate) {
-            setHistory([...history, record]);
-          }
-
-          algorithmFinished();
         }
       }, index * speed)
     );

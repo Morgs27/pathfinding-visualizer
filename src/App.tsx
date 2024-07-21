@@ -5,7 +5,12 @@ import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
 
 import { IoMdColorPalette } from "react-icons/io";
-import { MdMultilineChart } from "react-icons/md";
+import {
+  MdClear,
+  MdDeleteForever,
+  MdDeleteOutline,
+  MdMultilineChart,
+} from "react-icons/md";
 
 // Import App Styles
 import "./App.css";
@@ -15,7 +20,8 @@ import "katex/dist/katex.min.css";
 
 // Import Icons
 import { FaAngleDown, FaAngleUp, FaPlay } from "react-icons/fa";
-import { BsFillStopCircleFill } from "react-icons/bs";
+import { BsFillStopCircleFill, BsQuestionLg } from "react-icons/bs";
+import { FaRedo } from "react-icons/fa";
 
 // Import canvas drawing functions
 import {
@@ -49,6 +55,8 @@ import convexHullAlgorithm from "./algorithms/ConvexHull/ConvexHullAlgorithm";
 import VisualiseAlgorithm from "./functions/runAlgorithm";
 import { defaultStats, Stat } from "./config/Stats";
 import Record from "./types/Record";
+import { RxOpenInNewWindow } from "react-icons/rx";
+import AntColonyOptions from "./types/AntColonyOptions";
 
 function App() {
   // Refrences to container elements
@@ -80,10 +88,23 @@ function App() {
   // Offset from top of screen for adding points
   const margins = {
     top: 60,
-    bottom: 10,
+    bottom: 70,
     left: 10,
     right: 10,
   };
+
+  const speedOptions = [1, 10, 100];
+
+  const pointOptions = [5, 10];
+
+  const [antColonyOptions, setAntColonyOptions] = useState<AntColonyOptions>({
+    alpha: 1, // pheromone importance
+    beta: 5, // distance priority
+    evaporationRate: 0.5, // pheromone evaporation rate
+    Q: 100, // pheromone deposit factor
+    numAnts: 3, // number of ants
+    numIterations: 3, // number of iterations
+  });
 
   // Save Algorithm Run History
   const [history, setHistory] = useState<Record[]>([]);
@@ -259,14 +280,16 @@ function App() {
         ?.map((statID) => {
           const defaultStat = defaultStats.find((stat) => stat.id === statID);
           const defaultValue = defaultStat?.defaultValue;
+          const value =
+            statID == "ants" ? antColonyOptions.numAnts : points.length;
           return defaultStat
             ? {
                 ...defaultStat,
-                value: defaultValue ? defaultValue(points.length) : 0,
+                value: defaultValue ? defaultValue(value) : 0,
               }
             : null;
         })
-        .filter((stat) => stat !== null) || []
+        .filter((stat) => stat !== null) as Stat[]
     );
   }
 
@@ -284,15 +307,13 @@ function App() {
   }, [screenDimensions, points]);
 
   // Reset Points on algorithm change
-  useEffect(() => {
-    resetStats();
-    algorithmFinished();
-  }, [currentAlgorithm]);
+  // useEffect(() => {
+  //   resetStats();
+  //   algorithmFinished();
+  // }, [currentAlgorithm]);
 
   // Run Algorithm on runningState change
   useEffect(() => {
-    setModalOpen(false);
-    // setMenuOpen(false);
     if (runningState) {
       setTimeout(() => {
         runAlgorithm();
@@ -338,10 +359,16 @@ function App() {
   }
 
   const runAlgorithm = async () => {
+    const options =
+      currentAlgorithm == 0
+        ? antColonyOptions
+        : {};
+
     // Calculate + Build Frames
-    const frames = await algorithms[currentAlgorithm].calculateFunction!([
-      ...points,
-    ]);
+    const frames = await algorithms[currentAlgorithm].calculateFunction!(
+      [...points],
+      options
+    );
 
     setLoading(false);
 
@@ -364,6 +391,7 @@ function App() {
       setHistory,
       history,
       currentAlgorithm,
+      antColonyOptions,
     });
   };
 
@@ -371,6 +399,43 @@ function App() {
   function algorithmFinished() {
     running.current = false;
     setRunningState(false);
+  }
+
+  function setupReRunAlgorithm(record: Record) {
+    setCurrentAlgorithm(record.algorithmIndex);
+    running.current = true;
+    reRunAlgorithm(record);
+    resetStats();
+    setMenuOpen(() => !isMobile);
+    setPoints(record.points);
+    setTimeout(() => {
+      if (running.current == false) {
+        reRunAlgorithm(record);
+      }
+    }, 400);
+  }
+
+  function reRunAlgorithm(record: Record) {
+    VisualiseAlgorithm({
+      frames: record.frames,
+      points: record.points,
+      canvas,
+      ctx: ctx!,
+      running,
+      algorithmFinished,
+      speed,
+      ...algorithms[record.algorithmIndex].runOptions,
+      colour: theme.colour,
+      completionColour: theme.completionColour,
+      showExtraLines,
+      numberOfPoints: record.points.length,
+      setStats,
+      stats,
+      setHistory,
+      history,
+      currentAlgorithm: record.algorithmIndex,
+      antColonyOptions,
+    });
   }
 
   return (
@@ -385,7 +450,13 @@ function App() {
           <p>
             <i>TSP - Traveling Salesman Problem</i>
           </p>
-          <img height={150} src={theme.locationDot} alt={theme.name} />
+          <img
+            className="fadeIn"
+            height={150}
+            src={theme.locationDot}
+            alt={theme.name}
+            style={{ animation: "fadeIn 1s ease-in-out", height: 150 }}
+          />
           <p>
             This short tutorial will walk you through all the features of this
             application.
@@ -421,9 +492,15 @@ function App() {
           <div className="optionTitle">ADD POINTS</div>
           <div className="optionContent">
             <div className="buttonGroup">
-              <button onClick={() => addPoints(1)}>1 +</button>
-              <button onClick={() => addPoints(5)}>5 +</button>
-              <button onClick={() => addPoints(10)}>10 +</button>
+              {pointOptions.map((points) => (
+                <button
+                  data-active={true}
+                  key={points}
+                  onClick={() => addPoints(points)}
+                >
+                  {points} +
+                </button>
+              ))}
               <button
                 onClick={() => {
                   setPoints([]);
@@ -446,88 +523,63 @@ function App() {
           <div className="optionTitle">TIME DELAY</div>
           <div className="optionContent">
             <div className="buttonGroup">
-              <button
-                data-active={speed == 1 ? "true" : "false"}
-                onClick={() => setSpeed(1)}
-              >
-                1
-              </button>
-              <button
-                data-active={speed == 10 ? "true" : "false"}
-                onClick={() => setSpeed(10)}
-              >
-                10
-              </button>
-              <button
-                data-active={speed == 100 ? "true" : "false"}
-                onClick={() => setSpeed(100)}
-              >
-                100
-              </button>
+              {speedOptions.map((value) => (
+                <button
+                  key={value}
+                  data-active={speed === value ? "true" : "false"}
+                  onClick={() => setSpeed(value)}
+                >
+                  {value}
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Algorithm Time Complexity */}
-        <div className="option">
-          <div className="optionTitle">TIME COMPLEXITY</div>
-          <div className="optionContent">
-            <BlockMath>{algorithms[currentAlgorithm].timeComplexity}</BlockMath>
-          </div>
-        </div>
-
-        {/* Algorithm Accuracy */}
-        {/* {algorithms[currentAlgorithm].accuracy != "null" && (
+        {algorithms[currentAlgorithm].timeComplexity != "null" && (
           <div className="option">
-            <div className="optionTitle">ACCURACY</div>
+            <div className="optionTitle">TIME COMPLEXITY</div>
             <div className="optionContent">
-              {algorithms[currentAlgorithm].accuracy}
-              <div className="infoButton" style={{ position: "relative" }}>
-                ?
-                <div className="infoContent">
-                  <h3>The Held-Karp Lower Bound</h3>
-                  <p>
-                    A common way of measuring the performance of TSP heuristics
-                    is to compare its results to the HeldKarp (HK) lower bound.
-                    This lower bound is actually the solution to the linear
-                    programming relaxation of the integer programming
-                    formulation of the TSP.
-                  </p>
-                </div>
-              </div>
+              <BlockMath>
+                {algorithms[currentAlgorithm].timeComplexity}
+              </BlockMath>
             </div>
           </div>
-        )} */}
+        )}
+
+        <div className="option">
+          <div className="optionTitle">THEME</div>
+          <div className="optionContent">
+            <div className="buttonGroup themes">
+              {themes.map((themeOption, index) => (
+                <button
+                  key={index}
+                  data-active={theme === themeOption ? "true" : "false"}
+                  onClick={() => setTheme(themeOption)}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.borderColor = themeOption.colour)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.borderColor =
+                      "rgba(255, 255, 255, 0.6)")
+                  }
+                  style={{
+                    borderColor: "rgba(255, 255, 255, 0.6)",
+                  }}
+                >
+                  <img src={themeOption.imagePlainUrl} alt={themeOption.name} />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* Settings */}
         <div className="option">
           <div className="optionTitle">SETTINGS</div>
           <div className="optionContent">
             <div className="buttonGroup settings">
-              <button
-                data-active={"false"}
-                onClick={() =>
-                  setTheme((theme) => {
-                    let newIndex;
-                    do {
-                      newIndex = Math.floor(Math.random() * themes.length);
-                    } while (themes[newIndex] === theme);
-                    return themes[newIndex];
-                  })
-                }
-              >
-                <IoMdColorPalette />
-              </button>
-              <button
-                data-active={!showPoints ? "true" : "false"}
-                onClick={() => setShowPoints((showPoints) => !showPoints)}
-              >
-                {showPoints ? (
-                  <img src={theme.locationDot} alt={theme.name} />
-                ) : (
-                  <img src={"./location-dot-white.png"} alt={theme.name} />
-                )}
-              </button>
               <button
                 data-active={!showExtraLines ? "true" : "false"}
                 onClick={() =>
@@ -618,11 +670,6 @@ function App() {
             )}
           </>
         )}
-
-        {/* Help Button to Open Tutorial */}
-        <div className="helpButton" onClick={() => setModalOpen(true)}>
-          ?
-        </div>
       </div>
 
       {/* Canvas Container */}
@@ -636,35 +683,53 @@ function App() {
         ></canvas>
       </div>
 
-      <div className="history-buttons">
-        {history.map((record, index) => (
-          <button
-            key={index}
-            onClick={() => {
-              setPoints(record.points);
-              setCurrentAlgorithm(record.algorithmIndex);
-              setTimeout(() => {
-                algorithmSetup();
-              }, 1000);
-            }}
-          >
-            <div className="algorithm-name">
-              {algorithms[record.algorithmIndex].name}
-            </div>
-            <div className="row">
-              <div className="distance">{record.distance} px</div>
-              <div className="points">
-                {record.points.length}
-                <img
-                  src={theme.locationDot}
-                  alt="point"
-                  className="point-icon"
-                />
+      {!isMobile && (
+        <div className="history-buttons">
+          {history.length > 0 && (
+            <button className="clear-history" onClick={() => setHistory([])}>
+              Clear
+              <MdClear />
+            </button>
+          )}
+          {history.map((record, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                setupReRunAlgorithm(record);
+              }}
+            >
+              <div className="algorithm-name">
+                {algorithms[record.algorithmIndex].name}
               </div>
-            </div>
-          </button>
-        ))}
-      </div>
+              <div className="row">
+                <div className="distance">{record.distance} px</div>
+                <div className="points">
+                  {record.points.length}
+                  <img
+                    src={theme.locationDot}
+                    alt="point"
+                    className="point-icon"
+                  />
+                </div>
+              </div>
+              {running.current == false && (
+                <div className="run" onClick={() => reRunAlgorithm(record)}>
+                  Re-run <FaRedo className="icon"></FaRedo>
+                </div>
+              )}
+            </button>
+          ))}
+
+          <div className="flex-seperator-horizontal"></div>
+
+          {/* Help Button to Open Tutorial */}
+          {!modalOpen && (
+            <button className="helpButton" onClick={() => setModalOpen(true)}>
+              Tutorial <RxOpenInNewWindow />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -18,7 +18,7 @@ export function TutorialModal({ children, open, state, setState }: ModalProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [pagesTransform, setPagesTransform] = useState(0);
 
-  const [pageHeight, setPageHeight] = useState(0);
+  const [pageHeight, setPageHeight] = useState(800);
 
   // Button States
   const [showNext, setShowNext] = useState(true);

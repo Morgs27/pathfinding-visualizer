@@ -18,6 +18,7 @@
   -moz-box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.75);
   box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.75);
   z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .pageCover {
@@ -28,6 +29,7 @@
   background: rgba(100, 100, 100, 0.6);
   z-index: 1000;
   /* pointer-events: none; */
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .overflowContainer {
@@ -67,6 +69,11 @@
 .tutorialModal .pageContainer {
   height: 100%;
   display: inline-block;
+}
+
+.tutorialModal .pageContainer * {
+  animation: fadeIn 0.3s ease-in-out;
+  transition: 0.3s ease-in-out;
 }
 
 .tutorialModal .modalButtons {

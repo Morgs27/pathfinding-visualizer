@@ -22,6 +22,7 @@ type DrawAnimatedPathProps = {
   previousPaths?: Point[][];
   bestPath?: Path;
   antImage?: HTMLImageElement;
+  antColour?: string;
 };
 
 function drawAnimatedPathV2({

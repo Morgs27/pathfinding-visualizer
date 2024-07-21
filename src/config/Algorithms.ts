@@ -7,11 +7,15 @@ import bruteForceAlgorithm from "../algorithms/BruteForce/BruteForceAlgorithm";
 import { Frame, VisualiseAlgorithmProps } from "../functions/runAlgorithm";
 import point from "../types/Point";
 import { StatID } from "./Stats";
+import AntColonyOptions from "../types/AntColonyOptions";
 
 export type Algorithms = {
   name: string;
   runOptions?: Partial<VisualiseAlgorithmProps>;
-  calculateFunction: (points: point[]) => Frame[] | Promise<Frame[]>;
+  calculateFunction: (
+    points: point[],
+    options?: any
+  ) => Frame[] | Promise<Frame[]>;
   timeComplexity: string;
   accuracy: string;
   stats?: StatID[];
@@ -30,7 +34,7 @@ const algorithms: Algorithms[] = [
     calculateFunction: antColonyAlgorithm,
     timeComplexity: "null",
     accuracy: "null",
-    stats: ["bestPath", "iterations", "ants"],
+    stats: ["bestPath", "iteration", "ants", "pointsExplored"],
   },
   {
     name: "Nearest Neighbour",

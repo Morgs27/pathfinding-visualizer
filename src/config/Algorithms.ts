@@ -34,7 +34,7 @@ const algorithms: Algorithms[] = [
     calculateFunction: antColonyAlgorithm,
     timeComplexity: "null",
     accuracy: "null",
-    stats: ["bestPath", "iteration", "ants", "pointsExplored"],
+    stats: ["pointsExplored", "bestPath", "iteration", "ants"],
   },
   {
     name: "Nearest Neighbour",
@@ -46,7 +46,7 @@ const algorithms: Algorithms[] = [
     calculateFunction: nearestNeighborAlgorithm,
     timeComplexity: "O(n^2)",
     accuracy: "75%",
-    stats: ["totalDistance", "solvedPoints"],
+    stats: ["solvedPoints", "totalDistance"],
   },
   {
     name: "Greedy",
@@ -57,7 +57,7 @@ const algorithms: Algorithms[] = [
     calculateFunction: greedyAlgorithm,
     timeComplexity: "O(n^2log_2(n))",
     accuracy: "80-85%",
-    stats: ["totalDistance", "completedEdges"],
+    stats: ["completedEdges", "totalDistance"],
   },
   {
     name: "Nearest Insertion",
@@ -69,7 +69,7 @@ const algorithms: Algorithms[] = [
     calculateFunction: nearestInsertionAlgorithm,
     timeComplexity: "O(n^2)",
     accuracy: "null",
-    stats: ["totalDistance", "completedPoints"],
+    stats: ["completedPoints", "totalDistance"],
   },
   {
     name: "Convex Hull Insertion",
@@ -81,7 +81,7 @@ const algorithms: Algorithms[] = [
     calculateFunction: convexHullAlgorithm,
     timeComplexity: "O(n^2log_2(n))",
     accuracy: "null",
-    stats: ["totalDistance", "completedPoints"],
+    stats: ["completedPoints", "totalDistance"],
   },
   {
     name: "Brute Force",

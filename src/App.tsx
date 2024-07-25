@@ -87,23 +87,31 @@ function App() {
 
   // Offset from top of screen for adding points
   const margins = {
-    top: 60,
-    bottom: 70,
-    left: 10,
-    right: 10,
+    top: 40,
+    bottom: 10,
+    left: 15,
+    right: 15,
   };
 
-  const speedOptions = [1, 10, 100];
+  const speedOptions = [
+    { name: "1", value: 100 },
+    { name: "10", value: 10 },
+    { name: "100", value: 1 },
+  ];
 
   const pointOptions = [5, 10];
+
+  const antOptions = [1, 5];
+
+  const iterationOptions = [1, 3, 10];
 
   const [antColonyOptions, setAntColonyOptions] = useState<AntColonyOptions>({
     alpha: 1, // pheromone importance
     beta: 5, // distance priority
     evaporationRate: 0.5, // pheromone evaporation rate
     Q: 100, // pheromone deposit factor
-    numAnts: 3, // number of ants
-    numIterations: 3, // number of iterations
+    numAnts: 5, // number of ants
+    numIterations: 1, // number of iterations
   });
 
   // Save Algorithm Run History
@@ -281,7 +289,11 @@ function App() {
           const defaultStat = defaultStats.find((stat) => stat.id === statID);
           const defaultValue = defaultStat?.defaultValue;
           const value =
-            statID == "ants" ? antColonyOptions.numAnts : points.length;
+            statID == "ants"
+              ? antColonyOptions.numAnts
+              : statID == "iteration"
+              ? antColonyOptions.numIterations
+              : points.length;
           return defaultStat
             ? {
                 ...defaultStat,
@@ -306,12 +318,6 @@ function App() {
     resetStats();
   }, [screenDimensions, points]);
 
-  // Reset Points on algorithm change
-  // useEffect(() => {
-  //   resetStats();
-  //   algorithmFinished();
-  // }, [currentAlgorithm]);
-
   // Run Algorithm on runningState change
   useEffect(() => {
     if (runningState) {
@@ -320,6 +326,14 @@ function App() {
       }, 100);
     }
   }, [runningState]);
+
+  useEffect(() => {
+    resetStats();
+  }, [antColonyOptions]);
+
+  useEffect(() => {
+    resetStats();
+  }, [currentAlgorithm]);
 
   // Function to run before any algorithm
   function algorithmSetup() {
@@ -359,10 +373,7 @@ function App() {
   }
 
   const runAlgorithm = async () => {
-    const options =
-      currentAlgorithm == 0
-        ? antColonyOptions
-        : {};
+    const options = currentAlgorithm == 0 ? antColonyOptions : {};
 
     // Calculate + Build Frames
     const frames = await algorithms[currentAlgorithm].calculateFunction!(
@@ -440,6 +451,8 @@ function App() {
 
   return (
     <div className="container">
+      <div className="background-overlay"></div>
+
       {/* Error Message Component */}
       <ErrorMessage message={errorMessage} setMessage={setErrorMessage} />
 
@@ -469,207 +482,301 @@ function App() {
       {/* Loading Text Component */}
       <LoadingText state={loading} setState={setLoading} />
 
-      <div className="header" data-menu={menuOpen ? "open" : "close"}>
-        {/* Algorithm Selector Dropdown */}
-        <div className="option">
-          <div className="optionTitle">ALGORITHM</div>
-          <div className="optionContent">
-            <Dropdown
-              options={algorithms.map((algo) => algo.name)}
-              onChange={(e) => {
-                setCurrentAlgorithm(
-                  algorithms.findIndex((algo) => algo.name === e.value)
-                );
-              }}
-              value={algorithms[currentAlgorithm].name}
-              placeholder="Select an algorithm"
-            />
-          </div>
-        </div>
-
-        {/* Add Points Buttons */}
-        <div className="option">
-          <div className="optionTitle">ADD POINTS</div>
-          <div className="optionContent">
-            <div className="buttonGroup">
-              {pointOptions.map((points) => (
-                <button
-                  data-active={true}
-                  key={points}
-                  onClick={() => addPoints(points)}
-                >
-                  {points} +
-                </button>
-              ))}
-              <button
-                onClick={() => {
-                  setPoints([]);
-                  toggleMenu();
-                  clearCanvas(canvas.current!, ctx!);
-                }}
-                style={{
-                  borderColor: "rgba(255,255,255,0.6)",
-                  color: "rgba(255,255,255,0.6)",
-                }}
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Speed Buttons */}
-        <div className="option">
-          <div className="optionTitle">TIME DELAY</div>
-          <div className="optionContent">
-            <div className="buttonGroup">
-              {speedOptions.map((value) => (
-                <button
-                  key={value}
-                  data-active={speed === value ? "true" : "false"}
-                  onClick={() => setSpeed(value)}
-                >
-                  {value}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Algorithm Time Complexity */}
-        {algorithms[currentAlgorithm].timeComplexity != "null" && (
-          <div className="option">
-            <div className="optionTitle">TIME COMPLEXITY</div>
+      <div className="header">
+        <div className="mobile-selector">
+          {/* Algorithm Selector Dropdown */}
+          <div className="option algorithm-option">
+            <div className="optionTitle">ALGORITHM</div>
             <div className="optionContent">
-              <BlockMath>
-                {algorithms[currentAlgorithm].timeComplexity}
-              </BlockMath>
+              <Dropdown
+                options={algorithms.map((algo) => algo.name)}
+                onChange={(e) => {
+                  setCurrentAlgorithm(
+                    algorithms.findIndex((algo) => algo.name === e.value)
+                  );
+                }}
+                value={algorithms[currentAlgorithm].name}
+                placeholder="Select an algorithm"
+              />
             </div>
           </div>
-        )}
 
-        <div className="option">
-          <div className="optionTitle">THEME</div>
-          <div className="optionContent">
-            <div className="buttonGroup themes">
-              {themes.map((themeOption, index) => (
+          <div className="option run-option">
+            <div className="optionTitle">RUN</div>
+            <div className="optionContent">
+              <div className="buttonGroup">
                 <button
-                  key={index}
-                  data-active={theme === themeOption ? "true" : "false"}
-                  onClick={() => setTheme(themeOption)}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.borderColor = themeOption.colour)
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.borderColor =
-                      "rgba(255, 255, 255, 0.6)")
-                  }
+                  onClick={() => algorithmSetup()}
+                  disabled={running.current}
+                  className={`${running.current ? "disabled" : ""}`}
+                >
+                  Run <FaPlay className="icon"></FaPlay>
+                </button>
+                <button
+                  onClick={() => {
+                    running.current = false;
+                    setRunningState(false);
+                  }}
+                  disabled={!running.current}
+                  className={`${!running.current ? "disabled" : ""}`}
+                >
+                  Stop{" "}
+                  <BsFillStopCircleFill className="icon"></BsFillStopCircleFill>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={`mobile-dropdown ${menuOpen ? "open" : ""}`}
+          onClick={() => toggleMenu()}
+        >
+          Settings{" "}
+          {menuOpen ? <FaAngleUp></FaAngleUp> : <FaAngleDown></FaAngleDown>}
+        </div>
+
+        <div className={`mobile-options ${menuOpen ? "open" : ""}`}>
+          {/* Add Points Buttons */}
+          <div className="option points-option">
+            <div className="optionTitle">POINTS</div>
+            <div className="optionContent">
+              <div className="buttonGroup">
+                {pointOptions.map((points) => (
+                  <button
+                    data-active={true}
+                    key={points}
+                    onClick={() => addPoints(points)}
+                  >
+                    {points} +
+                  </button>
+                ))}
+                <button
+                  onClick={() => {
+                    setPoints([]);
+                    toggleMenu();
+                    clearCanvas(canvas.current!, ctx!);
+                  }}
                   style={{
-                    borderColor: "rgba(255, 255, 255, 0.6)",
+                    borderColor: "rgba(255,255,255,0.6)",
+                    color: "rgba(255,255,255,0.6)",
                   }}
                 >
-                  <img src={themeOption.imagePlainUrl} alt={themeOption.name} />
+                  Clear
                 </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Settings */}
-        <div className="option">
-          <div className="optionTitle">SETTINGS</div>
-          <div className="optionContent">
-            <div className="buttonGroup settings">
-              <button
-                data-active={!showExtraLines ? "true" : "false"}
-                onClick={() =>
-                  setShowExtraLines((showExtraLines) => !showExtraLines)
-                }
-              >
-                <MdMultilineChart />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Run Button */}
-        {!isMobile && (
-          <div
-            className="option"
-            style={{ placeItems: "center", gridTemplateRows: "1fr" }}
-          >
-            {runningState ? (
-              <button
-                style={{
-                  backgroundColor: "transparent",
-                  color: "var(--primary)",
-                }}
-                className="run"
-                onClick={() => {
-                  running.current = false;
-                  setRunningState(false);
-                }}
-              >
-                Stop{" "}
-                <BsFillStopCircleFill className="icon"></BsFillStopCircleFill>
-              </button>
-            ) : (
-              <button className="run" onClick={() => algorithmSetup()}>
-                Run <FaPlay className="icon"></FaPlay>
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Header Close Button */}
-      <div className="headerClose" onClick={() => toggleMenu()}>
-        {menuOpen ? <FaAngleUp></FaAngleUp> : <FaAngleDown></FaAngleDown>}
-      </div>
-
-      {/* Stats Bar */}
-      <div className="stats">
-        {/* Number of points */}
-        <div className="stat">{"Points: " + points.length}</div>
-
-        {/* Show different stats based off of the current algorithm */}
-        {stats.map((stat, index) => {
-          if (stat.value !== null) {
-            return (
-              <div key={index} className="stat">
-                {`${stat.name}: ${stat.value} ${stat.unit || ""}`}
               </div>
-            );
-          }
-          return null;
-        })}
+            </div>
+          </div>
 
-        {isMobile && (
-          <>
-            <div className="flex-seperator"></div>
+          {/* Speed Buttons */}
+          {algorithms[currentAlgorithm].name !== "Ant Colony Optimization" && (
+            <div className="option">
+              <div className="optionTitle">SPEED</div>
+              <div className="optionContent">
+                <div className="buttonGroup">
+                  {speedOptions.map((value) => (
+                    <button
+                      key={value.value}
+                      data-active={speed === value.value ? "true" : "false"}
+                      onClick={() => setSpeed(value.value)}
+                    >
+                      {value.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
-            {runningState ? (
+          {/* Algorithm Time Complexity */}
+          {algorithms[currentAlgorithm].timeComplexity != "null" && (
+            <div className="option">
+              <div className="optionTitle">TIME COMPLEXITY</div>
+              <div
+                className="optionContent"
+                style={{ margin: 0, alignItems: "flex-start" }}
+              >
+                <BlockMath>
+                  {algorithms[currentAlgorithm].timeComplexity}
+                </BlockMath>
+              </div>
+            </div>
+          )}
+
+          {algorithms[currentAlgorithm].name === "Ant Colony Optimization" && (
+            <>
+              {/* Number of Ants Selector */}
+              <div className="option">
+                <div className="optionTitle">ANTS</div>
+                <div className="optionContent">
+                  <div className="buttonGroup">
+                    {antOptions.map((value) => (
+                      <button
+                        key={value}
+                        data-active={
+                          antColonyOptions.numAnts === value ? "false" : "true"
+                        }
+                        onClick={() =>
+                          setAntColonyOptions((antColonyOptions) => ({
+                            ...antColonyOptions,
+                            numAnts: antColonyOptions.numAnts + value,
+                          }))
+                        }
+                      >
+                        {value} +
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => {
+                        setAntColonyOptions({
+                          ...antColonyOptions,
+                          numAnts: 0,
+                        });
+                      }}
+                      style={{
+                        borderColor: "rgba(255,255,255,0.6)",
+                        color: "rgba(255,255,255,0.6)",
+                      }}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Iterations Selector */}
+              <div className="option">
+                <div className="optionTitle">ITERATIONS</div>
+                <div className="optionContent">
+                  <div className="buttonGroup">
+                    {iterationOptions.map((value) => (
+                      <button
+                        key={value}
+                        data-active={
+                          antColonyOptions.numIterations === value
+                            ? "true"
+                            : "false"
+                        }
+                        onClick={() =>
+                          setAntColonyOptions({
+                            ...antColonyOptions,
+                            numIterations: value,
+                          })
+                        }
+                      >
+                        {value}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          <div className="option">
+            <div className="optionTitle">THEME</div>
+            <div className="optionContent">
+              <div className="buttonGroup themes">
+                {themes.map((themeOption, index) => (
+                  <button
+                    key={index}
+                    data-active={theme === themeOption ? "true" : "false"}
+                    onClick={() => setTheme(themeOption)}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.borderColor = themeOption.colour)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.borderColor =
+                        "rgba(255, 255, 255, 0.6)")
+                    }
+                    style={{
+                      borderColor: "rgba(255, 255, 255, 0.6)",
+                    }}
+                  >
+                    <img
+                      src={themeOption.imagePlainUrl}
+                      alt={themeOption.name}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="adaptable-row">
+        {/* Stats Bar */}
+        <div className="stats">
+          {/* Number of points */}
+          <div className="stat">
+            <div className="icon">
+              <img src={theme.locationDot} alt="point" className="point-icon" />
+            </div>
+            {" " + points.length}
+          </div>
+
+          {/* Show different stats based off of the current algorithm */}
+          {stats.map((stat, index) => {
+            if (stat.value !== null) {
+              return (
+                <div key={index} className="stat">
+                  <div className="icon">{stat.icon}</div>
+                  {stat.showName && `${stat.name}: `}
+                  {`${stat.value} ${stat.unit || ""}`}
+                </div>
+              );
+            }
+            return null;
+          })}
+        </div>
+
+        <div className="flex-seperator-horizontal"></div>
+        <div className="flex-seperator-horizontal"></div>
+
+        {history.length > 0 && (
+          <div className="history-buttons">
+            {history.map((record, index) => (
               <button
-                style={{
-                  backgroundColor: "transparent",
-                  color: "var(--primary)",
-                }}
-                className="run"
+                key={index}
                 onClick={() => {
-                  running.current = false;
-                  setRunningState(false);
+                  setupReRunAlgorithm(record);
                 }}
               >
-                Stop{" "}
-                <BsFillStopCircleFill className="icon"></BsFillStopCircleFill>
+                <div className="algorithm-name">
+                  {algorithms[record.algorithmIndex].name}
+                </div>
+                <div className="row">
+                  <div className="distance">{record.distance} px</div>
+                  <div className="points">
+                    {record.points.length}
+                    <img
+                      src={theme.locationDot}
+                      alt="point"
+                      className="point-icon"
+                    />
+                  </div>
+                </div>
+                {running.current == false && (
+                  <div className="run" onClick={() => reRunAlgorithm(record)}>
+                    Re-run <FaRedo className="icon"></FaRedo>
+                  </div>
+                )}
               </button>
-            ) : (
-              <button className="run mobile" onClick={() => algorithmSetup()}>
-                Run <FaPlay className="icon"></FaPlay>
-              </button>
-            )}
-          </>
+            ))}
+            <button className="clear-history" onClick={() => setHistory([])}>
+              Clear
+              <MdClear />
+            </button>
+          </div>
         )}
+
+        {/* Help Button to Open Tutorial */}
+        {/* {!modalOpen && (
+          <button className="helpButton" onClick={() => setModalOpen(true)}>
+            Tutorial <RxOpenInNewWindow />
+          </button>
+        )} */}
       </div>
 
       {/* Canvas Container */}
@@ -682,54 +789,6 @@ function App() {
           ref={canvas}
         ></canvas>
       </div>
-
-      {!isMobile && (
-        <div className="history-buttons">
-          {history.length > 0 && (
-            <button className="clear-history" onClick={() => setHistory([])}>
-              Clear
-              <MdClear />
-            </button>
-          )}
-          {history.map((record, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                setupReRunAlgorithm(record);
-              }}
-            >
-              <div className="algorithm-name">
-                {algorithms[record.algorithmIndex].name}
-              </div>
-              <div className="row">
-                <div className="distance">{record.distance} px</div>
-                <div className="points">
-                  {record.points.length}
-                  <img
-                    src={theme.locationDot}
-                    alt="point"
-                    className="point-icon"
-                  />
-                </div>
-              </div>
-              {running.current == false && (
-                <div className="run" onClick={() => reRunAlgorithm(record)}>
-                  Re-run <FaRedo className="icon"></FaRedo>
-                </div>
-              )}
-            </button>
-          ))}
-
-          <div className="flex-seperator-horizontal"></div>
-
-          {/* Help Button to Open Tutorial */}
-          {!modalOpen && (
-            <button className="helpButton" onClick={() => setModalOpen(true)}>
-              Tutorial <RxOpenInNewWindow />
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
 }

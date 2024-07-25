@@ -7,17 +7,16 @@ import { distance } from "../../functions/helpers";
 import { Frame } from "../../functions/runAlgorithm";
 
 function nearestNeighborAlgorithm(points: Point[]) {
-  // Generate random index for starting point
-  var randomIndex = Math.floor(Math.random() * points.length);
+  var startingIndex = Math.floor(Math.random() * points.length);
 
   // Add first point to path
-  var path: any = [randomIndex];
+  var path: any = [startingIndex];
 
   // Setup array to hold info about each step to help with display
   var steps: Frame[] = [];
 
   // Set starting point to solved
-  points[randomIndex].solved = true;
+  points[startingIndex].solved = true;
 
   // Start Recursive loop that ends when path is solved
   var pathSolved = false;

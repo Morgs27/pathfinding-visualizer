@@ -123,14 +123,14 @@ function App() {
 
   // Points
   const [points, setPoints] = useState<point[]>([]);
-  var addingPoint: Boolean = false;
+  var addingPoint: boolean = false;
 
   // Current Algorithm
   const [currentAlgorithm, setCurrentAlgorithm] = useState(0);
 
   // Algorithm Running State
-  const running = useRef<Boolean>(false);
-  const [runningState, setRunningState] = useState<Boolean>(false);
+  const running = useRef<boolean>(false);
+  const [runningState, setRunningState] = useState<boolean>(false);
 
   // Speed
   const [speed, setSpeed] = useState<number>(10);

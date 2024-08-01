@@ -15,7 +15,7 @@ const getHeadEdges = (paths: Path[], allEdges: Edge[], edgeMax: number) => {
           path.path.includes(edge.point1) && path.path.includes(edge.point2)
       );
       if (isConnectedToLastPoint && !isConnectedToOtherPoints) {
-        const opacity = Math.pow(1 - edge.distance / edgeMax, 4);
+        const opacity = Math.pow(1 - edge.distance / edgeMax, 10);
         return {
           path: [edge.point1, edge.point2],
           colour: "rgba(255,255,255," + opacity + ")",

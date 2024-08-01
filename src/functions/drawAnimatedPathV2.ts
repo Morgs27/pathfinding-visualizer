@@ -23,6 +23,7 @@ type DrawAnimatedPathProps = {
   bestPath?: Path;
   antImage?: HTMLImageElement;
   antColour?: string;
+  hideMarker?: boolean;
 };
 
 function drawAnimatedPathV2({
@@ -39,6 +40,7 @@ function drawAnimatedPathV2({
   previousPaths = [],
   bestPath = { path: [], distance: 0 },
   antImage,
+  hideMarker = true,
 }: DrawAnimatedPathProps) {
   ctx = ctx || getCanvas();
 
@@ -60,13 +62,13 @@ function drawAnimatedPathV2({
 
     previousPaths.forEach((path) => {
       if (progress < 0.5 || lastFrame) {
-        plotPath(path.slice(0, -1), ctx, colour, false);
+        plotPath(path.slice(0, -1), ctx, colour, hideMarker);
       } else {
-        plotPath(path, ctx, colour, false);
+        plotPath(path, ctx, colour, hideMarker);
       }
     });
 
-    plotPoints(points, ctx!);
+    plotPoints(points, ctx!, hideMarker);
 
     if (lastFrame) {
       mainLineWaypoints.forEach((waypoints) => {
@@ -103,8 +105,8 @@ function drawAnimatedPathV2({
     setTimeout(() => {
       clearCanvas(canvas, ctx!);
 
-      plotPath(bestPath.path, ctx!, completionColour, false);
-      plotPoints(bestPath.path, ctx!);
+      plotPath(bestPath.path, ctx!, completionColour, hideMarker);
+      plotPoints(bestPath.path, ctx!, hideMarker);
     }, speed + 100);
   }
 
@@ -145,13 +147,7 @@ function drawPath(
     ctx.save();
     ctx.translate(antPoint.x, antPoint.y);
     ctx.rotate(angle);
-    ctx.drawImage(
-      antImage!,
-      -10, // Adjust the position to center the image
-      -10, // Adjust the position to center the image
-      20, // Set the width of the image
-      20 // Set the height of the image
-    );
+    ctx.drawImage(antImage!, -10, -10, 20, 20);
     ctx.restore();
   }
 }

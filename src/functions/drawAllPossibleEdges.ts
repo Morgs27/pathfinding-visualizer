@@ -2,13 +2,13 @@ import { Path } from "./runAlgorithm";
 import Edge from "../types/Edge";
 import { plotPath } from "./basicDrawFunctions";
 import { generateEdges } from "./helpers";
-import Point from "../types/Point";
 
 const drawAllPossibleEdges = (
   paths: Path[],
   allEdges: Edge[],
   ctx: CanvasRenderingContext2D,
-  edgeMax: number
+  edgeMax: number,
+  hideMarker: boolean
 ) => {
   const pathEdges = paths.map(({ path }) => generateEdges(path));
 
@@ -41,7 +41,7 @@ const drawAllPossibleEdges = (
       [edge.point1, edge.point2],
       ctx!,
       "rgba(255,255,255," + opacity + ")",
-      false,
+      hideMarker,
       2
     );
   });

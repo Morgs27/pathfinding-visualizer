@@ -4,6 +4,9 @@ import { LegacyRef, useCallback, useEffect, useRef, useState } from "react";
 import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
 
+import { LuMapPinOff, LuMapPin } from "react-icons/lu";
+import { LiaChartLineSolid } from "react-icons/lia";
+
 import { IoMdColorPalette } from "react-icons/io";
 import {
   MdClear,
@@ -57,6 +60,7 @@ import { defaultStats, Stat } from "./config/Stats";
 import Record from "./types/Record";
 import { RxOpenInNewWindow } from "react-icons/rx";
 import AntColonyOptions from "./types/AntColonyOptions";
+import { TbMap, TbMapOff } from "react-icons/tb";
 
 function App() {
   // Refrences to container elements
@@ -64,46 +68,52 @@ function App() {
   const screen = useRef<HTMLDivElement | null>(null);
   var ctx: null | CanvasRenderingContext2D = null;
 
-  // Error State
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  // Theme State
-  const [theme, setTheme] = useState<Theme>(themes[0]);
-
-  // Menu State
+  const [theme, setTheme] = useState<Theme>(themes[2]);
   const [menuOpen, setMenuOpen] = useState<boolean>(true);
-
-  // Tutorial Modal State
   const [modalOpen, setModalOpen] = useState<boolean>(true);
-
-  // Screen Dimensions
+  const [showMap, setShowMap] = useState<boolean>(false);
+  const [history, setHistory] = useState<Record[]>([]);
+  const [showPoints, setShowPoints] = useState(false);
+  const [showExtraLines, setShowExtraLines] = useState(false);
+  const [points, setPoints] = useState<point[]>([]);
+  const [currentAlgorithm, setCurrentAlgorithm] = useState(0);
+  const [runningState, setRunningState] = useState<boolean>(false);
+  const [speed, setSpeed] = useState<number>(10);
+  const [stats, setStats] = useState<Stat[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const [screenDimensions, setScreenDimensions] = useState<dimensions>({
     width: 150,
     height: 150,
   });
 
-  // Check if device is mobile
+  const running = useRef<boolean>(false);
   const isMobile = window.innerWidth < 800;
+  var addingPoint: boolean = false;
 
-  // Offset from top of screen for adding points
-  const margins = {
-    top: 40,
-    bottom: 10,
-    left: 15,
-    right: 15,
-  };
+  // Margins for adding points
+  const margins = showPoints
+    ? {
+        top: 40,
+        bottom: 10,
+        left: 15,
+        right: 15,
+      }
+    : {
+        top: 10,
+        bottom: 10,
+        left: 10,
+        right: 10,
+      };
 
+  const pointOptions = [5, 10];
+  const antOptions = [1, 5];
+  const iterationOptions = [1, 3, 10];
   const speedOptions = [
     { name: "1", value: 100 },
     { name: "10", value: 10 },
     { name: "100", value: 1 },
   ];
-
-  const pointOptions = [5, 10];
-
-  const antOptions = [1, 5];
-
-  const iterationOptions = [1, 3, 10];
 
   const [antColonyOptions, setAntColonyOptions] = useState<AntColonyOptions>({
     alpha: 1, // pheromone importance
@@ -114,32 +124,8 @@ function App() {
     numIterations: 1, // number of iterations
   });
 
-  // Save Algorithm Run History
-  const [history, setHistory] = useState<Record[]>([]);
-
-  const [showPoints, setShowPoints] = useState(true);
-
-  const [showExtraLines, setShowExtraLines] = useState(true);
-
-  // Points
-  const [points, setPoints] = useState<point[]>([]);
-  var addingPoint: boolean = false;
-
-  // Current Algorithm
-  const [currentAlgorithm, setCurrentAlgorithm] = useState(0);
-
-  // Algorithm Running State
-  const running = useRef<boolean>(false);
-  const [runningState, setRunningState] = useState<boolean>(false);
-
-  // Speed
-  const [speed, setSpeed] = useState<number>(10);
-
-  // Stats for each algorithm
-  const [stats, setStats] = useState<Stat[]>([]);
-
-  // Loading State
-  const [loading, setLoading] = useState(false);
+  const grid =
+    "repeating-linear-gradient(0deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 2px, transparent 2px, transparent 40px), repeating-linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 2px, transparent 2px, transparent 40px)";
 
   /// --- General Functions --- ///
 
@@ -160,18 +146,7 @@ function App() {
     [screen]
   );
 
-  useEffect(() => {
-    localStorage.setItem("history", JSON.stringify(history));
-    console.log("History", history);
-  }, [history]);
-
-  useEffect(() => {
-    // change the root styles
-    document.documentElement.style.setProperty("--map", theme.image);
-    document.documentElement.style.setProperty("--primary", theme.colour);
-  }, [theme]);
-
-  // Startup Function - Only runs on first render
+  // Startup Function
   useEffect(() => {
     sortScreenDimensions();
 
@@ -183,6 +158,15 @@ function App() {
       ctx = getCanvas();
     }
   }, []);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty("--primary", theme.colour);
+    if (showMap) {
+      document.documentElement.style.setProperty("--map", theme.image);
+    } else {
+      document.documentElement.style.setProperty("--map", grid);
+    }
+  }, [theme, showMap]);
 
   function toggleMenu() {
     isMobile && setMenuOpen((menuOpen) => !menuOpen);
@@ -309,14 +293,14 @@ function App() {
   useEffect(() => {
     clearCanvas(canvas.current!, ctx!);
 
-    plotPoints(points, ctx!);
+    plotPoints(points, ctx!, !showPoints);
 
     setTimeout(() => {
-      plotPoints(points, ctx!);
+      plotPoints(points, ctx!, !showPoints);
     }, 50);
 
     resetStats();
-  }, [screenDimensions, points]);
+  }, [screenDimensions, points, showPoints]);
 
   // Run Algorithm on runningState change
   useEffect(() => {
@@ -362,7 +346,7 @@ function App() {
       })
     );
     clearCanvas(canvas.current!, ctx!);
-    plotPoints(points, ctx!);
+    plotPoints(points, ctx!, !showPoints);
 
     // Setup Running
     running.current = true;
@@ -403,6 +387,7 @@ function App() {
       history,
       currentAlgorithm,
       antColonyOptions,
+      hideMarkers: !showPoints,
     });
   };
 
@@ -446,6 +431,7 @@ function App() {
       history,
       currentAlgorithm: record.algorithmIndex,
       antColonyOptions,
+      hideMarkers: !showPoints,
     });
   }
 
@@ -501,6 +487,37 @@ function App() {
             </div>
           </div>
 
+          {/* Add Points Buttons */}
+          <div className="option points-option">
+            <div className="optionTitle">POINTS</div>
+            <div className="optionContent">
+              <div className="buttonGroup">
+                {pointOptions.map((points) => (
+                  <button
+                    data-active={true}
+                    key={points}
+                    onClick={() => addPoints(points)}
+                  >
+                    {points} +
+                  </button>
+                ))}
+                <button
+                  onClick={() => {
+                    setPoints([]);
+                    toggleMenu();
+                    clearCanvas(canvas.current!, ctx!);
+                  }}
+                  style={{
+                    borderColor: "rgba(255,255,255,0.6)",
+                    color: "rgba(255,255,255,0.6)",
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div className="option run-option">
             <div className="optionTitle">RUN</div>
             <div className="optionContent">
@@ -537,37 +554,6 @@ function App() {
         </div>
 
         <div className={`mobile-options ${menuOpen ? "open" : ""}`}>
-          {/* Add Points Buttons */}
-          <div className="option points-option">
-            <div className="optionTitle">POINTS</div>
-            <div className="optionContent">
-              <div className="buttonGroup">
-                {pointOptions.map((points) => (
-                  <button
-                    data-active={true}
-                    key={points}
-                    onClick={() => addPoints(points)}
-                  >
-                    {points} +
-                  </button>
-                ))}
-                <button
-                  onClick={() => {
-                    setPoints([]);
-                    toggleMenu();
-                    clearCanvas(canvas.current!, ctx!);
-                  }}
-                  style={{
-                    borderColor: "rgba(255,255,255,0.6)",
-                    color: "rgba(255,255,255,0.6)",
-                  }}
-                >
-                  Clear
-                </button>
-              </div>
-            </div>
-          </div>
-
           {/* Speed Buttons */}
           {algorithms[currentAlgorithm].name !== "Ant Colony Optimization" && (
             <div className="option">
@@ -673,6 +659,37 @@ function App() {
             </>
           )}
 
+          {/* Add Points Buttons */}
+          <div className="option points-settings">
+            <div className="optionTitle">OPTIONS</div>
+            <div className="optionContent">
+              <div className="buttonGroup settings">
+                <button
+                  onClick={() => setShowExtraLines(!showExtraLines)}
+                  data-active={showExtraLines ? "true" : "false"}
+                >
+                  {showExtraLines ? (
+                    <LiaChartLineSolid />
+                  ) : (
+                    <LiaChartLineSolid />
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowMap(!showMap)}
+                  data-active={showMap ? "true" : "false"}
+                >
+                  {showMap ? <TbMap /> : <TbMapOff />}
+                </button>
+                <button
+                  onClick={() => setShowPoints(!showPoints)}
+                  data-active={showPoints ? "true" : "false"}
+                >
+                  {showPoints ? <LuMapPin /> : <LuMapPinOff />}
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div className="option">
             <div className="optionTitle">THEME</div>
             <div className="optionContent">
@@ -693,10 +710,24 @@ function App() {
                       borderColor: "rgba(255, 255, 255, 0.6)",
                     }}
                   >
-                    <img
-                      src={themeOption.imagePlainUrl}
-                      alt={themeOption.name}
-                    />
+                    {showMap ? (
+                      <img
+                        src={themeOption.imagePlainUrl}
+                        alt={themeOption.name}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          opacity: 0.2,
+                          backgroundColor: themeOption.colour,
+                        }}
+                      ></div>
+                    )}
                   </button>
                 ))}
               </div>
@@ -770,14 +801,14 @@ function App() {
             </button>
           </div>
         )}
-
-        {/* Help Button to Open Tutorial */}
-        {/* {!modalOpen && (
-          <button className="helpButton" onClick={() => setModalOpen(true)}>
-            Tutorial <RxOpenInNewWindow />
-          </button>
-        )} */}
       </div>
+
+      {/* Help Button to Open Tutorial */}
+      {!modalOpen && (
+        <button className="helpButton" onClick={() => setModalOpen(true)}>
+          Tutorial <RxOpenInNewWindow />
+        </button>
+      )}
 
       {/* Canvas Container */}
       <div className="screen" ref={screen}>

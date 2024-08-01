@@ -7,7 +7,7 @@ import { distance } from "../../functions/helpers";
 import { Frame } from "../../functions/runAlgorithm";
 
 function nearestNeighborAlgorithm(points: Point[]) {
-  var startingIndex = Math.floor(Math.random() * points.length);
+  var startingIndex = 0;
 
   // Add first point to path
   var path: any = [startingIndex];

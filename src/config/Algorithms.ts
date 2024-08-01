@@ -7,7 +7,6 @@ import bruteForceAlgorithm from "../algorithms/BruteForce/BruteForceAlgorithm";
 import { Frame, VisualiseAlgorithmProps } from "../functions/runAlgorithm";
 import point from "../types/Point";
 import { StatID } from "./Stats";
-import AntColonyOptions from "../types/AntColonyOptions";
 
 export type Algorithms = {
   name: string;
@@ -21,7 +20,6 @@ export type Algorithms = {
   stats?: StatID[];
 };
 
-// Algorithm Information
 const algorithms: Algorithms[] = [
   {
     name: "Ant Colony Optimization",

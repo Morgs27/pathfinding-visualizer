@@ -10,24 +10,28 @@ export function getCanvas() {
 
 export function plotPoints(
   points_array: Point[],
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
+  hideMarkers: boolean = false
 ) {
   ctx = ctx || getCanvas();
 
   var markerObjWhite = new Image();
   markerObjWhite.src = "./location-dot-white.png";
 
-  var markerObjOrange = new Image();
-  markerObjOrange.src = "./location-dot-orange.png";
-
   points_array.forEach((point: Point) => {
-    // var thisMarker = point.solved ? markerObjOrange : markerObjWhite;
-    var thisMarker = point.solved ? markerObjWhite : markerObjWhite;
-
     const size = { w: 20, h: 30 };
 
+    if (hideMarkers) {
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+      ctx.fillStyle = "white";
+      ctx.fill();
+      ctx.closePath();
+      return;
+    }
+
     ctx.drawImage(
-      thisMarker,
+      markerObjWhite,
       point.x - size.w / 2,
       point.y - size.h,
       size.w,
@@ -49,7 +53,7 @@ export function plotPath(
   path_points: Point[],
   ctx: CanvasRenderingContext2D,
   colour?: string,
-  shouldPlotPoints: boolean = true,
+  hideMarker: boolean = false,
   lineWidth?: number
 ) {
   ctx = ctx || getCanvas();
@@ -66,9 +70,7 @@ export function plotPath(
   }
   ctx.stroke();
 
-  if (shouldPlotPoints) {
-    plotPoints(path_points, ctx);
-  }
+  plotPoints(path_points, ctx, hideMarker);
 }
 
 export function plotLine(

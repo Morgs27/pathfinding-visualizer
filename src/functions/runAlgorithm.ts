@@ -38,6 +38,7 @@ export type VisualiseAlgorithmProps = {
   history: Record[];
   currentAlgorithm: number;
   antColonyOptions?: AntColonyOptions;
+  hideMarkers?: boolean;
 };
 
 export type Path = {
@@ -77,6 +78,7 @@ const VisualiseAlgorithm = async ({
   history,
   currentAlgorithm,
   antColonyOptions,
+  hideMarkers = false,
 }: VisualiseAlgorithmProps) => {
   const antImage = new Image();
   antImage.src = "./ant.svg";
@@ -144,16 +146,15 @@ const VisualiseAlgorithm = async ({
             })
           );
 
-          /// Draw Frame ///
           clearCanvas(canvas.current!, ctx!);
 
           if (showExtraLines) {
             if (visualiseCloseEdges) {
-              drawCloseEdges(paths, allEdges, ctx!, edgeMax);
+              drawCloseEdges(paths, allEdges, ctx!, edgeMax, hideMarkers);
             }
 
             if (visualiseAllPossibleEdges) {
-              drawAllPossibleEdges(paths, allEdges, ctx!, edgeMax);
+              drawAllPossibleEdges(paths, allEdges, ctx!, edgeMax, hideMarkers);
             }
           }
 
@@ -236,6 +237,7 @@ const VisualiseAlgorithm = async ({
                     ),
                     bestPath,
                     antImage: antSVG,
+                    hideMarker: hideMarkers,
                   });
                 }, i * (showHeadEdges ? 1000 : 500));
               }
@@ -253,15 +255,21 @@ const VisualiseAlgorithm = async ({
                 canvas: canvas.current!,
                 colour,
                 completionColour,
+                hideMarker: hideMarkers,
               });
             }
           } else {
             paths?.forEach(({ path }) => {
-              plotPath(path, ctx!, lastFrame ? completionColour : colour, true);
+              plotPath(
+                path,
+                ctx!,
+                lastFrame ? completionColour : colour,
+                hideMarkers
+              );
             });
           }
 
-          plotPoints(points, ctx!);
+          plotPoints(points, ctx!, hideMarkers);
 
           timeouts.shift();
         } else {

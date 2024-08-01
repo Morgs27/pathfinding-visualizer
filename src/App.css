@@ -176,15 +176,16 @@ button:hover {
   padding: 5px;
 }
 
-.buttonGroup.settings button img,
-.buttonGroup.settings button svg {
-  height: 22.4px;
-  object-fit: contain;
+.buttonGroup.themes button img,
+.buttonGroup.themes button svg {
+  height: 100%;
+  object-fit: cover;
+  border-width: 2px;
 }
 
 .buttonGroup.settings button svg {
-  width: 22px;
-  height: auto;
+  font-size: 18px;
+  margin-top: 2px;
 }
 
 .run {
@@ -299,7 +300,16 @@ button[data-active="true"] {
   border-radius: 0;
   background: var(--background);
   z-index: 300;
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
   /* color: rgb(255, 255, 255, 0.6) !important; */
+}
+
+.helpButton:hover {
+  background: var(--primary);
+  color: white;
+  border-radius: 0 !important;
 }
 
 .flex-seperator-horizontal {

@@ -18,7 +18,7 @@ function calcWaypoints(vertices: Point[]) {
     var dx = pt1.x - pt0.x;
     var dy = pt1.y - pt0.y;
     var segmentDistance = Math.sqrt(dx * dx + dy * dy);
-    var numWaypoints = Math.floor((segmentDistance / totalDistance) * 1000); // Adjust 1000 as needed
+    var numWaypoints = Math.floor((segmentDistance / totalDistance) * 100);
 
     for (var j = 0; j < numWaypoints; j++) {
       var x = pt0.x + (dx * j) / numWaypoints;

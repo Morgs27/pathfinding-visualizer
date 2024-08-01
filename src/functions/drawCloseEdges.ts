@@ -6,7 +6,8 @@ const drawCloseEdges = (
   paths: Path[],
   allEdges: Edge[],
   ctx: CanvasRenderingContext2D,
-  edgeMax: number
+  edgeMax: number,
+  hideMarker: boolean
 ) => {
   const pointSet = new Set(
     paths.map(({ path }) => path.map((point) => `${point.x},${point.y}`)).flat()
@@ -17,12 +18,12 @@ const drawCloseEdges = (
     if (pointSet.has(point1Key) || pointSet.has(point2Key)) {
       const otherPointKey = pointSet.has(point1Key) ? point2Key : point1Key;
       if (!pointSet.has(otherPointKey)) {
-        const opacity = Math.pow(1 - edge.distance / edgeMax, 8);
+        const opacity = Math.pow(1 - edge.distance / edgeMax, 12);
         plotPath(
           [edge.point1, edge.point2],
           ctx!,
           "rgba(255,255,255," + opacity + ")",
-          false,
+          hideMarker,
           2
         );
       }

@@ -16,6 +16,7 @@ type DrawAnimatedPathProps = {
   canvas: HTMLCanvasElement;
   colour: string;
   completionColour: string;
+  hideMarker: boolean;
 };
 
 function drawAnimatedPath({
@@ -27,11 +28,12 @@ function drawAnimatedPath({
   canvas,
   colour,
   completionColour,
+  hideMarker,
 }: DrawAnimatedPathProps) {
   ctx = ctx || getCanvas();
 
   if (path.length > 1) {
-    plotPath(path.slice(0, -1), ctx, colour, false);
+    plotPath(path.slice(0, -1), ctx, colour, hideMarker);
   }
 
   const mainLineWaypoints = calcWaypoints([
@@ -71,8 +73,8 @@ function drawAnimatedPath({
   if (lastFrame) {
     setTimeout(() => {
       clearCanvas(canvas, ctx!);
-      plotPath(path, ctx!, completionColour, false);
-      plotPoints(path, ctx!);
+      plotPath(path, ctx!, completionColour, hideMarker);
+      plotPoints(path, ctx!, hideMarker);
     }, speed + 100);
   }
 

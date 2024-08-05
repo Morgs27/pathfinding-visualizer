@@ -9,9 +9,9 @@
 //     edge's cities will be minimal.
 //     4. Repeat step 2 until no more cities remain.
 
-import Point from "../../types/Point";
-import { distance, getRandomPoint, pathCost } from "../../functions/helpers";
-import { Frame } from "../../functions/runAlgorithm";
+import Point from "../types/Point";
+import { distance, getRandomPoint, pathCost } from "../functions/helpers";
+import { Frame } from "../functions/runAlgorithm";
 
 async function nearestInsertionAlgorithm(pointsParam: Point[]) {
   const points = [...pointsParam];

@@ -1,9 +1,9 @@
-import antColonyAlgorithm from "../algorithms/AntColony/AntColonyAlgorithm";
-import nearestNeighborAlgorithm from "../algorithms/NearestNeighbor/NearestNeighborAlgorithm";
-import greedyAlgorithm from "../algorithms/Greedy/GreedyAlgorithm";
-import nearestInsertionAlgorithm from "../algorithms/NearestInsertion/NearestInsertion";
-import convexHullAlgorithm from "../algorithms/ConvexHull/ConvexHullAlgorithm";
-import bruteForceAlgorithm from "../algorithms/BruteForce/BruteForceAlgorithm";
+import antColonyAlgorithm from "../algorithms/AntColonyAlgorithm";
+import nearestNeighborAlgorithm from "../algorithms/NearestNeighborAlgorithm";
+import greedyAlgorithm from "../algorithms/GreedyAlgorithm";
+import nearestInsertionAlgorithm from "../algorithms/NearestInsertion";
+import convexHullAlgorithm from "../algorithms/ConvexHullAlgorithm";
+import bruteForceAlgorithm from "../algorithms/BruteForceAlgorithm";
 import { Frame, VisualiseAlgorithmProps } from "../functions/runAlgorithm";
 import point from "../types/Point";
 import { StatID } from "./Stats";
@@ -27,7 +27,7 @@ const algorithms: Algorithms[] = [
       visualiseHeadEdges: true,
       animatePath: true,
       animate: true,
-      calculateDistances: true,
+      calculateDistances: false,
     },
     calculateFunction: antColonyAlgorithm,
     timeComplexity: "null",

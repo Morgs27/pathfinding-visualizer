@@ -101,11 +101,12 @@ export function TutorialModal({ children, open, state, setState }: ModalProps) {
               transform: "translateX(" + pagesTransform + "%)",
             }}
           >
-            {children.map((page: any) => {
+            {children.map((page: any, index: number) => {
               return (
                 <div
                   className="pageContainer"
                   style={{ width: 100 / children.length + "%" }}
+                  key={index}
                 >
                   {page}
                 </div>

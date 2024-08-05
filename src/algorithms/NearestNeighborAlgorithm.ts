@@ -2,9 +2,9 @@
 // Time Complexity - O(n^2)
 // Within 25% of the Held-Karp lower bound
 
-import Point from "../../types/Point";
-import { distance } from "../../functions/helpers";
-import { Frame } from "../../functions/runAlgorithm";
+import Point from "../types/Point";
+import { distance } from "../functions/helpers";
+import { Frame } from "../functions/runAlgorithm";
 
 function nearestNeighborAlgorithm(points: Point[]) {
   var startingIndex = 0;

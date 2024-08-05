@@ -77,3 +77,4 @@ export async function pathCost(points: Point[]): Promise<number> {
   }
   return cost;
 }
+

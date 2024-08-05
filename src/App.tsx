@@ -54,7 +54,7 @@ import {
   distance,
   generateEdges,
 } from "./functions/helpers";
-import convexHullAlgorithm from "./algorithms/ConvexHull/ConvexHullAlgorithm";
+import convexHullAlgorithm from "./algorithms/ConvexHullAlgorithm";
 import VisualiseAlgorithm from "./functions/runAlgorithm";
 import { defaultStats, Stat } from "./config/Stats";
 import Record from "./types/Record";
@@ -70,7 +70,7 @@ function App() {
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [theme, setTheme] = useState<Theme>(themes[2]);
-  const [menuOpen, setMenuOpen] = useState<boolean>(true);
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(true);
   const [showMap, setShowMap] = useState<boolean>(false);
   const [history, setHistory] = useState<Record[]>([]);
@@ -184,7 +184,7 @@ function App() {
         { x: x, y: y, solved: false },
       ];
     });
-    checkDuplicatePoints();
+    // checkDuplicatePoints();
   }
 
   // Initiate addPointClick function to be rewritten bellow
@@ -714,6 +714,7 @@ function App() {
                       <img
                         src={themeOption.imagePlainUrl}
                         alt={themeOption.name}
+                        className="fadeIn"
                       />
                     ) : (
                       <div
@@ -749,9 +750,9 @@ function App() {
 
           {/* Show different stats based off of the current algorithm */}
           {stats.map((stat, index) => {
-            if (stat.value !== null) {
+            if (stat.value !== null && stat.value !== 0) {
               return (
-                <div key={index} className="stat">
+                <div key={index} className="stat fadeIn">
                   <div className="icon">{stat.icon}</div>
                   {stat.showName && `${stat.name}: `}
                   {`${stat.value} ${stat.unit || ""}`}
@@ -809,6 +810,26 @@ function App() {
           Tutorial <RxOpenInNewWindow />
         </button>
       )}
+
+      <div className="bottom-run">
+        <button
+          onClick={() => algorithmSetup()}
+          disabled={running.current}
+          className={`${running.current ? "disabled" : ""}`}
+        >
+          Run <FaPlay className="icon"></FaPlay>
+        </button>
+        <button
+          onClick={() => {
+            running.current = false;
+            setRunningState(false);
+          }}
+          disabled={!running.current}
+          className={`${!running.current ? "disabled" : ""}`}
+        >
+          Stop <BsFillStopCircleFill className="icon"></BsFillStopCircleFill>
+        </button>
+      </div>
 
       {/* Canvas Container */}
       <div className="screen" ref={screen}>

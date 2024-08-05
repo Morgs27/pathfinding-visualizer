@@ -1,7 +1,7 @@
-import Point from "../../types/Point";
-import { distance } from "../../functions/helpers";
-import Edge from "../../types/Edge";
-import { Frame } from "../../functions/runAlgorithm";
+import Point from "../types/Point";
+import { distance } from "../functions/helpers";
+import Edge from "../types/Edge";
+import { Frame } from "../functions/runAlgorithm";
 
 type pointConnection = {
   point: Point;

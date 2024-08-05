@@ -1,6 +1,6 @@
-import point from "../../types/Point";
-import { Frame } from "../../functions/runAlgorithm";
-import AntColonyOptions from "../../types/AntColonyOptions";
+import point from "../types/Point";
+import { Frame } from "../functions/runAlgorithm";
+import AntColonyOptions from "../types/AntColonyOptions";
 
 async function antColonyAlgorithm(
   points: point[],

@@ -6,9 +6,9 @@
 // Add p to the path between i and j
 // Repeat from #3 until there are no remaining points
 
-import Point from "../../types/Point";
-import { pathCost } from "../../functions/helpers";
-import { Frame } from "../../functions/runAlgorithm";
+import Point from "../types/Point";
+import { pathCost } from "../functions/helpers";
+import { Frame } from "../functions/runAlgorithm";
 
 function orientation(p: Point, q: Point, r: Point): number {
   const val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);

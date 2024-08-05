@@ -1,9 +1,9 @@
 // Brute Force Algorithm - Try all possible compinations
 // Guarantees Shortest Distance
 
-import Point from "../../types/Point";
-import { distance, swap } from "../../functions/helpers";
-import { Frame } from "../../functions/runAlgorithm";
+import Point from "../types/Point";
+import { distance, swap } from "../functions/helpers";
+import { Frame } from "../functions/runAlgorithm";
 
 // Time complexity O(n!)
 async function bruteForceAlgorithm(points: Point[]) {

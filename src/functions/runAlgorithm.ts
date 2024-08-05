@@ -301,9 +301,33 @@ const VisualiseAlgorithm = async ({
                 setHistory([...history, record]);
               }
 
+              setStats(
+                stats.map((stat) => {
+                  if (stat.id === "bestPath" || stat.id === "totalDistance") {
+                    return {
+                      ...stat,
+                      value: Math.round(distance ?? 0),
+                    };
+                  } else if (
+                    [
+                      "completedEdges",
+                      "completedPoints",
+                      "solvedPoints",
+                      "pointsExplored",
+                    ].includes(stat.id)
+                  ) {
+                    return {
+                      ...stat,
+                      value: numberOfPoints,
+                    };
+                  }
+                  return stat;
+                })
+              );
+
               algorithmFinished();
             },
-            animatePath ? 1500 : 0
+            animatePath ? numberOfPoints * 500 : 0
           );
         }
       }, index * speed)

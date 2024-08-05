@@ -1,4 +1,4 @@
-import bruteForceAlgorithm from "../BruteForce/BruteForceAlgorithm";
+import bruteForceAlgorithm from "../BruteForceAlgorithm";
 import { jest, expect, it, describe, test } from "@jest/globals";
 
 describe("BruteForceAlgorithm", () => {

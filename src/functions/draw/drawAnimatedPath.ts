@@ -1,11 +1,6 @@
-import Point from "../types/Point";
-import calcWaypoints from "./calculateWaypoints";
-import {
-  clearCanvas,
-  getCanvas,
-  plotPath,
-  plotPoints,
-} from "./basicDrawFunctions";
+import Point from "../../types/Point";
+import { calcWaypoints } from "../helpers";
+import { clearCanvas, getCanvas, plotPath, plotPoints } from "./draw";
 
 type DrawAnimatedPathProps = {
   path: Point[];

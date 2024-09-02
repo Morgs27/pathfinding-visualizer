@@ -1,41 +1,24 @@
-// Nearest Neighbor Algorithm
-// Time Complexity - O(n^2)
-// Within 25% of the Held-Karp lower bound
-
 import Point from "../types/Point";
 import { distance } from "../functions/helpers";
-import { Frame } from "../functions/runAlgorithm";
+import { Frame } from "../functions/visualiseAlgorithm";
+
+// Nearest Neighbor Algorithm - Adds the point closest to the head of the path to the path
 
 function nearestNeighborAlgorithm(points: Point[]) {
   var startingIndex = 0;
-
-  // Add first point to path
-  var path: any = [startingIndex];
-
-  // Setup array to hold info about each step to help with display
   var steps: Frame[] = [];
 
-  // Set starting point to solved
+  var path: any = [startingIndex];
   points[startingIndex].solved = true;
 
-  // Start Recursive loop that ends when path is solved
   var pathSolved = false;
   while (!pathSolved) {
-    // Get info on working point
     var currentPoint = points[path[path.length - 1]];
-
-    // Setup array to hold distances between points
     var stepDistances: (number | null)[] = [];
-
-    // Setup variable to hold index of the next point (closest point)
     var nextPointIndex: number | null = null;
-
-    // Set minimum distance so number larger than it could possibly be
-    var minDistance = 10000000;
+    var minDistance = Infinity;
 
     // For each point that is not solved find the distance between the points
-    // If the distance is lower than the max
-    // Update the next point and minimum distance
     points.forEach((point, index) => {
       if (point.solved != true) {
         var pointDistance = distance(currentPoint, point);
@@ -51,8 +34,7 @@ function nearestNeighborAlgorithm(points: Point[]) {
       }
     });
 
-    // If there are no more points that are not solved
-    // Exit while loop and push path back to starting point
+    // If no point is found, the path is solved
     if (nextPointIndex == null) {
       pathSolved = true;
       path.push(path[0]);
@@ -65,11 +47,7 @@ function nearestNeighborAlgorithm(points: Point[]) {
         ],
         distance: null,
       });
-    }
-
-    // If there are more points to be solved
-    // Push current solved point
-    else {
+    } else {
       points[nextPointIndex].solved = true;
       path.push(nextPointIndex);
       steps.push({

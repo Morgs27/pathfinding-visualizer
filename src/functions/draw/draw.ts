@@ -1,5 +1,4 @@
-/// Draw Functions ///
-import Point from "../types/Point";
+import Point from "../../types/Point";
 
 export function getCanvas() {
   const canvasElm = document.getElementById("canvas") as HTMLCanvasElement;

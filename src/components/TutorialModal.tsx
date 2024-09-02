@@ -14,6 +14,8 @@ type PageProps = {
   skip?: boolean;
 };
 
+// Dynamic Tutorial Modal - Height is dynamic based on the page content
+
 export function TutorialModal({ children, open, state, setState }: ModalProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [pagesTransform, setPagesTransform] = useState(0);

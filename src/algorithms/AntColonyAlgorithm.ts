@@ -1,6 +1,9 @@
 import point from "../types/Point";
-import { Frame } from "../functions/runAlgorithm";
+import { Frame } from "../functions/visualiseAlgorithm";
 import AntColonyOptions from "../types/AntColonyOptions";
+import { distance } from "../functions/helpers";
+
+// Ant Colony Algorithm - Uses pheromones to guide ants to the shortest path
 
 async function antColonyAlgorithm(
   points: point[],
@@ -13,14 +16,7 @@ async function antColonyAlgorithm(
     .fill(null)
     .map(() => Array(points.length).fill(1));
 
-  // Function to calculate the distance between two points
-  function distance(point1: point, point2: point): number {
-    return Math.sqrt(
-      Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2)
-    );
-  }
-
-  // Function to choose the next point based on pheromone levels and distances
+  // Chooses the next point based on pheromone levels and distances
   function chooseNextPoint(currentPoint: number, visited: boolean[]): number {
     const probabilities = points.map((_, index) => {
       if (visited[index]) return 0;
@@ -49,6 +45,7 @@ async function antColonyAlgorithm(
     const allPaths: number[][] = [];
     const allDistances: number[] = [];
 
+    // Each ant creates a path
     for (let ant = 0; ant < numAnts; ant++) {
       const visited = Array(points.length).fill(false);
       const path = [Math.floor(Math.random() * points.length)];
@@ -76,7 +73,6 @@ async function antColonyAlgorithm(
         pheromones[i][j] *= 1 - evaporationRate;
       }
     }
-
     for (let ant = 0; ant < numAnts; ant++) {
       const contribution = Q / allDistances[ant];
       for (let i = 0; i < allPaths[ant].length - 1; i++) {
@@ -92,7 +88,6 @@ async function antColonyAlgorithm(
       path: path.map((pointIndex) => points[pointIndex]),
       distance: allDistances[index],
     }));
-
     frames.push({
       paths,
       distance: Math.min(...allDistances),

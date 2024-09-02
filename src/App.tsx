@@ -1,143 +1,136 @@
-import { LegacyRef, useCallback, useEffect, useRef, useState } from "react";
-
-// Import Dropdown Component
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
-
-import { LuMapPinOff, LuMapPin } from "react-icons/lu";
-import { LiaChartLineSolid } from "react-icons/lia";
-
-import { IoMdColorPalette } from "react-icons/io";
-import {
-  MdClear,
-  MdDeleteForever,
-  MdDeleteOutline,
-  MdMultilineChart,
-} from "react-icons/md";
-
-// Import App Styles
-import "./App.css";
-
-import { InlineMath, BlockMath } from "react-katex";
+import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 
-// Import Icons
-import { FaAngleDown, FaAngleUp, FaPlay } from "react-icons/fa";
-import { BsFillStopCircleFill, BsQuestionLg } from "react-icons/bs";
-import { FaRedo } from "react-icons/fa";
-
-// Import canvas drawing functions
-import {
-  getCanvas,
-  plotPoints,
-  clearCanvas,
-} from "./functions/basicDrawFunctions";
-
-// Import Equation visualizer
-// import { Equation } from "react-equation";
-
-// Import Components
+/// --- Local Imports --- ///
+import "./App.css";
+import { getCanvas, plotPoints, clearCanvas } from "./functions/draw/draw";
 import { TutorialModal, Page } from "./components/TutorialModal";
 import { LoadingText } from "./components/LoadingText";
 import ErrorMessage from "./components/ErrorMessage";
-
 import dimensions from "./types/Dimensions";
 import point from "./types/Point";
-
 import algorithms from "./config/Algorithms";
-
 import themes, { Theme } from "./config/Themes";
-
-import {
-  factorialize,
-  debounce,
-  distance,
-  generateEdges,
-} from "./functions/helpers";
-import convexHullAlgorithm from "./algorithms/ConvexHullAlgorithm";
-import VisualiseAlgorithm from "./functions/runAlgorithm";
-import { defaultStats, Stat } from "./config/Stats";
+import { debounce, setProperty } from "./functions/helpers";
+import { Stat } from "./config/Stats";
 import Record from "./types/Record";
-import { RxOpenInNewWindow } from "react-icons/rx";
 import AntColonyOptions from "./types/AntColonyOptions";
+import config from "./config/config";
+import { usePointsFunctions } from "./hooks/usePoints";
+import useRunFunctions from "./hooks/useRunFunctions";
+import useResetStats from "./hooks/useResetStats";
+
+/// --- Icons --- ///
+import { LuMapPinOff, LuMapPin } from "react-icons/lu";
+import { LiaChartLineSolid } from "react-icons/lia";
+import { MdClear } from "react-icons/md";
+import { FaAngleDown, FaAngleUp, FaPlay, FaRedo } from "react-icons/fa";
+import { BsFillStopCircleFill } from "react-icons/bs";
+import { RxOpenInNewWindow } from "react-icons/rx";
 import { TbMap, TbMapOff } from "react-icons/tb";
 
+const {
+  MOBILE_BREAKPOINT,
+  DEFAULT_DIMENSIONS,
+  POINT_OPTIONS,
+  ANT_OPTIONS,
+  ITERATION_OPTIONS,
+  SPEED_OPTIONS,
+  GRID_BACKGROUND,
+  DEFAULT_ANT_COLONY_OPTIONS,
+  DEFAULT_MARGINS,
+  MARGINS_WITH_POINTS,
+  DEFAULT_SPEED,
+  DEFAULT_THEME_INDEX,
+  DEFAULT_ALGORITHM_INDEX,
+} = config;
+
 function App() {
-  // Refrences to container elements
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const screen = useRef<HTMLDivElement | null>(null);
-  var ctx: null | CanvasRenderingContext2D = null;
+  const running = useRef<boolean>(false);
 
+  const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [theme, setTheme] = useState<Theme>(themes[2]);
-  const [menuOpen, setMenuOpen] = useState<boolean>(false);
-  const [modalOpen, setModalOpen] = useState<boolean>(true);
-  const [showMap, setShowMap] = useState<boolean>(false);
+  const [theme, setTheme] = useState<Theme>(themes[DEFAULT_THEME_INDEX]);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(true);
+  const [showMap, setShowMap] = useState(false);
   const [history, setHistory] = useState<Record[]>([]);
   const [showPoints, setShowPoints] = useState(false);
   const [showExtraLines, setShowExtraLines] = useState(false);
   const [points, setPoints] = useState<point[]>([]);
-  const [currentAlgorithm, setCurrentAlgorithm] = useState(0);
-  const [runningState, setRunningState] = useState<boolean>(false);
-  const [speed, setSpeed] = useState<number>(10);
+  const [currentAlgorithm, setCurrentAlgorithm] = useState(
+    DEFAULT_ALGORITHM_INDEX
+  );
+  const [runningState, setRunningState] = useState(false);
+  const [speed, setSpeed] = useState(DEFAULT_SPEED);
   const [stats, setStats] = useState<Stat[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [screenDimensions, setScreenDimensions] = useState<dimensions>({
-    width: 150,
-    height: 150,
+  const [loading, setLoading] = useState(false);
+  const [screenDimensions, setScreenDimensions] =
+    useState<dimensions>(DEFAULT_DIMENSIONS);
+  const [antColonyOptions, setAntColonyOptions] = useState<AntColonyOptions>(
+    DEFAULT_ANT_COLONY_OPTIONS
+  );
+
+  const isMobile = useMemo(() => window.innerWidth < MOBILE_BREAKPOINT, []);
+  const margins = useMemo(
+    () => (showPoints ? MARGINS_WITH_POINTS : DEFAULT_MARGINS),
+    [showPoints]
+  );
+
+  const { addPoints, createAddPointClick } = usePointsFunctions(
+    setPoints,
+    screenDimensions,
+    margins
+  );
+
+  const resetStats = useResetStats({
+    setStats,
+    currentAlgorithm,
+    antColonyOptions,
+    points,
   });
 
-  const running = useRef<boolean>(false);
-  const isMobile = window.innerWidth < 800;
-  var addingPoint: boolean = false;
+  const {
+    handleAlgorithmSetup,
+    handleRunAlgorithm,
+    handleSetupReRunAlgorithm,
+    handleReRunAlgorithm,
+  } = useRunFunctions(
+    points,
+    setErrorMessage,
+    currentAlgorithm,
+    setCurrentAlgorithm,
+    setLoading,
+    setMenuOpen,
+    isMobile,
+    setPoints,
+    canvas,
+    ctx,
+    showPoints,
+    running,
+    setRunningState,
+    resetStats,
+    antColonyOptions,
+    speed,
+    theme,
+    showExtraLines,
+    setStats,
+    stats,
+    setHistory,
+    history
+  );
 
-  // Margins for adding points
-  const margins = showPoints
-    ? {
-        top: 40,
-        bottom: 10,
-        left: 15,
-        right: 15,
-      }
-    : {
-        top: 10,
-        bottom: 10,
-        left: 10,
-        right: 10,
-      };
-
-  const pointOptions = [5, 10];
-  const antOptions = [1, 5];
-  const iterationOptions = [1, 3, 10];
-  const speedOptions = [
-    { name: "1", value: 100 },
-    { name: "10", value: 10 },
-    { name: "100", value: 1 },
-  ];
-
-  const [antColonyOptions, setAntColonyOptions] = useState<AntColonyOptions>({
-    alpha: 1, // pheromone importance
-    beta: 5, // distance priority
-    evaporationRate: 0.5, // pheromone evaporation rate
-    Q: 100, // pheromone deposit factor
-    numAnts: 5, // number of ants
-    numIterations: 1, // number of iterations
-  });
-
-  const grid =
-    "repeating-linear-gradient(0deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 2px, transparent 2px, transparent 40px), repeating-linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 2px, transparent 2px, transparent 40px)";
-
-  /// --- General Functions --- ///
-
-  const sortScreenDimensions = useCallback(
+  const updateScreenDimensions = useCallback(
     debounce(() => {
-      // Set screen dimensions
       setScreenDimensions({
         width: screen?.current?.offsetWidth,
         height: screen?.current?.offsetHeight,
       });
-
-      // set --vh in styles to be equal to 1% of the viewport height
       document.documentElement.style.setProperty(
         "--vh",
         `${window.innerHeight * 0.01}px`
@@ -146,150 +139,35 @@ function App() {
     [screen]
   );
 
-  // Startup Function
+  const toggleMenu = () => {
+    isMobile && setMenuOpen((menuOpen) => !menuOpen);
+  };
+
   useEffect(() => {
-    sortScreenDimensions();
+    updateScreenDimensions();
 
     window.addEventListener("resize", () => {
-      sortScreenDimensions();
+      updateScreenDimensions();
     });
 
     if (canvas.current != null) {
-      ctx = getCanvas();
+      setCtx(getCanvas());
     }
   }, []);
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--primary", theme.colour);
-    if (showMap) {
-      document.documentElement.style.setProperty("--map", theme.image);
-    } else {
-      document.documentElement.style.setProperty("--map", grid);
-    }
-  }, [theme, showMap]);
-
-  function toggleMenu() {
-    isMobile && setMenuOpen((menuOpen) => !menuOpen);
-  }
-
-  /// --- Points Functions --- ///
-
-  // Add singular point at position (x,y) to screen
-  function addPoint(x: number, y: number) {
-    setPoints((points) => {
-      return [
-        ...points.map((point) => {
-          return { ...point, solved: false };
-        }),
-        { x: x, y: y, solved: false },
-      ];
-    });
-    // checkDuplicatePoints();
-  }
-
-  // Initiate addPointClick function to be rewritten bellow
-  let addPointClick = (e: any) => {};
+    const addPointClick = createAddPointClick(modalOpen, margins, toggleMenu);
+    window.addEventListener("click", addPointClick, true);
+    return () => window.removeEventListener("click", addPointClick, true);
+  }, [modalOpen, margins, toggleMenu]);
 
   useEffect(() => {
-    if (modalOpen == false) {
-      addPointClick = (e: any) => {
-        // If header or button is target ignore
-        if (
-          !(e.target as Element).closest(".header") &&
-          !(e.target as Element).closest(".button") &&
-          !(e.target as Element).closest(".pageCover") &&
-          !(e.target as Element).closest(".tutorialModal") &&
-          !(e.target as Element).closest(".stats")
-        ) {
-          // Ensures that points are not spammed
-          if (addingPoint == false) {
-            addingPoint = true;
+    setProperty("--primary", theme.colour);
+    showMap
+      ? setProperty("--map", theme.image)
+      : setProperty("--map", GRID_BACKGROUND);
+  }, [theme, showMap]);
 
-            // Check the point is not too close to the top of the screen
-            if (e.offsetY > margins.top) {
-              addPoint(e.offsetX, e.offsetY);
-            }
-
-            toggleMenu();
-
-            setTimeout(() => {
-              addingPoint = false;
-            }, 300);
-          }
-        }
-      };
-    } else {
-      addPointClick = (e: any) => {
-        // Do nothing
-      };
-    }
-
-    window.addEventListener(
-      "click",
-      (e: any) => {
-        addPointClick(e);
-      },
-      true
-    );
-  }, [modalOpen]);
-
-  // Add any number of points randomly to screen
-  function addPoints(number: number) {
-    toggleMenu();
-    setPoints((points) => [
-      ...points,
-      ...Array(number)
-        .fill(undefined)
-        .map(() => {
-          return {
-            x:
-              Math.random() *
-                ((screenDimensions.width || 0) - margins.left - margins.right) +
-              margins.left,
-            y:
-              Math.random() *
-                ((screenDimensions.height || 0) -
-                  margins.top -
-                  margins.bottom) +
-              margins.top,
-            solved: false,
-          };
-        }),
-    ]);
-    checkDuplicatePoints();
-  }
-
-  // Check for duplicate points
-  function checkDuplicatePoints() {
-    setPoints((points) => {
-      return [...new Map(points.map((point) => [point.x, point])).values()];
-    });
-  }
-
-  function resetStats() {
-    setStats(
-      algorithms[currentAlgorithm].stats
-        ?.map((statID) => {
-          const defaultStat = defaultStats.find((stat) => stat.id === statID);
-          const defaultValue = defaultStat?.defaultValue;
-          const value =
-            statID == "ants"
-              ? antColonyOptions.numAnts
-              : statID == "iteration"
-              ? antColonyOptions.numIterations
-              : points.length;
-          return defaultStat
-            ? {
-                ...defaultStat,
-                value: defaultValue ? defaultValue(value) : 0,
-              }
-            : null;
-        })
-        .filter((stat) => stat !== null) as Stat[]
-    );
-  }
-
-  // Plot Points on first render and when points changes
   useEffect(() => {
     clearCanvas(canvas.current!, ctx!);
 
@@ -302,138 +180,17 @@ function App() {
     resetStats();
   }, [screenDimensions, points, showPoints]);
 
-  // Run Algorithm on runningState change
   useEffect(() => {
     if (runningState) {
       setTimeout(() => {
-        runAlgorithm();
+        handleRunAlgorithm();
       }, 100);
     }
   }, [runningState]);
 
   useEffect(() => {
     resetStats();
-  }, [antColonyOptions]);
-
-  useEffect(() => {
-    resetStats();
-  }, [currentAlgorithm]);
-
-  // Function to run before any algorithm
-  function algorithmSetup() {
-    if (currentAlgorithm == 5) {
-      if (points.length > 11) {
-        setErrorMessage(
-          "Due to performance issues the Brute Force algorithm is limited to 10 points"
-        );
-        return;
-      }
-    }
-
-    if (points.length == 0) {
-      setErrorMessage("Please add some points to the screen");
-      return;
-    }
-
-    setLoading(true);
-
-    setMenuOpen(() => !isMobile);
-
-    // Clear Canvas
-    setPoints((points) =>
-      points.map((points) => {
-        return { ...points, solved: false };
-      })
-    );
-    clearCanvas(canvas.current!, ctx!);
-    plotPoints(points, ctx!, !showPoints);
-
-    // Setup Running
-    running.current = true;
-    setRunningState(true);
-
-    // Reset Stats
-    resetStats();
-  }
-
-  const runAlgorithm = async () => {
-    const options = currentAlgorithm == 0 ? antColonyOptions : {};
-
-    // Calculate + Build Frames
-    const frames = await algorithms[currentAlgorithm].calculateFunction!(
-      [...points],
-      options
-    );
-
-    setLoading(false);
-
-    // Visualise Frames with Animation
-    VisualiseAlgorithm({
-      frames,
-      points,
-      canvas,
-      ctx: ctx!,
-      running,
-      algorithmFinished,
-      speed,
-      ...algorithms[currentAlgorithm].runOptions,
-      colour: theme.colour,
-      completionColour: theme.completionColour,
-      showExtraLines,
-      numberOfPoints: points.length,
-      setStats,
-      stats,
-      setHistory,
-      history,
-      currentAlgorithm,
-      antColonyOptions,
-      hideMarkers: !showPoints,
-    });
-  };
-
-  // Function to run when any algorithm is finished
-  function algorithmFinished() {
-    running.current = false;
-    setRunningState(false);
-  }
-
-  function setupReRunAlgorithm(record: Record) {
-    setCurrentAlgorithm(record.algorithmIndex);
-    running.current = true;
-    reRunAlgorithm(record);
-    resetStats();
-    setMenuOpen(() => !isMobile);
-    setPoints(record.points);
-    setTimeout(() => {
-      if (running.current == false) {
-        reRunAlgorithm(record);
-      }
-    }, 400);
-  }
-
-  function reRunAlgorithm(record: Record) {
-    VisualiseAlgorithm({
-      frames: record.frames,
-      points: record.points,
-      canvas,
-      ctx: ctx!,
-      running,
-      algorithmFinished,
-      speed,
-      ...algorithms[record.algorithmIndex].runOptions,
-      colour: theme.colour,
-      completionColour: theme.completionColour,
-      showExtraLines,
-      numberOfPoints: record.points.length,
-      setStats,
-      stats,
-      setHistory,
-      history,
-      currentAlgorithm: record.algorithmIndex,
-      antColonyOptions,
-      hideMarkers: !showPoints,
-    });
-  }
+  }, [antColonyOptions, currentAlgorithm]);
 
   return (
     <div className="container">
@@ -465,8 +222,12 @@ function App() {
         <Page>c content</Page>
       </TutorialModal>
 
-      {/* Loading Text Component */}
-      <LoadingText state={loading} setState={setLoading} />
+      <LoadingText
+        text="calculating"
+        dots={true}
+        state={loading}
+        setState={setLoading}
+      />
 
       <div className="header">
         <div className="mobile-selector">
@@ -492,7 +253,7 @@ function App() {
             <div className="optionTitle">POINTS</div>
             <div className="optionContent">
               <div className="buttonGroup">
-                {pointOptions.map((points) => (
+                {POINT_OPTIONS.map((points) => (
                   <button
                     data-active={true}
                     key={points}
@@ -523,7 +284,7 @@ function App() {
             <div className="optionContent">
               <div className="buttonGroup">
                 <button
-                  onClick={() => algorithmSetup()}
+                  onClick={() => handleAlgorithmSetup()}
                   disabled={running.current}
                   className={`${running.current ? "disabled" : ""}`}
                 >
@@ -560,7 +321,7 @@ function App() {
               <div className="optionTitle">SPEED</div>
               <div className="optionContent">
                 <div className="buttonGroup">
-                  {speedOptions.map((value) => (
+                  {SPEED_OPTIONS.map((value) => (
                     <button
                       key={value.value}
                       data-active={speed === value.value ? "true" : "false"}
@@ -596,7 +357,7 @@ function App() {
                 <div className="optionTitle">ANTS</div>
                 <div className="optionContent">
                   <div className="buttonGroup">
-                    {antOptions.map((value) => (
+                    {ANT_OPTIONS.map((value) => (
                       <button
                         key={value}
                         data-active={
@@ -635,7 +396,7 @@ function App() {
                 <div className="optionTitle">ITERATIONS</div>
                 <div className="optionContent">
                   <div className="buttonGroup">
-                    {iterationOptions.map((value) => (
+                    {ITERATION_OPTIONS.map((value) => (
                       <button
                         key={value}
                         data-active={
@@ -772,7 +533,7 @@ function App() {
               <button
                 key={index}
                 onClick={() => {
-                  setupReRunAlgorithm(record);
+                  handleSetupReRunAlgorithm(record);
                 }}
               >
                 <div className="algorithm-name">
@@ -790,7 +551,10 @@ function App() {
                   </div>
                 </div>
                 {running.current == false && (
-                  <div className="run" onClick={() => reRunAlgorithm(record)}>
+                  <div
+                    className="run"
+                    onClick={() => handleReRunAlgorithm(record)}
+                  >
                     Re-run <FaRedo className="icon"></FaRedo>
                   </div>
                 )}
@@ -813,7 +577,7 @@ function App() {
 
       <div className="bottom-run">
         <button
-          onClick={() => algorithmSetup()}
+          onClick={() => handleAlgorithmSetup()}
           disabled={running.current}
           className={`${running.current ? "disabled" : ""}`}
         >

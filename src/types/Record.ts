@@ -1,4 +1,4 @@
-import { Frame } from "../functions/runAlgorithm";
+import { Frame } from "../functions/visualiseAlgorithm";
 import Point from "./Point";
 
 type Record = {

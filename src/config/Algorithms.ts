@@ -4,7 +4,10 @@ import greedyAlgorithm from "../algorithms/GreedyAlgorithm";
 import nearestInsertionAlgorithm from "../algorithms/NearestInsertion";
 import convexHullAlgorithm from "../algorithms/ConvexHullAlgorithm";
 import bruteForceAlgorithm from "../algorithms/BruteForceAlgorithm";
-import { Frame, VisualiseAlgorithmProps } from "../functions/runAlgorithm";
+import {
+  Frame,
+  VisualiseAlgorithmProps,
+} from "../functions/visualiseAlgorithm";
 import point from "../types/Point";
 import { StatID } from "./Stats";
 

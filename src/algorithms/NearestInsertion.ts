@@ -1,17 +1,8 @@
-// Nearest Insertion, O(n^2)
-//     1. Select the shortest edge, and make a subtour
-//     of it.
-//     2. Select a city not in the subtour, having the
-//     shortest distance to any one of the cities in
-//     the subtoor.
-//     3. Find an edge in the subtour such that the
-//     cost of inserting the selected city between the
-//     edge's cities will be minimal.
-//     4. Repeat step 2 until no more cities remain.
-
 import Point from "../types/Point";
 import { distance, getRandomPoint, pathCost } from "../functions/helpers";
-import { Frame } from "../functions/runAlgorithm";
+import { Frame } from "../functions/visualiseAlgorithm";
+
+// Nearest Insertion Algorithm - Adds the point closest to the path to the path
 
 async function nearestInsertionAlgorithm(pointsParam: Point[]) {
   const points = [...pointsParam];

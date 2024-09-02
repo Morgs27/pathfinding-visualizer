@@ -1,22 +1,15 @@
-// Brute Force Algorithm - Try all possible compinations
-// Guarantees Shortest Distance
-
 import Point from "../types/Point";
 import { distance, swap } from "../functions/helpers";
-import { Frame } from "../functions/runAlgorithm";
+import { Frame } from "../functions/visualiseAlgorithm";
 
-// Time complexity O(n!)
+// Brute Force Algorithm - Try all possible compinations - Guarantees Shortest Distance
+
 async function bruteForceAlgorithm(points: Point[]) {
-  // Set Initial Min Distance
   var bestDistance = getSolutionDistance(points);
-
-  // Set Initial Solution to given points order
   var solution = points;
 
-  // Create all permutations of the points array
-  const permutations = heapsPermute(points);
-
   // Heaps Algorithm - Generates all possible permutations of points array
+  const permutations = heapsPermute(points);
   function heapsPermute(array: Point[], n?: number, results: Frame[] = []) {
     n = n || array.length;
     if (n === 1) {

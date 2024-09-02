@@ -1,12 +1,7 @@
-import Point from "../types/Point";
-import calcWaypoints from "./calculateWaypoints";
-import {
-  clearCanvas,
-  getCanvas,
-  plotPath,
-  plotPoints,
-} from "./basicDrawFunctions";
-import { Path } from "./runAlgorithm";
+import Point from "../../types/Point";
+import { calcWaypoints } from "../helpers";
+import { clearCanvas, getCanvas, plotPath, plotPoints } from "./draw";
+import { Path } from "../visualiseAlgorithm";
 
 type DrawAnimatedPathProps = {
   paths: Point[][];
@@ -26,7 +21,7 @@ type DrawAnimatedPathProps = {
   hideMarker?: boolean;
 };
 
-function drawAnimatedPathV2({
+function drawMultipleAnimatedPaths({
   paths,
   ctx,
   extraDraw,
@@ -152,4 +147,4 @@ function drawPath(
   }
 }
 
-export default drawAnimatedPathV2;
+export default drawMultipleAnimatedPaths;

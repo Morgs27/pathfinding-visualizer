@@ -19,7 +19,7 @@ const themes: Theme[] = [
     completionColour: "white",
   },
   {
-    name: "Default",
+    name: "NightCity",
     image: "url(./map.jpg)",
     imagePlainUrl: "./map2.jpg",
     locationDot: "./location-dot-orange.png",

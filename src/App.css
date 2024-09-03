@@ -3,7 +3,7 @@
 }
 
 .fadeIn {
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn .3s ease-in-out;
 }
 
 .fadeOut {
@@ -20,11 +20,11 @@
   grid-template-rows: auto 55px 1fr;
   background-image: var(--map);
   background-size: cover;
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeIn .5s ease-in-out;
 }
 
 .background-overlay {
-  background: rgb(40, 40, 40, 0.6);
+  background: rgb(40, 40, 40, .6);
   position: absolute;
   left: 0;
   top: 0;
@@ -39,30 +39,21 @@
   grid-row: 3;
   width: 100%;
   height: 100%;
-  /* background: rgb(40, 40, 40, 0.6); */
   z-index: 0;
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn .3s ease-in-out;
   position: absolute;
   left: 0;
   top: 0;
-  /* background: red; */
 }
 
 .header {
-  /* grid-row: 1; */
-  /* width: 100%; */
   width: auto;
-  /* height: 100px; */
   background: var(--background);
-  /* border-bottom: 1px solid black;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1); */
   color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
-  /* transition: 0.3s; */
   margin: 10px;
   border-left: 1px solid var(--primary);
   border-right: 1px solid var(--primary);
-  /* border-radius: 0px 5px 5px 0px; */
   z-index: 200;
   display: flex;
   flex-direction: row;
@@ -70,17 +61,15 @@
   align-items: center;
 }
 
-.header[data-menu="close"] {
+.header[data-menu='close'] {
   height: 0px;
   overflow: hidden;
   padding: 0px;
 }
 
 .stats {
-  /* grid-row: 2; */
   z-index: 101;
   background: var(--background);
-  /* width: 100%; */
   font-size: 15px;
   color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
@@ -109,8 +98,6 @@
   position: relative;
   height: 52px;
   row-gap: 10px;
-  /* background: red; */
-  /* overflow: hidden; */
 }
 
 .stat {
@@ -131,7 +118,6 @@
 }
 
 .stat .icon img {
-  /* width: 20px; */
   height: 20px;
 }
 
@@ -164,7 +150,6 @@
   margin-inline: 20px;
 }
 
-/* Button Styles */
 button {
   outline: none;
   background: transparent;
@@ -215,8 +200,8 @@ button:hover {
 
 .optionTitle {
   font-family: Arial, Helvetica, sans-serif;
-  letter-spacing: 0.2mm;
-  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: .2mm;
+  color: rgba(255, 255, 255, .6);
   grid-row: 1;
   display: flex;
   align-items: center;
@@ -244,8 +229,8 @@ button:hover {
   margin: 5px;
   border-radius: 5px;
   min-width: 50px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, .6);
+  color: rgba(255, 255, 255, .6);
 }
 
 .headerClose {
@@ -256,11 +241,11 @@ button:hover {
   align-items: center;
   justify-content: center;
   font-size: 23px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, .7);
   display: none;
   background: rgb(50, 50, 50);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+  border-top: 1px solid rgba(255, 255, 255, .1);
 }
 
 .buttonGroup {
@@ -291,7 +276,7 @@ button:hover {
   height: 30px;
 }
 
-button[data-active="true"] {
+button[data-active='true'] {
   background: transparent;
   border: 1px solid var(--primary) !important;
   color: var(--primary) !important;
@@ -311,7 +296,6 @@ button[data-active="true"] {
   position: absolute;
   right: 10px;
   bottom: 10px;
-  /* color: rgb(255, 255, 255, 0.6) !important; */
 }
 
 .helpButton:hover {
@@ -327,19 +311,19 @@ button[data-active="true"] {
 .helpButton svg {
   font-size: 12px;
   transform: scaleX(-1);
-  color: rgb(255, 255, 255, 0.6) !important;
+  color: rgb(255, 255, 255, .6) !important;
 }
 
 .infoButton {
   position: relative;
   margin-left: 5px;
   border-radius: 50%;
-  background: rgba(255, 166, 0, 0.623);
+  background: rgba(255, 166, 0, .623);
   width: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: 0.4s;
+  transition: .4s;
 }
 
 .infoContent {
@@ -349,13 +333,13 @@ button[data-active="true"] {
   height: auto;
   background: rgb(40, 40, 40);
   padding-inline: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, .1);
   transform: translate(0, calc(50% + 20px));
   z-index: 100;
   border-radius: 10px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, .7);
   font-size: 14px;
-  letter-spacing: 0.1mm;
+  letter-spacing: .1mm;
 }
 
 .infoButton:hover .infoContent {
@@ -365,7 +349,7 @@ button[data-active="true"] {
 .helpButton:hover,
 .infoButton:hover {
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, .9);
   border-radius: 30%;
 }
 
@@ -378,25 +362,23 @@ button[data-active="true"] {
   display: none;
 }
 
-/* Dropdown */
-
 .Dropdown-root {
   background: transparent;
 }
 
 .Dropdown-placeholder {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, .8);
 }
 
 .Dropdown-control {
   background: transparent;
   width: 300px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, .4);
 }
 
 .Dropdown-menu {
   background: transparent;
-  border: 1px solid rgb(255, 255, 255, 0.1);
+  border: 1px solid rgb(255, 255, 255, .1);
   background: rgb(40, 40, 40);
   width: 300px;
   border-radius: 5px;
@@ -407,55 +389,47 @@ button[data-active="true"] {
 
 .Dropdown-option {
   background: transparent;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, .8);
   padding: 10px 10px;
   border-radius: 5px;
-  transition: 0.3s;
+  transition: .3s;
   margin: 3px 0px;
 }
 
 .Dropdown-option.is-selected {
   background: transparent;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, .8);
 }
 
 .Dropdown-option:hover {
   background: var(--primary);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, .8);
 }
 
 .is-open .Dropdown-control {
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, .7);
 }
 
 .history-buttons {
   display: flex;
-  /* position: absolute; */
-  /* left: 15px;
-  bottom: 15px; */
   flex-direction: row-reverse;
   gap: 10px;
   z-index: 100;
   flex-wrap: wrap;
-  /* width: calc(100% - 30px); */
   background: var(--background);
   border-right: 1px solid var(--primary);
-  /* margin-right: 10px; */
   border-radius: 5px 0px 0px 5px;
 }
 
 .history-buttons button {
   background: transparent;
   color: var(--primary);
-  /* border: 1px solid rgba(255, 255, 255, 0.1); */
   padding: 10px;
-
-  /* border-radius: 5px; */
   text-align: left;
   animation: fadeDown 1s ease-in-out;
-  transition: 0.3s;
+  transition: .3s;
   position: relative;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, .05);
 }
 
 @keyframes fadeDown {
@@ -470,14 +444,12 @@ button[data-active="true"] {
 }
 
 .history-buttons button:hover {
-  /* background: var(--primary);
-  color: white; */
   border-radius: 0px;
 }
 
 .history-buttons .algorithm-name {
   font-size: 12px;
-  transition: 0.3s;
+  transition: .3s;
 }
 
 .history-buttons .row {
@@ -486,21 +458,20 @@ button[data-active="true"] {
   justify-content: space-between;
   gap: 10px;
   margin-top: 2px;
-  transition: 0.3s;
+  transition: .3s;
 }
 
 .history-buttons .distance {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, .6);
 }
 
 .history-buttons .points {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, .6);
 }
 
 .history-buttons .point-icon {
-  /* width: 12px; */
   height: 9px;
   margin-left: 3px;
 }
@@ -512,7 +483,7 @@ button[data-active="true"] {
   right: 50%;
   transform: translate(50%, 0%);
   border: none;
-  transition: 0.3s;
+  transition: .3s;
   opacity: 0;
 }
 
@@ -528,7 +499,7 @@ button[data-active="true"] {
 }
 
 .history-buttons button.clear-history {
-  transition: 0.3s;
+  transition: .3s;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -542,21 +513,20 @@ button[data-active="true"] {
   font-size: 14px;
   border: none;
   background: none;
-  color: rgba(255, 255, 255, 0.6) !important;
-  transition: 0.3s ease-in-out;
+  color: rgba(255, 255, 255, .6) !important;
+  transition: .3s ease-in-out;
 }
 
 .clear-history:hover > svg {
   transform: rotate(90deg);
 }
 
-/* src/App.css */
 @keyframes pulse {
   0% {
     opacity: 1;
   }
   50% {
-    opacity: 0.5;
+    opacity: .5;
   }
   100% {
     opacity: 1;
@@ -580,7 +550,7 @@ button[data-active="true"] {
 }
 
 .run-option button.disabled {
-  opacity: 0.5;
+  opacity: .5;
   pointer-events: none;
 }
 
@@ -607,11 +577,11 @@ button[data-active="true"] {
 }
 
 .bottom-run .disabled {
-  opacity: 0.4;
-  color: rgba(255, 255, 255, 0.6);
-  transform: scale(0.9);
+  opacity: .4;
+  color: rgba(255, 255, 255, .6);
+  transform: scale(.9);
   pointer-events: none;
-  transition: 0.3s;
+  transition: .3s;
 }
 
 @media (max-width: 800px) {
@@ -650,7 +620,6 @@ button[data-active="true"] {
     margin: 0;
     border: none;
     position: relative;
-    /* border-bottom: 1px solid var(--primary); */
   }
   .mobile-selector {
     display: flex;
@@ -687,7 +656,7 @@ button[data-active="true"] {
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid var(--primary);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, .1);
   }
   .mobile-dropdown.open {
     border-bottom: none;

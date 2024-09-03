@@ -9,6 +9,7 @@ interface PointsFunctions {
   createAddPointClick: (
     modalOpen: boolean,
     margins: any,
+    menuOpen: boolean,
     toggleMenu: () => void
   ) => (e: any) => void;
 }
@@ -56,6 +57,7 @@ export function usePointsFunctions(
   function createAddPointClick(
     modalOpen: boolean,
     margins: any,
+    menuOpen: boolean,
     toggleMenu: () => void
   ) {
     return (e: any) => {
@@ -75,7 +77,9 @@ export function usePointsFunctions(
             addPoint(e.offsetX, e.offsetY);
           }
 
-          toggleMenu();
+          if (menuOpen) {
+            toggleMenu();
+          }
 
           setTimeout(() => {
             addingPoint = false;

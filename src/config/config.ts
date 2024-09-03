@@ -1,9 +1,20 @@
-const config = {
+const Config = {
   MOBILE_BREAKPOINT: 800,
   DEFAULT_DIMENSIONS: { width: 150, height: 150 },
-  POINT_OPTIONS: [5, 10],
-  ANT_OPTIONS: [1, 5],
-  ITERATION_OPTIONS: [1, 3, 10],
+  POINT_OPTIONS: [
+    { name: "5+", value: 5 },
+    { name: "10+", value: 10 },
+  ],
+  ANT_OPTIONS: [
+    { name: "1", value: 1 },
+    { name: "5", value: 5 },
+    { name: "10", value: 10 },
+  ],
+  ITERATION_OPTIONS: [
+    { name: "1", value: 1 },
+    { name: "3", value: 3 },
+    { name: "10", value: 10 },
+  ],
   SPEED_OPTIONS: [
     { name: "1", value: 100 },
     { name: "10", value: 10 },
@@ -38,4 +49,4 @@ const config = {
   DEFAULT_ALGORITHM_INDEX: 0,
 };
 
-export default config;
+export default Config;

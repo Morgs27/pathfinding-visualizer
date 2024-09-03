@@ -1,7 +1,7 @@
 import antColonyAlgorithm from "../algorithms/AntColonyAlgorithm";
 import nearestNeighborAlgorithm from "../algorithms/NearestNeighborAlgorithm";
 import greedyAlgorithm from "../algorithms/GreedyAlgorithm";
-import nearestInsertionAlgorithm from "../algorithms/NearestInsertion";
+import nearestInsertionAlgorithm from "../algorithms/NearestInsertionAlgorithm";
 import convexHullAlgorithm from "../algorithms/ConvexHullAlgorithm";
 import bruteForceAlgorithm from "../algorithms/BruteForceAlgorithm";
 import {

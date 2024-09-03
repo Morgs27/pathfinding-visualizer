@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
 import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
@@ -7,9 +6,8 @@ import "katex/dist/katex.min.css";
 /// --- Local Imports --- ///
 import "./App.css";
 import { getCanvas, plotPoints, clearCanvas } from "./functions/draw/draw";
-import { TutorialModal, Page } from "./components/TutorialModal";
-import { LoadingText } from "./components/LoadingText";
-import ErrorMessage from "./components/ErrorMessage";
+import { LoadingText } from "./components/LoadingText/LoadingText";
+import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
 import dimensions from "./types/Dimensions";
 import point from "./types/Point";
 import algorithms from "./config/Algorithms";
@@ -18,19 +16,22 @@ import { debounce, setProperty } from "./functions/helpers";
 import { Stat } from "./config/Stats";
 import Record from "./types/Record";
 import AntColonyOptions from "./types/AntColonyOptions";
-import config from "./config/config";
+import Config from "./config/config";
 import { usePointsFunctions } from "./hooks/usePoints";
 import useRunFunctions from "./hooks/useRunFunctions";
 import useResetStats from "./hooks/useResetStats";
+import Selector from "./components/Selector/Selector";
+import Tutorial from "./components/Tutorial/Tutorial";
+import AlgorithmSelector from "./components/AlgorithmSelector/AlgorithmSelector";
+import HistoryRow from "./components/HistoryRow/HistoryRow";
+import StatsRow from "./components/StatsRow/StatsRow";
+import RunButton from "./components/RunButton/RunButton";
+import ThemeSelector from "./components/ThemeSelector/ThemeSelector";
+import OptionsSelector from "./components/OptionsSelector/OptionsSelector";
 
 /// --- Icons --- ///
-import { LuMapPinOff, LuMapPin } from "react-icons/lu";
-import { LiaChartLineSolid } from "react-icons/lia";
-import { MdClear } from "react-icons/md";
-import { FaAngleDown, FaAngleUp, FaPlay, FaRedo } from "react-icons/fa";
-import { BsFillStopCircleFill } from "react-icons/bs";
+import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 import { RxOpenInNewWindow } from "react-icons/rx";
-import { TbMap, TbMapOff } from "react-icons/tb";
 
 const {
   MOBILE_BREAKPOINT,
@@ -46,9 +47,10 @@ const {
   DEFAULT_SPEED,
   DEFAULT_THEME_INDEX,
   DEFAULT_ALGORITHM_INDEX,
-} = config;
+} = Config;
 
-function App() {
+const App = () => {
+  // --- All State Is Stored Here --- //
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const screen = useRef<HTMLDivElement | null>(null);
   const running = useRef<boolean>(false);
@@ -156,7 +158,13 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const addPointClick = createAddPointClick(modalOpen, margins, toggleMenu);
+    const addPointClick = createAddPointClick(
+      modalOpen,
+      margins,
+      menuOpen,
+      toggleMenu
+    );
+
     window.addEventListener("click", addPointClick, true);
     return () => window.removeEventListener("click", addPointClick, true);
   }, [modalOpen, margins, toggleMenu]);
@@ -196,31 +204,9 @@ function App() {
     <div className="container">
       <div className="background-overlay"></div>
 
-      {/* Error Message Component */}
       <ErrorMessage message={errorMessage} setMessage={setErrorMessage} />
 
-      {/* Tutorial Modal Component which shows on page load */}
-      <TutorialModal state={modalOpen} setState={setModalOpen}>
-        <Page>
-          <h3>Welcome to TSP Visualizer</h3>
-          <p>
-            <i>TSP - Traveling Salesman Problem</i>
-          </p>
-          <img
-            className="fadeIn"
-            height={150}
-            src={theme.locationDot}
-            alt={theme.name}
-            style={{ animation: "fadeIn 1s ease-in-out", height: 150 }}
-          />
-          <p>
-            This short tutorial will walk you through all the features of this
-            application.
-          </p>
-        </Page>
-        <Page>b content</Page>
-        <Page>c content</Page>
-      </TutorialModal>
+      <Tutorial open={modalOpen} setOpen={setModalOpen} theme={theme} />
 
       <LoadingText
         text="calculating"
@@ -231,114 +217,56 @@ function App() {
 
       <div className="header">
         <div className="mobile-selector">
-          {/* Algorithm Selector Dropdown */}
-          <div className="option algorithm-option">
-            <div className="optionTitle">ALGORITHM</div>
-            <div className="optionContent">
-              <Dropdown
-                options={algorithms.map((algo) => algo.name)}
-                onChange={(e) => {
-                  setCurrentAlgorithm(
-                    algorithms.findIndex((algo) => algo.name === e.value)
-                  );
-                }}
-                value={algorithms[currentAlgorithm].name}
-                placeholder="Select an algorithm"
-              />
-            </div>
-          </div>
+          <AlgorithmSelector
+            algorithms={algorithms}
+            currentAlgorithm={currentAlgorithm}
+            setCurrentAlgorithm={setCurrentAlgorithm}
+          />
 
-          {/* Add Points Buttons */}
-          <div className="option points-option">
-            <div className="optionTitle">POINTS</div>
-            <div className="optionContent">
-              <div className="buttonGroup">
-                {POINT_OPTIONS.map((points) => (
-                  <button
-                    data-active={true}
-                    key={points}
-                    onClick={() => addPoints(points)}
-                  >
-                    {points} +
-                  </button>
-                ))}
-                <button
-                  onClick={() => {
-                    setPoints([]);
-                    toggleMenu();
-                    clearCanvas(canvas.current!, ctx!);
-                  }}
-                  style={{
-                    borderColor: "rgba(255,255,255,0.6)",
-                    color: "rgba(255,255,255,0.6)",
-                  }}
-                >
-                  Clear
-                </button>
-              </div>
-            </div>
-          </div>
+          <Selector
+            title="POINTS"
+            show={!isMobile}
+            options={POINT_OPTIONS}
+            value={points.length}
+            setOption={(value) =>
+              value == 0 ? setPoints([]) : addPoints(value)
+            }
+            clear={true}
+          />
 
-          <div className="option run-option">
-            <div className="optionTitle">RUN</div>
-            <div className="optionContent">
-              <div className="buttonGroup">
-                <button
-                  onClick={() => handleAlgorithmSetup()}
-                  disabled={running.current}
-                  className={`${running.current ? "disabled" : ""}`}
-                >
-                  Run <FaPlay className="icon"></FaPlay>
-                </button>
-                <button
-                  onClick={() => {
-                    running.current = false;
-                    setRunningState(false);
-                  }}
-                  disabled={!running.current}
-                  className={`${!running.current ? "disabled" : ""}`}
-                >
-                  Stop{" "}
-                  <BsFillStopCircleFill className="icon"></BsFillStopCircleFill>
-                </button>
-              </div>
-            </div>
-          </div>
+          <RunButton
+            running={running}
+            setRunningState={setRunningState}
+            handleAlgorithmSetup={handleAlgorithmSetup}
+          />
         </div>
 
+        {/* Toggle For Dropdown Menu on Mobile */}
         <div
           className={`mobile-dropdown ${menuOpen ? "open" : ""}`}
           onClick={() => toggleMenu()}
         >
-          Settings{" "}
+          Options{" "}
           {menuOpen ? <FaAngleUp></FaAngleUp> : <FaAngleDown></FaAngleDown>}
         </div>
 
         <div className={`mobile-options ${menuOpen ? "open" : ""}`}>
-          {/* Speed Buttons */}
-          {algorithms[currentAlgorithm].name !== "Ant Colony Optimization" && (
-            <div className="option">
-              <div className="optionTitle">SPEED</div>
-              <div className="optionContent">
-                <div className="buttonGroup">
-                  {SPEED_OPTIONS.map((value) => (
-                    <button
-                      key={value.value}
-                      data-active={speed === value.value ? "true" : "false"}
-                      onClick={() => setSpeed(value.value)}
-                    >
-                      {value.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+          <Selector
+            title="SPEED"
+            show={
+              algorithms[currentAlgorithm].name !== "Ant Colony Optimization"
+            }
+            options={SPEED_OPTIONS}
+            value={speed}
+            setOption={setSpeed}
+          />
 
-          {/* Algorithm Time Complexity */}
-          {algorithms[currentAlgorithm].timeComplexity != "null" && (
-            <div className="option">
-              <div className="optionTitle">TIME COMPLEXITY</div>
+          <Selector
+            title="TIME COMPLEXITY"
+            value={speed}
+            show={algorithms[currentAlgorithm].timeComplexity != "null"}
+            setOption={setSpeed}
+            customContent={
               <div
                 className="optionContent"
                 style={{ margin: 0, alignItems: "flex-start" }}
@@ -347,225 +275,73 @@ function App() {
                   {algorithms[currentAlgorithm].timeComplexity}
                 </BlockMath>
               </div>
-            </div>
-          )}
+            }
+            options={[]}
+          />
 
-          {algorithms[currentAlgorithm].name === "Ant Colony Optimization" && (
-            <>
-              {/* Number of Ants Selector */}
-              <div className="option">
-                <div className="optionTitle">ANTS</div>
-                <div className="optionContent">
-                  <div className="buttonGroup">
-                    {ANT_OPTIONS.map((value) => (
-                      <button
-                        key={value}
-                        data-active={
-                          antColonyOptions.numAnts === value ? "false" : "true"
-                        }
-                        onClick={() =>
-                          setAntColonyOptions((antColonyOptions) => ({
-                            ...antColonyOptions,
-                            numAnts: antColonyOptions.numAnts + value,
-                          }))
-                        }
-                      >
-                        {value} +
-                      </button>
-                    ))}
-                    <button
-                      onClick={() => {
-                        setAntColonyOptions({
-                          ...antColonyOptions,
-                          numAnts: 0,
-                        });
-                      }}
-                      style={{
-                        borderColor: "rgba(255,255,255,0.6)",
-                        color: "rgba(255,255,255,0.6)",
-                      }}
-                    >
-                      Clear
-                    </button>
-                  </div>
-                </div>
-              </div>
+          <Selector
+            title="ANTS"
+            show={
+              algorithms[currentAlgorithm].name == "Ant Colony Optimization"
+            }
+            options={ANT_OPTIONS}
+            value={antColonyOptions.numAnts}
+            setOption={(value) =>
+              setAntColonyOptions({
+                ...antColonyOptions,
+                numAnts: value,
+              })
+            }
+          />
 
-              {/* Iterations Selector */}
-              <div className="option">
-                <div className="optionTitle">ITERATIONS</div>
-                <div className="optionContent">
-                  <div className="buttonGroup">
-                    {ITERATION_OPTIONS.map((value) => (
-                      <button
-                        key={value}
-                        data-active={
-                          antColonyOptions.numIterations === value
-                            ? "true"
-                            : "false"
-                        }
-                        onClick={() =>
-                          setAntColonyOptions({
-                            ...antColonyOptions,
-                            numIterations: value,
-                          })
-                        }
-                      >
-                        {value}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
+          <Selector
+            title="ITERATIONS"
+            show={
+              algorithms[currentAlgorithm].name == "Ant Colony Optimization"
+            }
+            options={ITERATION_OPTIONS}
+            value={antColonyOptions.numIterations}
+            setOption={(value) =>
+              setAntColonyOptions({
+                ...antColonyOptions,
+                numIterations: value,
+              })
+            }
+          />
 
-          {/* Add Points Buttons */}
-          <div className="option points-settings">
-            <div className="optionTitle">OPTIONS</div>
-            <div className="optionContent">
-              <div className="buttonGroup settings">
-                <button
-                  onClick={() => setShowExtraLines(!showExtraLines)}
-                  data-active={showExtraLines ? "true" : "false"}
-                >
-                  {showExtraLines ? (
-                    <LiaChartLineSolid />
-                  ) : (
-                    <LiaChartLineSolid />
-                  )}
-                </button>
-                <button
-                  onClick={() => setShowMap(!showMap)}
-                  data-active={showMap ? "true" : "false"}
-                >
-                  {showMap ? <TbMap /> : <TbMapOff />}
-                </button>
-                <button
-                  onClick={() => setShowPoints(!showPoints)}
-                  data-active={showPoints ? "true" : "false"}
-                >
-                  {showPoints ? <LuMapPin /> : <LuMapPinOff />}
-                </button>
-              </div>
-            </div>
-          </div>
+          <OptionsSelector
+            showExtraLines={showExtraLines}
+            setShowExtraLines={setShowExtraLines}
+            showMap={showMap}
+            setShowMap={setShowMap}
+            showPoints={showPoints}
+            setShowPoints={setShowPoints}
+          />
 
-          <div className="option">
-            <div className="optionTitle">THEME</div>
-            <div className="optionContent">
-              <div className="buttonGroup themes">
-                {themes.map((themeOption, index) => (
-                  <button
-                    key={index}
-                    data-active={theme === themeOption ? "true" : "false"}
-                    onClick={() => setTheme(themeOption)}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.borderColor = themeOption.colour)
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.borderColor =
-                        "rgba(255, 255, 255, 0.6)")
-                    }
-                    style={{
-                      borderColor: "rgba(255, 255, 255, 0.6)",
-                    }}
-                  >
-                    {showMap ? (
-                      <img
-                        src={themeOption.imagePlainUrl}
-                        alt={themeOption.name}
-                        className="fadeIn"
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          opacity: 0.2,
-                          backgroundColor: themeOption.colour,
-                        }}
-                      ></div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+          <ThemeSelector
+            themes={themes}
+            theme={theme}
+            setTheme={setTheme}
+            showMap={showMap}
+          />
         </div>
       </div>
 
       <div className="adaptable-row">
-        {/* Stats Bar */}
-        <div className="stats">
-          {/* Number of points */}
-          <div className="stat">
-            <div className="icon">
-              <img src={theme.locationDot} alt="point" className="point-icon" />
-            </div>
-            {" " + points.length}
-          </div>
-
-          {/* Show different stats based off of the current algorithm */}
-          {stats.map((stat, index) => {
-            if (stat.value !== null && stat.value !== 0) {
-              return (
-                <div key={index} className="stat fadeIn">
-                  <div className="icon">{stat.icon}</div>
-                  {stat.showName && `${stat.name}: `}
-                  {`${stat.value} ${stat.unit || ""}`}
-                </div>
-              );
-            }
-            return null;
-          })}
-        </div>
+        <StatsRow stats={stats} theme={theme} points={points} />
 
         <div className="flex-seperator-horizontal"></div>
         <div className="flex-seperator-horizontal"></div>
 
-        {history.length > 0 && (
-          <div className="history-buttons">
-            {history.map((record, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  handleSetupReRunAlgorithm(record);
-                }}
-              >
-                <div className="algorithm-name">
-                  {algorithms[record.algorithmIndex].name}
-                </div>
-                <div className="row">
-                  <div className="distance">{record.distance} px</div>
-                  <div className="points">
-                    {record.points.length}
-                    <img
-                      src={theme.locationDot}
-                      alt="point"
-                      className="point-icon"
-                    />
-                  </div>
-                </div>
-                {running.current == false && (
-                  <div
-                    className="run"
-                    onClick={() => handleReRunAlgorithm(record)}
-                  >
-                    Re-run <FaRedo className="icon"></FaRedo>
-                  </div>
-                )}
-              </button>
-            ))}
-            <button className="clear-history" onClick={() => setHistory([])}>
-              Clear
-              <MdClear />
-            </button>
-          </div>
-        )}
+        <HistoryRow
+          history={history}
+          algorithms={algorithms}
+          handleSetupReRunAlgorithm={handleSetupReRunAlgorithm}
+          handleReRunAlgorithm={handleReRunAlgorithm}
+          setHistory={setHistory}
+          theme={theme}
+          running={running}
+        />
       </div>
 
       {/* Help Button to Open Tutorial */}
@@ -575,25 +351,12 @@ function App() {
         </button>
       )}
 
-      <div className="bottom-run">
-        <button
-          onClick={() => handleAlgorithmSetup()}
-          disabled={running.current}
-          className={`${running.current ? "disabled" : ""}`}
-        >
-          Run <FaPlay className="icon"></FaPlay>
-        </button>
-        <button
-          onClick={() => {
-            running.current = false;
-            setRunningState(false);
-          }}
-          disabled={!running.current}
-          className={`${!running.current ? "disabled" : ""}`}
-        >
-          Stop <BsFillStopCircleFill className="icon"></BsFillStopCircleFill>
-        </button>
-      </div>
+      <RunButton
+        running={running}
+        setRunningState={setRunningState}
+        handleAlgorithmSetup={handleAlgorithmSetup}
+        bottom={true}
+      />
 
       {/* Canvas Container */}
       <div className="screen" ref={screen}>
@@ -607,6 +370,6 @@ function App() {
       </div>
     </div>
   );
-}
+};
 
 export default App;

@@ -1,47 +1,39 @@
 import bruteForceAlgorithm from "../BruteForceAlgorithm";
-import { jest, expect, it, describe, test } from "@jest/globals";
+import { expect, it, describe } from "@jest/globals";
+import Point from "../../types/Point";
 
 describe("BruteForceAlgorithm", () => {
-  it("does something", () => {
-    expect(1).toBe(1);
+  it("should return correct result for 3 points", async () => {
+    const points: Point[] = [
+      { x: 0, y: 0 },
+      { x: 3, y: 0 },
+      { x: 0, y: 4 },
+    ];
+    const result = await bruteForceAlgorithm(points);
+    const finalPath = result[result.length - 1].paths[0].path;
+    const finalDistance = result[result.length - 1].distance;
+
+    expect(finalPath.length).toBe(4);
+    expect(finalDistance).toBeCloseTo(12, 5);
   });
-  // test("should return correct result for a single point", async () => {
-  //   const input = [{ x: 0, y: 0 }];
-  //   const [solution, permutations] = await bruteForceAlgorithm(input);
-  //   expect(solution).toEqual([
-  //     { x: 0, y: 0 },
-  //     { x: 0, y: 0 },
-  //   ]);
-  //   expect(permutations.length).toBe(1);
-  // });
-  // test("should return correct result for two points", async () => {
-  //   const input = [
-  //     { x: 0, y: 0 },
-  //     { x: 1, y: 1 },
-  //   ];
-  //   const [solution, permutations] = await bruteForceAlgorithm(input);
-  //   // expect(solution).toEqual([{ x: 0, y: 0 }, { x: 1, y: 1 }]);
-  //   expect(permutations.length).toBe(2);
-  // });
-  // test("should return correct result for three points", async () => {
-  //   const input = [
-  //     { x: 0, y: 0 },
-  //     { x: 1, y: 1 },
-  //     { x: 2, y: 2 },
-  //   ];
-  //   const [solution, permutations] = await bruteForceAlgorithm(input);
-  //   // expect(solution).toEqual([{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 2 }]);
-  //   expect(permutations.length).toBe(6);
-  // });
-  // test("should return correct result for four points", async () => {
-  //   const input = [
-  //     { x: 0, y: 0 },
-  //     { x: 1, y: 1 },
-  //     { x: 2, y: 2 },
-  //     { x: 3, y: 3 },
-  //   ];
-  //   const [solution, permutations] = await bruteForceAlgorithm(input);
-  //   // expect(solution).toEqual([{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 2 }, { x: 3, y: 3 }]);
-  //   expect(permutations.length).toBe(24);
-  // });
+
+  it("should return all permutations", async () => {
+    const points: Point[] = [
+      { x: 0, y: 0 },
+      { x: 1, y: 1 },
+      { x: 2, y: 2 },
+    ];
+    const result = await bruteForceAlgorithm(points);
+
+    expect(result.length).toBe(7);
+  });
+
+  it("should handle empty input", async () => {
+    const points: Point[] = [];
+    const result = await bruteForceAlgorithm(points);
+
+    expect(result.length).toBe(1);
+    expect(result[0].paths[0].path).toEqual([]);
+    expect(result[0].distance).toBe(0);
+  });
 });

@@ -21,7 +21,7 @@ export const algorithmSetup = (
   setRunningState: (running: boolean) => void,
   resetStats: () => void
 ) => {
-  if (points.length == 0) {
+  if (points.length < 2) {
     setErrorMessage("Please add some points to the screen");
     return;
   }

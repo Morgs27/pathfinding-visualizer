@@ -61,5 +61,49 @@ Live at:
 4. Optionaly add a test to `src/algorithms/__tests__` ~ tests can be ran with `npm run test`
 
 
-
-
+## File Structure
+```
+TSP Visualizer
+│
+├── src/                                 # Source code directory
+│   ├── algorithms/                      # TSP algorithm implementations
+│   │   ├── AntColonyAlgorithm.ts
+│   │   └── __tests__/                   # Algorithm unit tests
+│   │       ├── AntColonyAlgorithm.test.ts
+│   │
+│   ├── components/                      # React components
+│   │   ├── AlgorithmSelector/           # Component for selecting algorithms
+│   │   │   └── AlgorithmSelector.tsx
+│   │   └── Tutorial/                    # Tutorial component
+│   │       └── Tutorial.tsx
+│   │
+│   ├── config/                          # Configuration files
+│   │   ├── Algorithms.ts                # Algorithm configurations
+│   │   ├── Stats.ts                     # Statistics configurations
+│   │   └── variables.css                # Global CSS variables
+│   │
+│   ├── functions/                       # Utility functions
+│   │   ├── draw/                        # Drawing functions
+│   │   ├── helpers.ts                   # General helper functions
+│   │
+│   ├── hooks/                           # Custom React hooks
+│   │
+│   ├── types/                           # TypeScript type definitions
+│   │
+│   ├── utils/                           # Miscellaneous utilities
+│   │
+│   ├── App.css                          # Main application styles
+│   ├── App.tsx                          # Main application component
+│   └── main.tsx                         # Entry point of the application
+│
+├── docs/                                # Built files for deployment
+│   ├── assets/                          # Compiled assets
+│   │   ├── index.87d21cf7.js            # Compiled JavaScript
+│   │   └── index.6014d737.css           # Compiled CSS
+│   └── index.html                       # Production HTML file
+│
+├── index.html                           # Development HTML file
+├── package.json                         # Project dependencies and scripts
+├── README.md                            # This File :) 
+└── tsconfig.json                        # TypeScript configuration
+```

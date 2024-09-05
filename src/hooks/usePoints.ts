@@ -68,7 +68,8 @@ export function usePointsFunctions(
         !(e.target as Element).closest(".button") &&
         !(e.target as Element).closest(".pageCover") &&
         !(e.target as Element).closest(".tutorialModal") &&
-        !(e.target as Element).closest(".stats")
+        !(e.target as Element).closest(".stats") &&
+        !(e.target as Element).closest(".bottom-run")
       ) {
         if (!addingPoint) {
           addingPoint = true;

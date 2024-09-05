@@ -232,6 +232,7 @@ const App = () => {
               value == 0 ? setPoints([]) : addPoints(value)
             }
             clear={true}
+            id="points"
           />
 
           <RunButton
@@ -277,6 +278,7 @@ const App = () => {
               </div>
             }
             options={[]}
+            id="time-complexity"
           />
 
           <Selector
@@ -307,6 +309,7 @@ const App = () => {
                 numIterations: value,
               })
             }
+            id="iterations"
           />
 
           <OptionsSelector

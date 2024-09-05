@@ -145,6 +145,9 @@ export function DynamicModal({ children, open, state, setState }: ModalProps) {
               Skip Tutorial
             </div>
           </div>
+          <div className="pageCounter">
+            {currentPage + 1} / {pages}
+          </div>
         </div>
       </div>
     </>

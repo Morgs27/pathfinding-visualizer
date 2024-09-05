@@ -9,6 +9,7 @@ type SelectorProps = {
   setOption: (value: any) => void;
   clear?: boolean;
   customContent?: React.ReactNode;
+  id?: string;
 };
 
 const Selector = ({
@@ -19,11 +20,12 @@ const Selector = ({
   setOption,
   clear,
   customContent,
+  id,
 }: SelectorProps) => {
   if (!show) return null;
 
   return (
-    <div className="option">
+    <div className="option" id={id}>
       <div className="optionTitle">{title}</div>
       <div className="optionContent">
         {customContent ? (

@@ -1,0 +1,63 @@
+.tutorialModal .page li {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.7em;
+  margin: 20px 0;
+  list-style-type: none;
+  position: relative;
+  padding-left: 1.5em;
+}
+
+.tutorialModal .page li::before {
+  content: "\2022";
+  color: var(--primary);
+  position: absolute;
+  transform: translateX(-1.5em);
+  /* left: 0.5em; */
+}
+
+.tutorialModal .page li::after {
+  content: "\2022";
+  color: var(--primary);
+  position: absolute;
+  transform: translateX(1em);
+  /* left: 0.5em; */
+}
+
+.tutorialModal .page ul {
+  text-align: center;
+  padding-left: 0;
+  margin-top: 40px;
+}
+
+.tutorialModal .page svg {
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 40px;
+  height: 150px;
+  width: 150px;
+}
+
+.tutorialModal .page p {
+  line-height: 1.2;
+  width: 96%;
+  margin: 0 auto;
+}
+
+.tutorialModal .page h3.underline {
+  border-bottom: 1px solid var(--primary);
+  padding-bottom: 30px;
+  width: 80%;
+  margin: 10px auto;
+  margin-bottom: 30px;
+}
+
+.tutorialModal .page a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.tutorial-video {
+  width: 100%;
+  height: 500px;
+  object-fit: contain;
+  border-radius: 10px;
+}

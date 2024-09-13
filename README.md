@@ -17,23 +17,17 @@ Live at:
 
 ###### To run the TSP Visualizer locally, follow these steps:
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/your-username/tsp-visualizer.git
-   cd tsp-visualizer
-   ```
-
-2. Install dependencies:
+1. Install dependencies:
    ```
    npm install
    ```
 
-3. Run the development server:
+2. Run the development server:
    ```
    npm run dev
    ```
 
-4. Open your browser and navigate to `http://localhost:3000` (or the port specified in the console output).
+3. Open your browser and navigate to `http://localhost:3000` (or the port specified in the console output).
 
 ## Adding a New Algorithm
 
